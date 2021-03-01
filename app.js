@@ -10,8 +10,11 @@ const isAuth = require('./middleware/is-auth');
 // const User = require('./models/user');
 
 const sequelize = require('./config/db');
+
+
 const measureRouter = require('./routes/measure')
 const quoteRoute = require('./routes/quote');
+const authRoutes = require('./routes/auth');
 
 const User = require('./models/User');
 const Measure = require('./models/Measure');
@@ -28,8 +31,9 @@ app.use(helmet());
 app.use(morgan('combined', { stream: accessLogStream }));
 app.use(bodyParser.json());
 
-app.use(quoteRoute)
+app.use('/quotes', quoteRoute);
 app.use(measureRouter)
+app.use('/auth', authRoutes);
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

@@ -8,8 +8,25 @@ const User = db.define('user', {
     allowNull: false,
     primaryKey: true
   },
-  name: Sequelize.STRING,
-  email: Sequelize.STRING
+  name: {
+    type: Sequelize.STRING,
+    notNull: true,
+  }, email: {
+    type: Sequelize.STRING,
+    unique: true,
+    validate: {
+      isEmail: {
+        msg: "Must be a valid email address",
+      }
+    },
+    notNull: true,
+  }, password: {
+    type: Sequelize.STRING,
+    required: true
+  },status: {
+    type: Sequelize.DataTypes.ENUM('CREATED', 'DELETED'),
+    defaultValue: 'CREATED'
+  }
 }, {
   schema: 'tbl',
 });
