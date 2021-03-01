@@ -23,12 +23,15 @@ const User = db.define('user', {
   }, password: {
     type: Sequelize.STRING,
     required: true
-  },status: {
+  }, status: {
     type: Sequelize.ENUM('CREATED', 'DELETED'),
     defaultValue: 'CREATED'
   }
 }, {
-  schema: 'tbl',
+  schema: 'tbl'
 });
 
+User.associate = function (models) {
+  User.hasMany(models.Quote);;
+};
 module.exports = User;

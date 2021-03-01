@@ -22,7 +22,11 @@ const Quote = db.define('quotes', {
         notNull: true,
     }
 }, {
-    schema: 'tbl',
+    schema: 'tbl'
 })
+Quote.associate = function (models) {
+    Quote.belongsTo(models.User);
+    Quote.hasMany(models.Measure);
+};
 
 module.exports = Quote;

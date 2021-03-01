@@ -21,8 +21,11 @@ const Measure = db.define('measures', {
         type: Sequelize.STRING,
         notNull: true,
     }
-},{
-    schema: 'tbl',
+}, {
+    schema: 'tbl'
 });
 
+Measure.associate = function (models) {
+    Measure.belongsTo(models.Quote);
+};
 module.exports = Measure;
