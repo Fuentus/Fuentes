@@ -18,6 +18,7 @@ const Quote = db.define('quotes', {
     },
     status: {
         type: Sequelize.ENUM('PENDING', 'ACCEPTED', 'COMPLETED'),
+        defaultValue: 'PENDING',
         notNull: true,
     }
 }, {

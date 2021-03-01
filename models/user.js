@@ -24,7 +24,7 @@ const User = db.define('user', {
     type: Sequelize.STRING,
     required: true
   },status: {
-    type: Sequelize.DataTypes.ENUM('CREATED', 'DELETED'),
+    type: Sequelize.ENUM('CREATED', 'DELETED'),
     defaultValue: 'CREATED'
   }
 }, {
