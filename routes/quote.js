@@ -1,6 +1,6 @@
 const express = require('express')
 const multer = require('multer')
-const Quote = require('../model/Quote') 
+const Quote = require('../models/quote')
 const router = express.Router()
 
 
@@ -9,12 +9,12 @@ const router = express.Router()
 //     try {
 //       const quote = await Quote.findAll()
 //     } catch (e) {
-//       console.log(e) 
+//       console.log(e)
 //     }
-     
+
 // })
 
-//get all quotes - w/ pagination 
+//get all quotes - w/ pagination
 router.get('/quotes', async(req, res) => {
     const { page = 1, limit = 10 } = req.query
     try {
@@ -25,7 +25,7 @@ router.get('/quotes', async(req, res) => {
 
        const count = await Quote.countDocuments();
 
-       res.json({ 
+       res.json({
         quotes,
         totalPages: Math.ceil(count / limit),
         currentPage: page
@@ -39,17 +39,17 @@ router.get('/quotes', async(req, res) => {
 // router.get('/posts', async (req, res) => {
 //     // destructure page and limit and set default values
 //     const { page = 1, limit = 10 } = req.query;
-  
+
 //     try {
 //       // execute query with page and limit values
 //       const posts = await Posts.find()
 //         .limit(limit * 1)
 //         .skip((page - 1) * limit)
 //         .exec();
-  
-//       // get total documents in the Posts collection 
+
+//       // get total documents in the Posts collection
 //       const count = await Posts.countDocuments();
-  
+
 //       // return response with posts, total pages, and current page
 //       res.json({
 //         posts,
@@ -66,10 +66,10 @@ router.get('/quotes/id', async (req, res) => {
     const id = req.params.id;
     try {
        const quote = await Quote.findOne(id)
-       res.status(200).send(quote) 
+       res.status(200).send(quote)
     } catch (e) {
-        console.log(error) 
-        res.status(404).send(e)  
+        console.log(error)
+        res.status(404).send(e)
     }
 })
 
@@ -80,8 +80,8 @@ router.delete('/quotes/id', async(req, res) => {
         const quote = await Quote.destroy(id)
         res.status(200)
     } catch (e) {
-       console.log(e) 
-    }   
+       console.log(e)
+    }
 })
 
 //creating a quote
@@ -99,10 +99,10 @@ router.post('/quotes', async(req, res) => {
 
     try {
        const quote = await Quote.Create({
-          title, desc, status, createdAt 
-       }) 
+          title, desc, status, createdAt
+       })
        res.redirect('/quote')
-    } catch (e) { 
+    } catch (e) {
         console.log(e)
     }
 })
@@ -111,7 +111,7 @@ router.post('/quotes', async(req, res) => {
 router.put('/quotes/id', async (req, res) => {
     const id = req.params.id
 
-    const data = { 
+    const data = {
         title: 'Custom Tools',
         desc: 'is simply dummy text of the printing and typesetti',
         status: 'ACCEPTED',
@@ -119,7 +119,7 @@ router.put('/quotes/id', async (req, res) => {
         modifiedAt : "2012-02-03"
     }
 
-    let { title, desc, status, createdAt, modifiedAt } = data 
+    let { title, desc, status, createdAt, modifiedAt } = data
     try {
         const quote = await Quote.Update({
             title, desc, modifiedAt
@@ -128,7 +128,7 @@ router.put('/quotes/id', async (req, res) => {
     } catch (err) {
         console.log(err)
     }
-     
+
 })
 
 //file upload
@@ -141,22 +141,22 @@ const upload = multer({
         if (!file.originalname.endsWith('.pdf')) {
            return cb(new Error('Only pdf are allowed'))
         }
-        cb(undefined, true) 
+        cb(undefined, true)
     }
 })
 
 router.post('quotes/id/attachments', upload.single('attachments'), (req, res) => {
     // const id = req.params.id
     res.send()
-}) 
+})
 
 //file delete
-router.delete('quotes/id/attachments/:file_name', (req, res) => 
-{ 
+router.delete('quotes/id/attachments/:file_name', (req, res) =>
+{
     try {
         const theFile = 'attachments/' + req.params.file_name;
 
-        var resultHandler = function(err) { 
+        var resultHandler = function(err) {
             if(err) {
             console.log("file delete failed", err);
             return res.status(500).json(err)
@@ -164,7 +164,7 @@ router.delete('quotes/id/attachments/:file_name', (req, res) =>
             console.log("file deleted");
             return res.status(200).send({data: req.params.file_name + ' deleted'});
         }
-        
+
         fs.unlinkSync(theFile, resultHandler);
     } catch (e) {
         console.log(e)

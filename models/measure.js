@@ -1,18 +1,11 @@
 const { Sequelize } = require('sequelize')
 const db = require('../config/db')
 
-const Measures = db.define('quote_measures', {
+const Measure = db.define('measures', {
     id: {
         type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
-        notNull: true,
-        unique: true
-    },
-    quote_id: {
-        type: Sequelize.INTEGER,
-        foreignKey : true,
-        references: 'quote_table',
-        referencesKey: 'quote_id',
         notNull: true,
         unique: true
     },
@@ -28,6 +21,8 @@ const Measures = db.define('quote_measures', {
         type: Sequelize.STRING,
         notNull: true,
     }
-})
+},{
+    schema: 'tbl',
+});
 
-module.exports = Measures;
+module.exports = Measure;

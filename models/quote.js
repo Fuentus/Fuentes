@@ -1,10 +1,11 @@
 const { Sequelize } = require('sequelize')
 const db = require('../config/db')
 
-const Quote = db.define('quote_table', {
+const Quote = db.define('quotes', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
         notNull: true,
         unique: true
     },
@@ -18,16 +19,9 @@ const Quote = db.define('quote_table', {
     status: {
         type: Sequelize.ENUM('PENDING', 'ACCEPTED', 'COMPLETED'),
         notNull: true,
-    },
-    createdAt: {
-        type: Sequelize.DATE,
-        notNull: true,
-        isDate: true
-    },
-    modifiedAt: {
-        type: Sequelize.DATE,
-        isDate: true
     }
+}, {
+    schema: 'tbl',
 })
 
 module.exports = Quote;
