@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
-const sequelize = require('./config/db');
+const db = require('./models');
 
 const measureRouter = require('./routes/measure')
 const quoteRoute = require('./routes/quote');
@@ -48,7 +48,7 @@ app.use((error, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-sequelize
+db.sequelize
   .sync().then(res => {
     app.listen(PORT, () => {
       console.log('running')

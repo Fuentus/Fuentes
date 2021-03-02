@@ -1,31 +1,38 @@
-const { Sequelize } = require('sequelize')
-const db = require('../config/db')
-
-const Measure = db.define('measures', {
-    id: {
+module.exports = function (sequelize, Sequelize) {
+  const Measures = sequelize.define(
+    "Measures",
+    {
+      id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         notNull: true,
-        unique: true
-    },
-    name: {
+        unique: true,
+      },
+      name: {
         type: Sequelize.STRING,
         notNull: true,
-    },
-    unit: {
+      },
+      unit: {
         type: Sequelize.STRING,
         notNull: true,
-    },
-    qty: {
+      },
+      qty: {
         type: Sequelize.STRING,
         notNull: true,
+      },
+    },
+    {
+      schema: "tbl",
     }
-}, {
-    schema: 'tbl'
-});
+  );
 
-Measure.associate = function (models) {
-    Measure.belongsTo(models.Quote);
+  Measures.associate = function (models) {
+    Measures.belongsTo(models.Quotes, {
+      foreignKey: {
+        allowNull: false,
+      },
+    });
+  };
+  return Measures;
 };
-module.exports = Measure;
