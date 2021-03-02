@@ -3,7 +3,6 @@ const db        = {};
 const fs        = require('fs');
 const path      = require('path');
 const basename  = path.basename(module.filename);
-//const sequelize = new Sequelize('mysql://root:5432/quote_table')
 
 const sequelize = new Sequelize(
   `${process.env.MYSQL_DATABASE}`,
