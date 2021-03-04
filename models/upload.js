@@ -33,10 +33,12 @@ module.exports = function (sequelize, Sequelize) {
         }
     );
     Uploads.associate = function (models) {
-        Uploads.belongTo(models.Quotes, {
+        Uploads.belongsTo(models.Quotes, {
             foreignKey: {
                 allowNull: false,
             }
         });
     }
+    return Uploads;
 }
+

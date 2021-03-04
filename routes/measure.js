@@ -30,9 +30,9 @@ router.post('/measure', async (req, res) => {
     }
 })
 
-router.post('/measure/id', measureController.updateMeasuresbyId)
+router.post('/measure/:id', measureController.updateMeasuresbyId)
 
 
-router.delete('/measure/id',  measureController.deleteMeasuresById)
+router.delete('/measure/:id',  measureController.deleteMeasuresById)
 
 module.exports = router

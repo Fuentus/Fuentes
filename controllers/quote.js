@@ -53,11 +53,11 @@ exports.createQuote = async (req, res, next) => {
 };
 
 //TODO
-exports.findQuoteById = async (req, res, next) => {
+exports.findQuoteById = (req, res, next) => {
   const { id } = req.params;
   console.log(id)
     try {
-       const quote = await Quote.findOne(id)
+       const quote = Quote.findOne(id)
        res.status(200).send(quote) 
     } catch (e) {
         console.log(error) 
@@ -66,11 +66,11 @@ exports.findQuoteById = async (req, res, next) => {
 }
 
 //TODO
-exports.deleteQuoteById = async (req, res, next) => {
+exports.deleteQuoteById = (req, res, next) => {
   const { id } = req.params;
   console.log(id)
     try {
-        const quote = await Quote.destroy(id)
+        const quote = Quote.destroy(id)
         res.status(200)
     } catch (e) {
        console.log(e) 

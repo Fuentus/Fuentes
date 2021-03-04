@@ -52,13 +52,13 @@ exports.updateMeasuresbyId = async (req, res) => {
        console.log(e)
     }
     //add new data
-    const data = {
-        id: 123456,
-        quote_id: 1,
-        name: 'Tool',
-        qty: 10,
-        unit: 2,
-    }
+    // const data = {
+    //     id: 123456,
+    //     quote_id: 1,
+    //     name: 'Tool',
+    //     qty: 10,
+    //     unit: 2,
+    // }
 
     let { quote_id, name, qty, unit } = data
 

@@ -4,14 +4,18 @@ const fs        = require('fs');
 const path      = require('path');
 const basename  = path.basename(module.filename);
 
-const sequelize = new Sequelize(
-  `${process.env.MYSQL_DATABASE}`,
-  `${process.env.MYSQL_USER}`,
-  `${process.env.MYSQL_PASS}`,
+const sequelize = new Sequelize('fuentus_db', 'root','root',
   {
-    host: `${process.env.MYSQL_HOST}`,
+    host: 'localhost',
     dialect: "mysql",
   }
+  // `${process.env.MYSQL_DATABASE}` ,
+  // `${process.env.MYSQL_USER}`,
+  // `${process.env.MYSQL_PASS}` ,
+  // {
+  //   host: `${process.env.MYSQL_HOST}`,
+  //   dialect: "mysql",
+  // }
 );
 
 fs.readdirSync(__dirname)

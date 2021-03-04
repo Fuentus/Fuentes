@@ -18,7 +18,7 @@ router.get("/:id", quoteController.findQuoteById);
 router.delete("/:id", quoteController.deleteQuoteById);
 
 //edit a quote
-router.put("/quotes/id", async (req, res) => {
+router.put("/quotes/:id", async (req, res) => {
   const id = req.params.id;
 
   const data = {
