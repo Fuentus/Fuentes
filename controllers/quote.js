@@ -1,9 +1,7 @@
-const { Upload } = require("../models");
-const { Measures } = require("../models");
 const quote = require("../models/quote");
-const upload = require("../models/upload");
-const Quotes = require('../models/quote')
-
+const db = require('../models/index');
+const { response } = require("express");
+const Quotes = db.Quotes;
 
 exports.findAllQuotes = (req, res, next) => {
   const getPagination = (page, size) => {
@@ -64,8 +62,8 @@ exports.createQuote = async (req, res, next) => {
 exports.findQuoteById = (req, res, next) => {
   const { id } = req.params;
     try {
-       Quotes.findOne({ where : { id : id} })
-       res.status(200).send({ message : 'Sucessfull'}) 
+       const quote = Quotes.findOne({ where : { id : id} })
+       res.status(200).send(quote)
     } catch (err) {
         console.log(err) 
         res.status(404).send({ message : 'Error Occured'})
@@ -73,12 +71,11 @@ exports.findQuoteById = (req, res, next) => {
 }
 
 //TODO
-exports.deleteQuoteById = (req, res, next) => {
+exports.deleteQuoteById = async (req, res, next) => {
   const { id } = req.params;
-  console.log(id)
     try {
-        quote.deleteQuoteById()
-        res.status(200).send({ message : 'Retrived'})
+        const quote = await Quotes.destroy({ where : { id : id} })
+        res.sendStatus(200)
         next();
     } catch (err) {
       res.status(404).send({ message: 'Error'})
