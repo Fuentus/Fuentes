@@ -1,9 +1,6 @@
-const { Upload } = require("../models");
-const { Measures } = require("../models");
 const quote = require("../models/quote");
-const upload = require("../models/upload");
-const Quotes = require('../models/quote')
-
+const db = require('../models/index')
+const Quotes = db.Quotes;
 
 exports.findAllQuotes = (req, res, next) => {
   const getPagination = (page, size) => {
