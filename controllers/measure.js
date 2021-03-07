@@ -12,13 +12,8 @@ exports.getMeasures = (req, res, next) => {
 exports.createMeasures = (req, res, next) => {
     const { name, unit, qty } = req.body
     try {
-       let measure = Measures.createMeasures({ 
-            name: name,
-            unit: unit,
-            qty : qty
-        })
+       let measure = req.quote.createMeasures({ name, unit, qty })
        res.status(201).json({ message: "Measurements added"})
-       next()
     } catch (err) {
         console.log(err)
         res.status(404).json({ message: "Error in measures"})
@@ -29,17 +24,17 @@ exports.getMeasuresById = (req, res, next) => {
     const { id } = req.params;
     console.log(id)
     try {
-        const measure = Measures.findOne({ where : {id : id}})
+        const measure = Measures.findOne(id)
         console.log(measure)
     } catch (e) {
         console.log(e)
     }
 }
 
-exports.deleteMeasuresById = async (req, res, next) => {
+exports.deleteMeasuresById = (req, res, next) => {
     const { id } = req.params;
         try {
-            const measure = await Measures.destroy({ where : {id : id}})
+            const measure =  Measures.destroy(id)
             res.status(200)
         } catch (e) {
            console.log(e)
@@ -51,8 +46,8 @@ exports.updateMeasuresbyId = async (req, res) => {
     //wipe existing measures and add new measures
     //wipe
     try {
-        const measure =  Measures.destroy({ where : {id : id}})
-        res.sendStatus(200)
+        const measure =  Measures.destroy(id)
+        res.status(200)
     } catch (e) {
        console.log(e)
     }

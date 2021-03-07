@@ -36,9 +36,9 @@ app.use((req, res, next) => {
 });
 
 app.use('/quotes', quoteRoute);
-app.use('/quotes/measures',measureRouter)
+app.use('/measures',measureRouter)
 app.use('/auth', authRoutes);
-app.use('/quotes/upload', uploadRoute)
+app.use(uploadRoute)
 
 
 app.use((error, req, res, next) => {
