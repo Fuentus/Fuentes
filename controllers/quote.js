@@ -1,5 +1,8 @@
 const { Upload } = require("../models");
 const { Measures } = require("../models");
+const quote = require("../models/quote");
+const upload = require("../models/upload");
+const Quotes = require('../models/quote')
 
 
 exports.findAllQuotes = (req, res, next) => {
@@ -27,23 +30,28 @@ exports.findAllQuotes = (req, res, next) => {
       });
     });
 };
+
 exports.createQuote = async (req, res, next) => {
   const { title, desc } = req.body;
-  const { name, unit, qty } = Measures
-  const { filename, filepath } = Upload
+  const measures = req.body.measures;
+  const uploads = req.body.uploads 
   try {
-    await req.user.createQuote({ 
+    let quote = await req.user.createQuote({ 
       title: title,
       desc: desc,
-      measurements: {
-        name:name, 
-        unit:unit, 
-        qty:qty 
-      }, 
-      upload: {
-        filename,
-        filepath
-      }});
+    });
+    for(let i=0; i < measures.length; i++) {
+      quote.createMeasure({
+        name: measures[i].name,
+        qty: measures[i].qty,
+        unit: measures[i].unit
+      })
+    }
+      quote.createUpload({
+        fileName: uploads.fileName,
+        filePath: uploads.filePath
+      })
+    
     res.status(201).json({ message: "Quote created!" });
     next();
   } catch (err) {
@@ -55,13 +63,12 @@ exports.createQuote = async (req, res, next) => {
 //TODO
 exports.findQuoteById = (req, res, next) => {
   const { id } = req.params;
-  console.log(id)
     try {
-       const quote = Quote.findOne(id)
-       res.status(200).send(quote) 
-    } catch (e) {
-        console.log(error) 
-        res.status(404).send(e)  
+       Quotes.findOne({ where : { id : id} })
+       res.status(200).send({ message : 'Sucessfull'}) 
+    } catch (err) {
+        console.log(err) 
+        res.status(404).send({ message : 'Error Occured'})
     }
 }
 
@@ -70,9 +77,11 @@ exports.deleteQuoteById = (req, res, next) => {
   const { id } = req.params;
   console.log(id)
     try {
-        const quote = Quote.destroy(id)
-        res.status(200)
-    } catch (e) {
-       console.log(e) 
+        quote.deleteQuoteById()
+        res.status(200).send({ message : 'Retrived'})
+        next();
+    } catch (err) {
+      res.status(404).send({ message: 'Error'})
+      console.log(err)
     }   
 }

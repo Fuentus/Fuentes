@@ -12,11 +12,11 @@ exports.getMeasures = (req, res, next) => {
 exports.createMeasures = (req, res, next) => {
     const { name, unit, qty } = req.body
     try {
-       req.quote.createMeasures({ name, unit, qty })
+       let measure = req.quote.createMeasures({ name, unit, qty })
        res.status(201).json({ message: "Measurements added"})
     } catch (err) {
         console.log(err)
-        next()
+        res.status(404).json({ message: "Error in measures"})
     }
 }
 
@@ -59,6 +59,7 @@ exports.updateMeasuresbyId = async (req, res) => {
     //     qty: 10,
     //     unit: 2,
     // }
+ 
 
     let { quote_id, name, qty, unit } = data
 

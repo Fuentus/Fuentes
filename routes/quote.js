@@ -7,7 +7,7 @@ const loadUser = require("../middleware/load-user");
 const quoteController = require("../controllers/quote");
 
 //get all quotes - w/ pagination
-router.get("/", quoteController.findAllQuotes);
+router.get("/", [isAuth, loadUser], quoteController.findAllQuotes);
 //creating a quote
 router.post("/", [isAuth, loadUser], quoteController.createQuote);
 

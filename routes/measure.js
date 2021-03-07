@@ -7,28 +7,11 @@ const router = express.Router();
 
 router.get('/measure', measureController.getMeasures);
 
-router.post('/measure', async (req, res) => {
+// router.get('/measure/hi', (req, res) => {
+//     res.send('hello')
+// });
 
-        const data = {
-            id: 123456,
-            quote_id: 1,
-            name: 'Tool',
-            qty: 10,
-            unit: 2,
-        }
-
-        let { id, quote_id, name, qty, unit } = data
-
-        try {
-           const measure = await Measures.Create({
-              quote_id, name, qty, unit
-           })
-           console.log(measure)
-           res.redirect('/measure')
-    } catch (e) {
-        console.log(e)
-    }
-})
+router.post('/measure', measureController.createMeasures)
 
 router.post('/measure/:id', measureController.updateMeasuresbyId)
 
