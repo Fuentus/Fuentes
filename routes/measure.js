@@ -10,10 +10,6 @@ const router = express.Router();
 
 router.get('/', [isAuth, loadUser], measureController.getMeasures);
 
-// router.get('/measure/hi', (req, res) => {
-//     res.send('hello')
-// });
-
 router.get('/:id', [isAuth, loadUser], measureController.getMeasuresById);
 
 router.post('/', [isAuth, loadUser], measureController.createMeasures)

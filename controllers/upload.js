@@ -1,11 +1,13 @@
 const multer = require("multer");
 const { Uploads } = require("../models");
+const printLog = require("../util/fuentis_util");
 
 exports.findAllUploads = (req, res, next) => {
     res.send('uploads')
 }
 
 exports.createUpload = (req, res, next) => {
+  printLog(`Upload : Inside createUpload`);
     const upload = multer({
         dest: "attachments",
         limits: {
@@ -26,9 +28,11 @@ exports.createUpload = (req, res, next) => {
               console.log(err)
               next()
           }
+          printLog(`Upload : Exit createUpload`);
 }
 
 exports.deleteUpload = (req, res) => {
+  printLog(`Upload : Inside deleteUpload`);
     try {
       const theFile = "attachments/" + req.params.file_name;
   
@@ -45,4 +49,5 @@ exports.deleteUpload = (req, res) => {
     } catch (e) {
       console.log(e);
     }
+    printLog(`Upload : Exit deleteUpload`);
   }

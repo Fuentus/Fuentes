@@ -29,9 +29,11 @@ exports.findAllQuotes = (req, res, next) => {
         message: err.message || "Error occurred while retrieving",
       });
     });
+    printLog(`Quotes : Exit findAllQuotes`);
 };
 
 exports.createQuote = async (req, res, next) => {
+  printLog(`Quotes : Inside createQuote`);
   const { title, desc } = req.body;
   const measures = req.body.measures;
   const uploads = req.body.uploads 
@@ -58,22 +60,33 @@ exports.createQuote = async (req, res, next) => {
     console.log(err);
     next(err);
   }
+  printLog(`Quotes : Exit createQuote`);
 };
 
 //TODO
-exports.findQuoteById = async (req, res, next) => {
+exports.findQuoteById =  (req, res, next) => {
+  printLog(`Quotes : Inside findQuoteById`);
   const { id } = req.params;
-    try {
-       const quote = await Quotes.findOne({ where : { id : id} })
-       res.status(200).send(quote)
-    } catch (err) {
-        console.log(err) 
-        res.status(404).send({ message : 'Error Occured'})
+    const quote = Quotes.findOne({ where : { id : id} })
+     .then((quote) => {
+      res.status(200).send(quote)
+     })
+     .catch((err) => {
+       console.log(err)
+     })
+     printLog(`Quotes : Exit findQuoteById`);
+    // try {
+    //    const quote = await Quotes.findOne({ where : { id : id} })
+    //    res.status(200).send(quote)
+    // } catch (err) {
+    //     console.log(err) 
+    //     res.status(404).send({ message : 'Error Occured'})
+    // }
     }
-}
 
 //TODO
 exports.deleteQuoteById = async (req, res, next) => {
+  printLog(`Quotes : Inside deleteQuoteById`);
   const { id } = req.params;
     try {
         const quote = await Quotes.destroy({ where : { id : id} })
@@ -82,10 +95,13 @@ exports.deleteQuoteById = async (req, res, next) => {
     } catch (err) {
       res.status(404).send({ message: 'Error'})
       console.log(err)
-    }   
+    }  
+    printLog(`Quotes : Exit deleteQuoteById`);
+
 }
 
 exports.editQuoteById = async(req, res, next) => {
+  printLog(`Quotes : Inside editQuoteById`);
   const { id } = req.params;
   const { title, desc } = req.body;
   try {
@@ -98,4 +114,5 @@ exports.editQuoteById = async(req, res, next) => {
   } catch (err) {
     console.log(err)
   }
+  printLog(`Quotes : Exit editQuoteById`);
 }

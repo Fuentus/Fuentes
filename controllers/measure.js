@@ -1,18 +1,21 @@
 const db = require('../models/');
+const printLog = require('../util/fuentis_util');
 const Measures = db.Measures;
 
 
-exports.getMeasures = async (req, res, next) => {
-    console.log('hi')
-    try {
-        const measures = await Measures.findAndCountAll()
+exports.getMeasures = (req, res, next) => {
+    printLog(`Measures : Inside getMeasures`);
+    const measures = Measures.findAndCountAll()
+    .then((measures) => {
         res.status(200).send(measures)
-    } catch (e) {
-        console.log(e)
-    }
+    }).catch((err) => {
+        console.log(err)
+    })
+    printLog(`Measures : Exit getMeasures`);
 }
 
 exports.createMeasures = async(req, res, next) => {
+    printLog(`Measures : Inside createMeasures`);
     const { name, unit, qty } = req.body
     try {
        let measure = await req.quote.createMeasures({ 
@@ -26,19 +29,23 @@ exports.createMeasures = async(req, res, next) => {
         console.log(err)
         res.status(404).json({ message: "Error in measures"})
     }
+    printLog(`Measures : Exit createMeasures`);
 }
 
-exports.getMeasuresById = async (req, res, next) => {
+exports.getMeasuresById = (req, res, next) => {
+    printLog(`Measures : Inside getMeasuresById`);
     const { id } = req.params;
-    try {
-        const measures = await Measures.findOne({ where : {id : id}})
+    const measures = Measures.findOne({ where : {id : id}})
+    .then((measures) => {
         res.status(200).send(measures)
-    } catch (e) {
-        console.log(e)
-    }
+    }).catch((err) => {
+        console.log(err)
+    })
+    printLog(`Measures : Exit getMeasuresById`);
 }
 
 exports.deleteMeasuresById = async (req, res, next) => {
+    printLog(`Measures : Inside deleteMeasuresById`);
     const { id } = req.params;
         try {
             const measure = await Measures.destroy({ where : {id : id}})
@@ -46,9 +53,11 @@ exports.deleteMeasuresById = async (req, res, next) => {
         } catch (e) {
            console.log(e)
         }
+    printLog(`Measures : Exit deleteMeasuresById`);
 }
 
 exports.updateMeasuresbyId = async (req, res) => {
+    printLog(`Measures : Inside updateMeasuresbyId`);
     const { id }  = req.params;
     //wipe existing measures and add new measures
     //wipe
@@ -79,4 +88,5 @@ exports.updateMeasuresbyId = async (req, res) => {
 } catch (e) {
     console.log(e)
 }
+printLog(`Exit : Inside updateMeasuresbyId`);
 }

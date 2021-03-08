@@ -13,6 +13,9 @@ const db = require('./models');
 
 const quoteRoute = require('./routes/quote');
 const authRoutes = require('./routes/auth');
+const inventoryRoute = require('./routes/inventory')
+const operationRoute = require('./routes/operations')
+const projectRoute = require('./routes/project')
 
 const app = express()
 
@@ -43,6 +46,11 @@ app.use((req, res, next) => {
 
 app.use('/quotes', quoteRoute);
 app.use('/auth', authRoutes);
+
+//admin
+app.use('/inventory', inventoryRoute)
+app.use('/operations', operationRoute)
+app.use('/projects', projectRoute)
 
 function assignId (req, res, next) {
   req.id = uuid.v4()
