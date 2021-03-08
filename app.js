@@ -6,13 +6,13 @@ const bodyParser = require('body-parser');
 // const multer = require('multer');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const uuid = require('node-uuid')
 
 const db = require('./models');
 
 
 const quoteRoute = require('./routes/quote');
 const authRoutes = require('./routes/auth');
-const uploadRoute = require('./routes/upload');
 
 const app = express()
 
@@ -21,10 +21,16 @@ const accessLogStream = fs.createWriteStream(
   { flags: 'a' }
 );
 
+morgan.token('id', function getId (req) {
+  return req.id
+})
+
+
+app.use(assignId)
 app.use(helmet());
+app.use(morgan(':id :method :url :response-time'))
 app.use(morgan('combined', { stream: accessLogStream }));
 app.use(bodyParser.json());
-
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
@@ -37,8 +43,11 @@ app.use((req, res, next) => {
 
 app.use('/quotes', quoteRoute);
 app.use('/auth', authRoutes);
-app.use('/quotes/upload', uploadRoute)
 
+function assignId (req, res, next) {
+  req.id = uuid.v4()
+  next()
+}
 
 app.use((error, req, res, next) => {
   console.log(error);

@@ -2,8 +2,10 @@ const quote = require("../models/quote");
 const db = require('../models/index');
 const { response } = require("express");
 const Quotes = db.Quotes;
+const printLog = require("../util/fuentis_util")
 
 exports.findAllQuotes = (req, res, next) => {
+  printLog(`Quotes : Inside findAllQuotes`);
   const getPagination = (page, size) => {
     const limit = size ? +size : 3;
     const offset = page ? page * limit : 0;
