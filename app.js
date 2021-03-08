@@ -9,7 +9,7 @@ const morgan = require('morgan');
 
 const db = require('./models');
 
-const measureRouter = require('./routes/measure')
+
 const quoteRoute = require('./routes/quote');
 const authRoutes = require('./routes/auth');
 const uploadRoute = require('./routes/upload');
@@ -36,7 +36,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/quotes', quoteRoute);
-app.use('/quotes/measures',measureRouter)
 app.use('/auth', authRoutes);
 app.use('/quotes/upload', uploadRoute)
 

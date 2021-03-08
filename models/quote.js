@@ -29,11 +29,11 @@ module.exports = function (sequelize, Sequelize) {
   Quotes.associate = function (models) {
     Quotes.belongsTo(models.Users, {
       foreignKey: {
-        allowNull: false,
+        allowNull: false
       },
     });
-    Quotes.hasMany(models.Measures);
-    Quotes.hasMany(models.Uploads);
+    Quotes.hasMany(models.Measures, { onDelete : 'cascade' , onUpdate: 'cascade'});
+    Quotes.hasMany(models.Uploads, { onDelete : 'cascade' , onUpdate: 'cascade'});
   };
   return Quotes;
 };

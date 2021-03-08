@@ -5,6 +5,7 @@ const measureController = require('../controllers/measure');
 const isAuth = require('../middleware/is-auth');
 const loadUser = require('../middleware/load-user');
 
+
 const router = express.Router();
 
 router.get('/', [isAuth, loadUser], measureController.getMeasures);
@@ -13,11 +14,11 @@ router.get('/', [isAuth, loadUser], measureController.getMeasures);
 //     res.send('hello')
 // });
 
-router.get('/:id', [isAuth, loadUser], measureController.getMeasures);
+router.get('/:id', [isAuth, loadUser], measureController.getMeasuresById);
 
 router.post('/', [isAuth, loadUser], measureController.createMeasures)
 
-router.post('/:id', [isAuth, loadUser],  measureController.updateMeasuresbyId)
+router.put('/:id', [isAuth, loadUser],  measureController.updateMeasuresbyId)
 
 
 router.delete('/:id', [isAuth, loadUser],  measureController.deleteMeasuresById)

@@ -1,18 +1,21 @@
-const { Measures } = require('../models')
+const db = require('../models/');
+const Measures = db.Measures;
 
-exports.getMeasures = (req, res, next) => {
+
+exports.getMeasures = async (req, res, next) => {
+    console.log('hi')
     try {
-        const measure = Measures.findAll()
-        console.log(measure)
+        const measures = await Measures.findAndCountAll()
+        res.status(200).send(measures)
     } catch (e) {
         console.log(e)
     }
 }
 
-exports.createMeasures = (req, res, next) => {
+exports.createMeasures = async(req, res, next) => {
     const { name, unit, qty } = req.body
     try {
-       let measure = Measures.createMeasures({ 
+       let measure = await req.quote.createMeasures({ 
             name: name,
             unit: unit,
             qty : qty
@@ -25,12 +28,11 @@ exports.createMeasures = (req, res, next) => {
     }
 }
 
-exports.getMeasuresById = (req, res, next) => {
+exports.getMeasuresById = async (req, res, next) => {
     const { id } = req.params;
-    console.log(id)
     try {
-        const measure = Measures.findOne({ where : {id : id}})
-        console.log(measure)
+        const measures = await Measures.findOne({ where : {id : id}})
+        res.status(200).send(measures)
     } catch (e) {
         console.log(e)
     }

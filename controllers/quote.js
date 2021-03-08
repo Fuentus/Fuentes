@@ -59,10 +59,10 @@ exports.createQuote = async (req, res, next) => {
 };
 
 //TODO
-exports.findQuoteById = (req, res, next) => {
+exports.findQuoteById = async (req, res, next) => {
   const { id } = req.params;
     try {
-       const quote = Quotes.findOne({ where : { id : id} })
+       const quote = await Quotes.findOne({ where : { id : id} })
        res.status(200).send(quote)
     } catch (err) {
         console.log(err) 
@@ -81,4 +81,19 @@ exports.deleteQuoteById = async (req, res, next) => {
       res.status(404).send({ message: 'Error'})
       console.log(err)
     }   
+}
+
+exports.editQuoteById = async(req, res, next) => {
+  const { id } = req.params;
+  const { title, desc } = req.body;
+  try {
+    const quote = Quotes.findOne({ where : { id : id} })
+    const updated = await quote.updateOne({
+        title: title,
+        desc: desc,
+    })
+    res.status(201).send(updated)
+  } catch (err) {
+    console.log(err)
+  }
 }
