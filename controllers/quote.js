@@ -75,13 +75,6 @@ exports.findQuoteById =  (req, res, next) => {
        console.log(err)
      })
      printLog(`Quotes : Exit findQuoteById`);
-    // try {
-    //    const quote = await Quotes.findOne({ where : { id : id} })
-    //    res.status(200).send(quote)
-    // } catch (err) {
-    //     console.log(err) 
-    //     res.status(404).send({ message : 'Error Occured'})
-    // }
     }
 
 //TODO

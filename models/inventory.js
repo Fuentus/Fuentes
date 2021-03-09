@@ -32,11 +32,6 @@ module.exports = function (sequelize, Sequelize) {
     );
 
   Inventory.associate = function (models) {
-    Inventory.belongsTo(models.Operations, {
-        foreignKey: {
-          allowNull: false,
-        },
-      });
     Inventory.hasMany(models.Operations);
   };
   return Inventory;

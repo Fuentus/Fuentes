@@ -1,9 +1,29 @@
 const multer = require("multer");
-const { Uploads } = require("../models");
+const db = require("../models");
+const Uploads = db.Uploads
 const printLog = require("../util/fuentis_util");
 
 exports.findAllUploads = (req, res, next) => {
-    res.send('uploads')
+  printLog(`Uploads : Inside findAllUploads`);
+  const uploads = Uploads.findAndCountAll()
+  .then((uploads) => {
+    res.status(200).send(uploads)
+  }).catch((err) => {
+      console.log(err)
+  }) 
+  printLog(`Uploads : Exit findAllUploads`);
+}
+
+exports.findOne = (req, res, next) => {
+  printLog(`Uploads : Inside findOne`);
+  const { id } = req.params
+  const uploads = Uploads.findOne({ where : {id : id}})
+  .then((uploads) => {
+    res.status(200).send(uploads)
+  }).catch((err) => {
+      console.log(err)
+  }) 
+  printLog(`Uploads : Exit findOne`);
 }
 
 exports.createUpload = (req, res, next) => {
@@ -20,9 +40,13 @@ exports.createUpload = (req, res, next) => {
           cb(undefined, true);
         },
         });
-        const { filename, filepath } = req.body
+        const { fileName, filePath, QuoteId } = req.body
           try {
-            req.quote.createUpload({ filename, filepath })
+            Uploads.create({ 
+              fileName : fileName, 
+              filePath : filePath, 
+              QuoteId : QuoteId 
+            })
             res.status(201).json({ message: "Uploaded"})
           } catch (err) {
               console.log(err)
@@ -33,21 +57,29 @@ exports.createUpload = (req, res, next) => {
 
 exports.deleteUpload = (req, res) => {
   printLog(`Upload : Inside deleteUpload`);
+    // try {
+    //   const theFile = "attachments/" + req.params.file_name;
+  
+    //   var resultHandler = function (err) {
+    //     if (err) {
+    //       console.log("file delete failed", err);
+    //       return res.status(500).json(err);
+    //     }
+    //     console.log("file deleted");
+    //     return res.status(200).send({ data: req.params.file_name + " deleted" });
+    //   };
+  
+    //   fs.unlinkSync(theFile, resultHandler);
+    // } catch (e) {
+    //   console.log(e);
+    // }
+    const { id } = req.params
     try {
-      const theFile = "attachments/" + req.params.file_name;
-  
-      var resultHandler = function (err) {
-        if (err) {
-          console.log("file delete failed", err);
-          return res.status(500).json(err);
-        }
-        console.log("file deleted");
-        return res.status(200).send({ data: req.params.file_name + " deleted" });
-      };
-  
-      fs.unlinkSync(theFile, resultHandler);
-    } catch (e) {
-      console.log(e);
+      const uploads = Uploads.destroy({where : {id : id}})
+      res.sendStatus(200)
+      next()
+    } catch (err) {
+      console.log(err)
     }
     printLog(`Upload : Exit deleteUpload`);
   }

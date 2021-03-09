@@ -5,9 +5,11 @@ const isAuth = require("../middleware/is-auth");
 const loadUser = require("../middleware/load-user");
 const upload = require("../models/upload");
 
-router.get("/:id", [isAuth, loadUser], uploadController.findAllUploads)
+router.get("/", [isAuth, loadUser], uploadController.findAllUploads)
 
-router.post("/:id", [isAuth, loadUser], uploadController.createUpload)
+router.get("/:id", [isAuth, loadUser], uploadController.findOne)
+
+router.post("/", [isAuth, loadUser], uploadController.createUpload)
 
 router.delete("/:id", [isAuth, loadUser], uploadController.deleteUpload);
 

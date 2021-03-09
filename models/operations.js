@@ -33,7 +33,7 @@ module.exports = function (sequelize, Sequelize) {
               allowNull: false,
             },
           });
-      Operations.hasMany(models.Inventory)
+      // Operations.hasMany(models.Inventory)
     };
     return Operations;
   };

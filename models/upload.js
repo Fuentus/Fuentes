@@ -13,7 +13,7 @@ module.exports = function (sequelize, Sequelize) {
                 type: Sequelize.BLOB
               },
               fileName:{
-                type: Sequelize.INTEGER,
+                type: Sequelize.STRING,
                 notNull: true
               },
               filePath:{
