@@ -16,6 +16,7 @@ const authRoutes = require('./routes/auth');
 const inventoryRoute = require('./routes/inventory')
 const operationRoute = require('./routes/operations')
 const projectRoute = require('./routes/project')
+const workerRoute = require('./routes/worker')
 
 const app = express()
 
@@ -51,6 +52,7 @@ app.use('/auth', authRoutes);
 app.use('/inventory', inventoryRoute)
 app.use('/operations', operationRoute)
 app.use('/projects', projectRoute)
+app.use('/workers', workerRoute)
 
 function assignId (req, res, next) {
   req.id = uuid.v4()

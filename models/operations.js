@@ -38,7 +38,10 @@ module.exports = function (sequelize, Sequelize) {
             },
           });
       // Operations.hasMany(models.Inventory)
+      Operations.hasMany(models.Workers, { onDelete : 'cascade' , onUpdate: 'cascade'});
     };
+
+    
     return Operations;
   };
   
