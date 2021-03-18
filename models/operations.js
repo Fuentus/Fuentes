@@ -21,6 +21,10 @@ module.exports = function (sequelize, Sequelize) {
           type: Sequelize.INTEGER,
           notNull: true,
         },
+        tools_materials: {
+          type: Sequelize.STRING,
+          notNull: true,
+        }
       },
       {
         schema: "tbl",

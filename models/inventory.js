@@ -17,6 +17,11 @@ module.exports = function (sequelize, Sequelize) {
           type: Sequelize.STRING,
           notNull: true,
         },
+        operations_tagged: {
+          type: Sequelize.STRING,
+          allowNull: true,
+          foreignKey: false
+        },
         availability: {
           type: Sequelize.INTEGER,
           notNull: true,
