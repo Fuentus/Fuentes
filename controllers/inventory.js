@@ -29,10 +29,10 @@ exports.getInventory = (req, res, next) => {
         return { limit, offset };
       };
       const getPagingData = (data, page, limit) => {
-        const { count: totalItems, rows: quotes } = data;
+        const { count: totalItems, rows: inventory } = data;
         const currentPage = page ? +page : 0;
         const totalPages = Math.ceil(totalItems / limit);
-        return { totalItems, quotes, totalPages, currentPage };
+        return { totalItems, inventory, totalPages, currentPage };
       };
       const { page, size } = req.query;
       const { limit, offset } = getPagination(page, size);
