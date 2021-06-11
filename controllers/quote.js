@@ -2,7 +2,7 @@ const quote = require("../models/quote");
 const db = require('../models/index');
 const { response } = require("express");
 const Quotes = db.Quotes;
-const printLog = require("../util/fuentis_util")
+const printLog = require("../util/funetus_util")
 
 exports.findAllQuotes = (req, res, next) => {
   printLog(`Quotes : Inside findAllQuotes`);
@@ -36,9 +36,9 @@ exports.createQuote = async (req, res, next) => {
   printLog(`Quotes : Inside createQuote`);
   const { title, desc } = req.body;
   const measures = req.body.measures;
-  const uploads = req.body.uploads 
+  const uploads = req.body.uploads
   try {
-    let quote = await req.user.createQuote({ 
+    let quote = await req.user.createQuote({
       title: title,
       desc: desc,
     });
@@ -53,7 +53,7 @@ exports.createQuote = async (req, res, next) => {
         fileName: uploads.fileName,
         filePath: uploads.filePath
       })
-    
+
     res.status(201).json({ message: "Quote created!" });
     next();
   } catch (err) {
@@ -88,7 +88,7 @@ exports.deleteQuoteById = async (req, res, next) => {
     } catch (err) {
       res.status(404).send({ message: 'Error'})
       console.log(err)
-    }  
+    }
     printLog(`Quotes : Exit deleteQuoteById`);
 
 }

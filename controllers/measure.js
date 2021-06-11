@@ -1,5 +1,5 @@
 const db = require('../models/');
-const printLog = require('../util/fuentis_util');
+const printLog = require('../util/funetus_util');
 const Measures = db.Measures;
 
 
@@ -18,7 +18,7 @@ exports.createMeasures = async(req, res, next) => {
     printLog(`Measures : Inside createMeasures`);
     const { name, unit, qty, QuoteId } = req.body
     try {
-       let measure = await Measures.create({ 
+       let measure = await Measures.create({
             name: name,
             unit: unit,
             qty : qty,
@@ -68,7 +68,7 @@ exports.updateMeasuresbyId = async (req, res) => {
         }
     const { name, unit, qty, QuoteId } = req.body
         try {
-           let measure = await Measures.create({ 
+           let measure = await Measures.create({
                 name: name,
                 unit: unit,
                 qty : qty,
@@ -82,38 +82,3 @@ exports.updateMeasuresbyId = async (req, res) => {
         }
     printLog(`Exit : Inside updateMeasuresbyId`);
 }
-
-// exports.updateMeasuresbyId = async (req, res) => {
-//     printLog(`Measures : Inside updateMeasuresbyId`);
-//     const { id }  = req.params;
-//     //wipe existing measures and add new measures
-//     //wipe
-//     try {
-//         const measure =  Measures.destroy({ where : {id : id}})
-//         res.sendStatus(200)
-//     } catch (e) {
-//        console.log(e)
-//     }
-//     //add new data
-//     // const data = {
-//     //     id: 123456,
-//     //     quote_id: 1,
-//     //     name: 'Tool',
-//     //     qty: 10,
-//     //     unit: 2,
-//     // }
- 
-
-//     let { quote_id, name, qty, unit } = data
-
-//     try {
-//        const measure = await Measures.Create({
-//           quote_id, name, qty, unit
-//        })
-//        console.log(measure)
-//        res.redirect('/measure')
-// } catch (e) {
-//     console.log(e)
-// }
-// printLog(`Exit : Inside updateMeasuresbyId`);
-// }

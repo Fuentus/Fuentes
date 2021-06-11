@@ -1,5 +1,5 @@
 const db = require('../models/');
-const printLog = require('../util/fuentis_util');
+const printLog = require('../util/funetus_util');
 const Projects = db.Projects;
 
 exports.createProject = async (req, res, next) => {
@@ -17,7 +17,7 @@ exports.createProject = async (req, res, next) => {
         res.status(201).json({ message : 'Project Created' })
         next()
     } catch (err) {
-       console.log(err) 
+       console.log(err)
        next(err)
     }
     printLog(`Projects : Exit createProject`);

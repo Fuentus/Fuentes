@@ -41,8 +41,8 @@ module.exports = function (sequelize, Sequelize) {
       }
     );
       Projects.associate = function (models) {
-        
-        Projects.hasMany(models.Workers, { onDelete : 'cascade' , onUpdate: 'cascade'});  
+
+        Projects.hasMany(models.Workers, { onDelete : 'cascade' , onUpdate: 'cascade'});
       };
     return Projects;
   };

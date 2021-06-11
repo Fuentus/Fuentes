@@ -1,5 +1,5 @@
 const db = require('../models/');
-const printLog = require('../util/fuentis_util');
+const printLog = require('../util/funetus_util');
 const Workers = db.Workers;
 
 
@@ -18,7 +18,7 @@ exports.createWorkers = async(req, res, next) => {
     printLog(`Workers : Inside createWorkers`);
     const { w_name, w_email, w_phone, w_address, w_status, p_id, w_operations, OperationId, ProjectId } = req.body
     try {
-       let worker = await Workers.create({ 
+       let worker = await Workers.create({
             w_name: w_name,
             w_email: w_email,
             w_phone : w_phone,
@@ -64,7 +64,6 @@ exports.deleteWorkersById = async (req, res, next) => {
 
 exports.updateWorkersbyId = async (req, res) => {
     printLog(`Workers : Inside updateWorkersbyId`);
-    
+
     printLog(`Workers : Exit updateWorkersbyId`);
 }
-

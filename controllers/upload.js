@@ -1,7 +1,7 @@
 const multer = require("multer");
 const db = require("../models");
 const Uploads = db.Uploads
-const printLog = require("../util/fuentis_util");
+const printLog = require("../util/funetus_util");
 
 exports.findAllUploads = (req, res, next) => {
   printLog(`Uploads : Inside findAllUploads`);
@@ -10,7 +10,7 @@ exports.findAllUploads = (req, res, next) => {
     res.status(200).send(uploads)
   }).catch((err) => {
       console.log(err)
-  }) 
+  })
   printLog(`Uploads : Exit findAllUploads`);
 }
 
@@ -22,7 +22,7 @@ exports.findOne = (req, res, next) => {
     res.status(200).send(uploads)
   }).catch((err) => {
       console.log(err)
-  }) 
+  })
   printLog(`Uploads : Exit findOne`);
 }
 
@@ -42,10 +42,10 @@ exports.createUpload = (req, res, next) => {
         });
         const { fileName, filePath, QuoteId } = req.body
           try {
-            Uploads.create({ 
-              fileName : fileName, 
-              filePath : filePath, 
-              QuoteId : QuoteId 
+            Uploads.create({
+              fileName : fileName,
+              filePath : filePath,
+              QuoteId : QuoteId
             })
             res.status(201).json({ message: "Uploaded"})
           } catch (err) {
@@ -59,7 +59,7 @@ exports.deleteUpload = (req, res) => {
   printLog(`Upload : Inside deleteUpload`);
     // try {
     //   const theFile = "attachments/" + req.params.file_name;
-  
+
     //   var resultHandler = function (err) {
     //     if (err) {
     //       console.log("file delete failed", err);
@@ -68,7 +68,7 @@ exports.deleteUpload = (req, res) => {
     //     console.log("file deleted");
     //     return res.status(200).send({ data: req.params.file_name + " deleted" });
     //   };
-  
+
     //   fs.unlinkSync(theFile, resultHandler);
     // } catch (e) {
     //   console.log(e);

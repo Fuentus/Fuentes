@@ -1,5 +1,5 @@
 const db = require('../models/');
-const printLog = require('../util/fuentis_util');
+const printLog = require('../util/funetus_util');
 const Operations = db.Operations;
 
 exports.createOperation = async (req, res, next) => {
@@ -73,7 +73,7 @@ exports.deleteOperation = async (req, res, next) => {
         next()
     }
     printLog(`Operations : Exit deleteOperation`);
-} 
+}
 
 exports.updateOperation = (req, res, next) => {
     printLog(`Operations : Inside updateOperation`);

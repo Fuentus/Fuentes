@@ -7,17 +7,9 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const uuid = require('node-uuid')
+const compression = require('compression');
 
 const db = require('./models');
-
-
-const quoteRoute = require('./routes/quote');
-const authRoutes = require('./routes/auth');
-const inventoryRoute = require('./routes/inventory')
-const operationRoute = require('./routes/operations')
-const projectRoute = require('./routes/project')
-const workerRoute = require('./routes/worker')
-
 const app = express()
 
 const accessLogStream = fs.createWriteStream(
@@ -32,6 +24,7 @@ morgan.token('id', function getId (req) {
 
 app.use(assignId)
 app.use(helmet());
+app.use(compression());
 app.use(morgan(':id :method :url :response-time'))
 app.use(morgan('combined', { stream: accessLogStream }));
 app.use(bodyParser.json());
@@ -44,6 +37,13 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
+
+const quoteRoute = require('./routes/quote');
+const authRoutes = require('./routes/auth');
+const inventoryRoute = require('./routes/inventory')
+const operationRoute = require('./routes/operations')
+const projectRoute = require('./routes/project')
+const workerRoute = require('./routes/worker')
 
 app.use('/quotes', quoteRoute);
 app.use('/auth', authRoutes);
