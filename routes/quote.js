@@ -8,12 +8,14 @@ const quoteController = require("../controllers/quote");
 const measureRouter = require('./measure')
 const uploadRoute = require('./upload');
 
+const quoteValidator = require('./validators/quotes/validateCreateQuotes');
+
 router.use('/measures',measureRouter)
 router.use('/upload', uploadRoute)
 //get all quotes - w/ pagination
 router.get("/", [isAuth, loadUser], quoteController.findAllQuotes);
 //creating a quote
-router.post("/", [isAuth, loadUser], quoteController.createQuote);
+router.post("/", [isAuth, loadUser, quoteValidator], quoteController.createQuote);
 
 //get single quote
 router.get("/:id", [isAuth, loadUser], quoteController.findQuoteById);

@@ -1,6 +1,8 @@
 const quote = require("../models/quote");
 const db = require('../models/index');
 const { response } = require("express");
+const { validationResult } = require('express-validator');
+
 const Quotes = db.Quotes;
 const printLog = require("../util/funetus_util")
 
@@ -19,7 +21,22 @@ exports.findAllQuotes = (req, res, next) => {
   };
   const { page, size } = req.query;
   const { limit, offset } = getPagination(page, size);
-  Quotes.findAndCountAll({ where: null, limit, offset })
+
+  Quotes.findAndCountAll({
+    where: null,
+    attributes: ["id","title", "desc", "status", "createdAt", "updatedAt"],
+    include: [
+      {
+        model: db.Users,
+        attributes: ["id", "name"]
+      },
+      {
+        model: db.Uploads,
+        attributes: ["fileName", "filePath"]
+      }
+    ],
+    limit, offset
+  })
     .then((data) => {
       const response = getPagingData(data, page, limit);
       res.send(response);
@@ -29,30 +46,40 @@ exports.findAllQuotes = (req, res, next) => {
         message: err.message || "Error occurred while retrieving",
       });
     });
-    printLog(`Quotes : Exit findAllQuotes`);
+  printLog(`Quotes : Exit findAllQuotes`);
 };
 
 exports.createQuote = async (req, res, next) => {
-  printLog(`Quotes : Inside createQuote`);
-  const { title, desc } = req.body;
-  const measures = req.body.measures;
-  const uploads = req.body.uploads
   try {
+    printLog(`Quotes : Inside createQuote`);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = new Error('Validation failed.');
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+    const { title, desc } = req.body;
+    const measures = req.body.measures;
+    const uploads = req.body.uploads
+
     let quote = await req.user.createQuote({
       title: title,
       desc: desc,
     });
-    for(let i=0; i < measures.length; i++) {
+    for (let i = 0; i < measures.length; i++) {
       quote.createMeasure({
         name: measures[i].name,
         qty: measures[i].qty,
         unit: measures[i].unit
       })
     }
+    if (uploads) {
       quote.createUpload({
         fileName: uploads.fileName,
         filePath: uploads.filePath
-      })
+      });
+    }
 
     res.status(201).json({ message: "Quote created!" });
     next();
@@ -64,44 +91,44 @@ exports.createQuote = async (req, res, next) => {
 };
 
 //TODO
-exports.findQuoteById =  (req, res, next) => {
+exports.findQuoteById = (req, res, next) => {
   printLog(`Quotes : Inside findQuoteById`);
   const { id } = req.params;
-    const quote = Quotes.findOne({ where : { id : id} })
-     .then((quote) => {
+  const quote = Quotes.findOne({ where: { id: id } })
+    .then((quote) => {
       res.status(200).send(quote)
-     })
-     .catch((err) => {
-       console.log(err)
-     })
-     printLog(`Quotes : Exit findQuoteById`);
-    }
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  printLog(`Quotes : Exit findQuoteById`);
+}
 
 //TODO
 exports.deleteQuoteById = async (req, res, next) => {
   printLog(`Quotes : Inside deleteQuoteById`);
   const { id } = req.params;
-    try {
-        const quote = await Quotes.destroy({ where : { id : id} })
-        res.sendStatus(200)
-        next();
-    } catch (err) {
-      res.status(404).send({ message: 'Error'})
-      console.log(err)
-    }
-    printLog(`Quotes : Exit deleteQuoteById`);
+  try {
+    const quote = await Quotes.destroy({ where: { id: id } })
+    res.sendStatus(200)
+    next();
+  } catch (err) {
+    res.status(404).send({ message: 'Error' })
+    console.log(err)
+  }
+  printLog(`Quotes : Exit deleteQuoteById`);
 
 }
 
-exports.editQuoteById = async(req, res, next) => {
+exports.editQuoteById = async (req, res, next) => {
   printLog(`Quotes : Inside editQuoteById`);
   const { id } = req.params;
   const { title, desc } = req.body;
   try {
-    const quote = Quotes.findOne({ where : { id : id} })
+    const quote = Quotes.findOne({ where: { id: id } })
     const updated = await quote.updateOne({
-        title: title,
-        desc: desc,
+      title: title,
+      desc: desc,
     })
     res.status(201).send(updated)
   } catch (err) {
