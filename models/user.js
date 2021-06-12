@@ -30,6 +30,10 @@ module.exports = function (sequelize, Sequelize) {
         type: Sequelize.ENUM("CREATED", "DELETED"),
         defaultValue: "CREATED",
       },
+      role: {
+        type: Sequelize.ENUM("ADMIN", "USER"),
+        defaultValue: "USER",
+      }
     },
     {
       schema: "tbl",

@@ -1,10 +1,11 @@
 const quote = require("../models/quote");
-const db = require('../models/index');
+const db = require("../models/index");
+const { Op } = require("sequelize");
 const { response } = require("express");
-const { validationResult } = require('express-validator');
+const { validationResult } = require("express-validator");
 
 const Quotes = db.Quotes;
-const printLog = require("../util/funetus_util")
+const printLog = require("../util/funetus_util");
 
 exports.findAllQuotes = (req, res, next) => {
   printLog(`Quotes : Inside findAllQuotes`);
@@ -19,23 +20,31 @@ exports.findAllQuotes = (req, res, next) => {
     const totalPages = Math.ceil(totalItems / limit);
     return { totalItems, quotes, totalPages, currentPage };
   };
+
   const { page, size } = req.query;
   const { limit, offset } = getPagination(page, size);
-
+  let { updatedAt } = req.query;
+  updatedAt = updatedAt ? updatedAt : 0;
+  const whereClause = { updatedAt: { [Op.gt]: updatedAt } };
+  if (!req.admin) {
+    whereClause["userId"] = { [Op.eq]: req.user.id };
+  }
+  console.log(whereClause);
   Quotes.findAndCountAll({
-    where: null,
-    attributes: ["id","title", "desc", "status", "createdAt", "updatedAt"],
+    where: whereClause,
+    attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt"],
     include: [
       {
         model: db.Users,
-        attributes: ["id", "name"]
+        attributes: ["name", "email"],
       },
       {
         model: db.Uploads,
-        attributes: ["fileName", "filePath"]
-      }
+        attributes: ["fileName", "filePath"],
+      },
     ],
-    limit, offset
+    limit,
+    offset,
   })
     .then((data) => {
       const response = getPagingData(data, page, limit);
@@ -54,14 +63,14 @@ exports.createQuote = async (req, res, next) => {
     printLog(`Quotes : Inside createQuote`);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      const error = new Error('Validation failed.');
+      const error = new Error("Validation failed.");
       error.statusCode = 422;
       error.data = errors.array();
       throw error;
     }
     const { title, desc } = req.body;
     const measures = req.body.measures;
-    const uploads = req.body.uploads
+    const uploads = req.body.uploads;
 
     let quote = await req.user.createQuote({
       title: title,
@@ -71,13 +80,13 @@ exports.createQuote = async (req, res, next) => {
       quote.createMeasure({
         name: measures[i].name,
         qty: measures[i].qty,
-        unit: measures[i].unit
-      })
+        unit: measures[i].unit,
+      });
     }
     if (uploads) {
       quote.createUpload({
         fileName: uploads.fileName,
-        filePath: uploads.filePath
+        filePath: uploads.filePath,
       });
     }
 
@@ -90,49 +99,74 @@ exports.createQuote = async (req, res, next) => {
   printLog(`Quotes : Exit createQuote`);
 };
 
-//TODO
-exports.findQuoteById = (req, res, next) => {
-  printLog(`Quotes : Inside findQuoteById`);
-  const { id } = req.params;
-  const quote = Quotes.findOne({ where: { id: id } })
-    .then((quote) => {
-      res.status(200).send(quote)
-    })
-    .catch((err) => {
-      console.log(err)
-    })
+exports.findQuoteById = async (req, res, next) => {
+  try {
+    printLog(`Quotes : Inside findQuoteById`);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = new Error("Validation failed.");
+      error.statusCode = 408;
+      error.data = errors.array();
+      throw error;
+    }
+    const { id } = req.params;
+    const whereClause = { id: id };
+    if (!req.admin) {
+      whereClause["userId"] = { [Op.eq]: req.user.id };
+    }
+    const quote = await Quotes.findOne({
+      where: whereClause,
+      attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt"],
+      include: [
+        {
+          model: db.Users,
+          attributes: ["name", "email"],
+        },
+        {
+          model: db.Uploads,
+          attributes: ["fileDocument", "fileName", "filePath"],
+        },
+        {
+          model: db.Measures,
+          attributes: ["name", "unit", "qty"],
+        },
+      ],
+    }) || {};
+    res.status(200).send(quote);
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
   printLog(`Quotes : Exit findQuoteById`);
-}
+};
 
-//TODO
 exports.deleteQuoteById = async (req, res, next) => {
   printLog(`Quotes : Inside deleteQuoteById`);
   const { id } = req.params;
   try {
-    const quote = await Quotes.destroy({ where: { id: id } })
-    res.sendStatus(200)
+    const quote = await Quotes.destroy({ where: { id: id } });
+    res.sendStatus(200);
     next();
   } catch (err) {
-    res.status(404).send({ message: 'Error' })
-    console.log(err)
+    res.status(404).send({ message: "Error" });
+    console.log(err);
   }
   printLog(`Quotes : Exit deleteQuoteById`);
-
-}
+};
 
 exports.editQuoteById = async (req, res, next) => {
   printLog(`Quotes : Inside editQuoteById`);
   const { id } = req.params;
   const { title, desc } = req.body;
   try {
-    const quote = Quotes.findOne({ where: { id: id } })
+    const quote = Quotes.findOne({ where: { id: id } });
     const updated = await quote.updateOne({
       title: title,
       desc: desc,
-    })
-    res.status(201).send(updated)
+    });
+    res.status(201).send(updated);
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
   printLog(`Quotes : Exit editQuoteById`);
-}
+};

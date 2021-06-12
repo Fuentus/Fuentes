@@ -4,6 +4,10 @@ const { body } = require("express-validator");
 const { Users } = require("../models");
 const authController = require("../controllers/auth");
 
+const isAuth = require("../middleware/is-auth");
+const loadUser = require("../middleware/load-user");
+const adminRoutes = require("../middleware/admin-routes");
+
 const router = express.Router();
 
 const signUpValidator = [
@@ -27,7 +31,12 @@ const signUpValidator = [
 
 router.put("/signup", signUpValidator, authController.signup);
 
-router.post("/login", authController.login);
+router.put(
+  "/createAdmin",
+  [signUpValidator, isAuth, loadUser, adminRoutes],
+  authController.createAdminUser
+);
 
+router.post("/login", authController.login);
 
 module.exports = router;
