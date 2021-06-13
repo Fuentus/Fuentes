@@ -12,7 +12,7 @@ const {
   validateReq,
   quoteCreateValidator,
   adminPrivilege,
-  checkUserPrivilegeOfQuote
+  checkUserPrivilegeOfQuote,
 } = require("./validators/quotes/validateQuotes");
 
 router.use("/measures", measureRouter);
@@ -29,7 +29,7 @@ router.post(
 //Approve quote
 router.post(
   "/:id/changeStatus",
-  [isAuth, loadUser, validateReq,adminPrivilege],
+  [isAuth, loadUser, validateReq, adminPrivilege],
   quoteController.changeStatus
 );
 
@@ -41,9 +41,24 @@ router.get(
 );
 
 //delete a quote
-router.delete("/:id", [isAuth, loadUser,validateReq,checkUserPrivilegeOfQuote], quoteController.deleteQuoteById);
+router.delete(
+  "/:id",
+  [isAuth, loadUser, validateReq, checkUserPrivilegeOfQuote],
+  quoteController.deleteQuoteById
+);
 
 //edit a quote
-router.put("/:id", [isAuth, loadUser,validateReq,checkUserPrivilegeOfQuote], quoteController.editQuoteById);
+router.put(
+  "/:id",
+  [isAuth, loadUser, validateReq, checkUserPrivilegeOfQuote],
+  quoteController.editQuoteById
+);
+
+//edit a quote
+router.post(
+  "/search",
+  [isAuth, loadUser],
+  quoteController.searchResults
+);
 
 module.exports = router;

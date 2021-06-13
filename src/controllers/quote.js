@@ -33,53 +33,67 @@ const fetchQuoteByClause = async (whereClause) => {
   );
 };
 
+const getPagination = (page, size) => {
+  const limit = size ? +size : 3;
+  const offset = page ? page * limit : 0;
+  return { limit, offset };
+};
+const getPagingData = (data, page, limit) => {
+  const { count: totalItems, rows: quotes } = data;
+  const currentPage = page ? +page : 0;
+  const totalPages = Math.ceil(totalItems / limit);
+  return { totalItems, quotes, totalPages, currentPage };
+};
+
+const getAllQuotes = (obj,whereClause,success,failure) =>{
+  const {limit,offset} = obj;
+  Quotes.findAndCountAll({
+    where: whereClause,
+    attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt"],
+    include: [
+      {
+        model: Users,
+        attributes: ["name", "email"],
+      },
+      {
+        model: Uploads,
+        attributes: ["fileName", "filePath"],
+      },
+    ],
+    order: [
+        ['updatedAt', 'DESC'],
+    ],
+    limit,
+    offset,
+  })
+    .then((data) => {
+      success(data);
+    })
+    .catch((err) => {
+      failure(err);
+    });
+};
+
 exports.findAllQuotes = (req, res) => {
   printLog(`Quotes : Inside findAllQuotes`);
-  const getPagination = (page, size) => {
-    const limit = size ? +size : 3;
-    const offset = page ? page * limit : 0;
-    return { limit, offset };
-  };
-  const getPagingData = (data, page, limit) => {
-    const { count: totalItems, rows: quotes } = data;
-    const currentPage = page ? +page : 0;
-    const totalPages = Math.ceil(totalItems / limit);
-    return { totalItems, quotes, totalPages, currentPage };
-  };
-
-  const { page, size } = req.query;
-  const { limit, offset } = getPagination(page, size);
   let { updatedAt } = req.query;
   updatedAt = updatedAt ? updatedAt : 0;
   const whereClause = { updatedAt: { [Op.gt]: updatedAt } };
   if (!req.admin) {
     whereClause["userId"] = { [Op.eq]: req.user.id };
   }
-  Quotes.findAndCountAll({
-    where: whereClause,
-    attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt"],
-    include: [
-      {
-        model: db.Users,
-        attributes: ["name", "email"],
-      },
-      {
-        model: db.Uploads,
-        attributes: ["fileName", "filePath"],
-      },
-    ],
-    limit,
-    offset,
-  })
-    .then((data) => {
-      const response = getPagingData(data, page, limit);
-      res.send(response);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Error occurred while retrieving",
-      });
+  const { page, size } = req.query;
+  const obj = getPagination(page, size);
+  const failure = (err) =>{
+    res.status(500).send({
+      message: err.message || "Error occurred while retrieving",
     });
+  };
+  const success = (data) =>{
+    const response = getPagingData(data, page, obj.limit);
+    res.send(response);
+  };
+  getAllQuotes(obj,whereClause,success,failure)
   printLog(`Quotes : Exit findAllQuotes`);
 };
 
@@ -129,7 +143,6 @@ exports.createQuote = async (req, res, next) => {
       return quote;
     });
     res.status(201).json({ message: "Quote created!", data: result });
-    next();
   } catch (err) {
     console.log(err);
     next(err);
@@ -267,4 +280,31 @@ exports.changeStatus = (req, res, next) => {
     next(err);
   }
   printLog(`Quotes : Exit changeStatus of Quote`);
+};
+
+exports.searchResults = async (req, res, next) => {
+  try {
+    printLog(`Quotes : searchResults`);
+    const { search } = req.body;
+    const whereClause = { title: { [Op.like]: `%${search}%` } };
+    if (!req.admin) {
+      whereClause["userId"] = { [Op.eq]: req.user.id };
+    }
+    const obj = {limit:100,offset:0};
+    const failure = (err) =>{
+      res.status(500).send({
+        message: err.message || "Error occurred while retrieving",
+      });
+    };
+    const success = (data) =>{
+      const response = getPagingData(data, 0, obj.limit);
+      res.send(response);
+    };
+
+    getAllQuotes(obj,whereClause,success,failure)
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+  printLog(`Quotes : Exit searchResults`);
 };
