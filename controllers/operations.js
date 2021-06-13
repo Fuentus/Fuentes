@@ -1,5 +1,5 @@
 const db = require('../models/');
-const printLog = require('../util/funetus_util');
+const printLog = require('../util/fuentus_util');
 const Operations = db.Operations;
 
 exports.createOperation = async (req, res, next) => {

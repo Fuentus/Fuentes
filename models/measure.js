@@ -28,11 +28,7 @@ module.exports = function (sequelize, Sequelize) {
   );
 
   Measures.associate = function (models) {
-    Measures.belongsTo(models.Quotes, {
-      foreignKey: {
-        allowNull: false,
-      },
-    });
+    Measures.belongsTo(models.Quotes);
   };
   return Measures;
 };

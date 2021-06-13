@@ -1,4 +1,7 @@
 const { param, body } = require("express-validator");
+const { QUOTE_STATUS } = require('../../../util/fuentus_constants');
+const db = require("../../../models/index");
+const Quotes = db.Quotes;
 
 const quoteCreateValidator = [
   body("title")
@@ -16,10 +19,37 @@ const quoteCreateValidator = [
 
 
 const validateReq = [
-    param("id",'Enter a valid Id').isFloat()
+  param("id", 'Enter a valid Id').isFloat()
 ];
 
+const adminPrivilege = (req, res, next) => {
+  if (req.admin) {
+    next();
+  } else {
+    res.status(401).send({ message: "Insufficient Privilege" });
+  }
+};
+const checkUserPrivilegeOfQuote = (req, res, next) => {
+  const { id } = req.params;
+  Quotes.findOne({ where: { id: id } }).then((val) => {
+    if (val) {
+      const data = val.dataValues;
+      const user = req.user.dataValues;
+      if (req.admin) {
+        next();
+      } else if (data.UserId === user.id && data.status === QUOTE_STATUS[0]) {
+        next()
+      } else {
+        res.status(401).send({ message: "Insufficient Privilege" });
+      }
+    }else{
+      next();
+    }
+  })
+};
 module.exports = {
   quoteCreateValidator: quoteCreateValidator,
   validateReq: validateReq,
+  adminPrivilege: adminPrivilege,
+  checkUserPrivilegeOfQuote: checkUserPrivilegeOfQuote
 };

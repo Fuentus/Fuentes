@@ -1,3 +1,5 @@
+const { QUOTE_STATUS } = require('../util/fuentus_constants');
+
 module.exports = function (sequelize, Sequelize) {
   const Quotes = sequelize.define(
     "Quotes",
@@ -17,7 +19,8 @@ module.exports = function (sequelize, Sequelize) {
         type: Sequelize.STRING,
       },
       status: {
-        type: Sequelize.ENUM("PENDING", "ACCEPTED", "COMPLETED"),
+        type: Sequelize.ENUM,
+        values: QUOTE_STATUS,
         defaultValue: "PENDING",
         notNull: true,
       },
