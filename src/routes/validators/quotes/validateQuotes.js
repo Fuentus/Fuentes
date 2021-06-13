@@ -43,7 +43,7 @@ const checkUserPrivilegeOfQuote = (req, res, next) => {
         res.status(401).send({ message: "Insufficient Privilege" });
       }
     }else{
-      next();
+      res.status(200).send({});
     }
   })
 };

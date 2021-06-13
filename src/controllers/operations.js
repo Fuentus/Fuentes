@@ -1,4 +1,4 @@
-const db = require('../models/');
+const db = require('../models');
 const printLog = require('../util/fuentus_util');
 const Operations = db.Operations;
 
