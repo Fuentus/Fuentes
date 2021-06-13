@@ -3,7 +3,7 @@ module.exports = (req, res, next) => {
   if(user.role === "ADMIN"){
     next();
   }else {
-    const error = new Error('No Previlege');
+    const error = new Error('No Privilege');
     error.statusCode = 404;
     throw error;
   }

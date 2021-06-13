@@ -1,7 +1,5 @@
 const Sequelize = require("sequelize");
 const db = {};
-console.log('Hello ');
-console.log(`start ${process.env.MYSQL_DATABASE}`);
 const fs = require('fs');
 const path = require('path');
 const basename = path.basename(module.filename);

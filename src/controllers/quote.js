@@ -1,7 +1,5 @@
-const quote = require("../models/quote");
 const db = require("../models/index");
 const { Op } = require("sequelize");
-const { response } = require("express");
 const { validationResult } = require("express-validator");
 
 const Quotes = db.Quotes;
@@ -35,7 +33,7 @@ const fetchQuoteByClause = async (whereClause) => {
   );
 };
 
-exports.findAllQuotes = (req, res, next) => {
+exports.findAllQuotes = (req, res) => {
   printLog(`Quotes : Inside findAllQuotes`);
   const getPagination = (page, size) => {
     const limit = size ? +size : 3;

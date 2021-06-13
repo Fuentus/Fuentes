@@ -3,8 +3,6 @@ const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const dotEnv = require('dotenv');
-dotEnv.config({ debug: process.env.DEBUG });
 // const multer = require('multer');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -60,7 +58,7 @@ function assignId (req, res, next) {
   next()
 }
 
-app.use((error, req, res, next) => {
+app.use((error, req, res) => {
   const status = error.statusCode || 500;
   const message = error.message;
   const data = error.data;
@@ -69,7 +67,7 @@ app.use((error, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 db.sequelize
-  .sync().then(res => {
+  .sync().then(() => {
     app.listen(PORT, () => {
       console.log('running')
     })
