@@ -7,8 +7,8 @@
     "node": "12.14.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/app.js",
+    "test": "mocha test/api_test",
+    "start": "node src/app.js",
     "start-server": "node src/app.js",
     "start:dev": "nodemon src/app.js"
   },
@@ -17,8 +17,9 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "compression": "^1.7.3",
     "body-parser": "^1.19.0",
+    "compression": "^1.7.3",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-validator": "^6.10.0",
     "helmet": "^4.4.1",
@@ -30,6 +31,9 @@
     "sequelize": "^6.5.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "chai": "^3.5.0",
+    "chai-http": "^2.0.1",
+    "mocha": "^2.4.5"
   }
 }

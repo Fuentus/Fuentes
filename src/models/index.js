@@ -1,15 +1,17 @@
 const Sequelize = require("sequelize");
 const db = {};
+console.log('Hello ');
+console.log(`start ${process.env.MYSQL_DATABASE}`);
 const fs = require('fs');
 const path = require('path');
 const basename = path.basename(module.filename);
-
 const sequelize = new Sequelize(
   `${process.env.MYSQL_DATABASE}`,
   `${process.env.MYSQL_USER}`,
   `${process.env.MYSQL_PASS}`,
   {
     host: `${process.env.MYSQL_HOST}`,
+    port: '3306',
     dialect: "mysql",
     pool: {
       max: 5,

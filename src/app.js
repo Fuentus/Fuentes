@@ -3,17 +3,18 @@ const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const dotEnv = require('dotenv');
+dotEnv.config({ debug: process.env.DEBUG });
 // const multer = require('multer');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const uuid = require('node-uuid')
 const compression = require('compression');
-
 const db = require('./models');
 const app = express()
 
 const accessLogStream = fs.createWriteStream(
-  path.join(__dirname, 'access.log'),
+  path.join(__dirname, '../access.log'),
   { flags: 'a' }
 );
 
@@ -75,3 +76,5 @@ db.sequelize
   }).catch(err => {
     console.log(err);
   });
+
+module.exports = app;
