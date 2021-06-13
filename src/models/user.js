@@ -37,6 +37,7 @@ module.exports = function (sequelize, Sequelize) {
     },
     {
       schema: "tbl",
+      paranoid: true
     }
   );
 
