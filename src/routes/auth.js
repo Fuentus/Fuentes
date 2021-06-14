@@ -6,7 +6,7 @@ const authController = require("../controllers/auth");
 
 const isAuth = require("../middleware/is-auth");
 const loadUser = require("../middleware/load-user");
-const adminRoutes = require("../middleware/admin-routes");
+const { adminRoutes } = require("../validators/user-validator");
 
 const router = express.Router();
 

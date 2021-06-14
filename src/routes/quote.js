@@ -13,7 +13,7 @@ const {
   quoteCreateValidator,
   adminPrivilege,
   checkUserPrivilegeOfQuote,
-} = require("./validators/quotes/validateQuotes");
+} = require("../validators/quote-validator");
 
 router.use("/measures", measureRouter);
 router.use("/upload", uploadRoute);

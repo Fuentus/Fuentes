@@ -1,6 +1,6 @@
 const { param, body } = require("express-validator");
-const { QUOTE_STATUS } = require('../../../util/fuentus_constants');
-const db = require("../../../models/index");
+const { QUOTE_STATUS } = require('../util/fuentus_constants');
+const db = require("../models/index");
 const Quotes = db.Quotes;
 
 const quoteCreateValidator = [
