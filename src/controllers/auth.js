@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { Users } = require("../models");
 
 exports.signup = (req, res, next) => {
+  try{
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new Error("Validation failed.");
@@ -34,8 +35,11 @@ exports.signup = (req, res, next) => {
       if (!err.statusCode) {
         err.statusCode = 500;
       }
-      next(err);
+      res.status(err.statusCode).json({message: err.message});
     });
+  }catch(err){
+    throw err;
+  }
 };
 
 exports.createAdminUser = (req, res, next) => {
@@ -45,7 +49,6 @@ exports.createAdminUser = (req, res, next) => {
 exports.login = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  let loadedUser;
   Users.findOne({ where: { email: email } })
     .then((user) => {
       if (!user) {
@@ -53,29 +56,19 @@ exports.login = (req, res, next) => {
         error.statusCode = 401;
         throw error;
       }
-      loadedUser = user;
-      return bcrypt.compare(password, user.password);
-    })
-    .then((isEqual) => {
+      const isEqual= bcrypt.compare(password, user.password);
       if (!isEqual) {
         const error = new Error("A user with this email could not be found.");
         error.statusCode = 401;
         throw error;
       }
-      const token = jwt.sign(
-        {
-          email: loadedUser.email,
-          userId: loadedUser.id,
-        },
-        `${process.env.JWT_SECRET}`,
-        { expiresIn: "24h" }
-      );
+      const token = jwt.sign({email: user.email,userId: user.id,},`${process.env.JWT_SECRET}`,{ expiresIn: "24h" });
       res.status(200).json({ token: token, userId: loadedUser.id });
     })
     .catch((err) => {
       if (!err.statusCode) {
         err.statusCode = 500;
       }
-      next(err);
+      res.status(err.statusCode).json({message: err.message});
     });
 };

@@ -16,7 +16,7 @@ const accessLogStream = fs.createWriteStream(
   { flags: 'a' }
 );
 
-morgan.token('id', function getId (req) {
+morgan.token('id', function getId(req) {
   return req.id
 })
 
@@ -53,12 +53,12 @@ app.use('/operations', operationRoute)
 app.use('/projects', projectRoute)
 app.use('/workers', workerRoute)
 
-function assignId (req, res, next) {
+function assignId(req, res, next) {
   req.id = uuid.v4()
   next()
 }
 
-app.use((error, req, res) => {
+app.use((error, req, res, next) => {
   const status = error.statusCode || 500;
   const message = error.message;
   const data = error.data;
