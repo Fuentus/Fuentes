@@ -63,7 +63,7 @@ exports.login = (req, res, next) => {
         throw error;
       }
       const token = jwt.sign({email: user.email,userId: user.id,},`${process.env.JWT_SECRET}`,{ expiresIn: "24h" });
-      res.status(200).json({ token: token, userId: loadedUser.id });
+      res.status(200).json({ token: token, userId: user.id });
     })
     .catch((err) => {
       if (!err.statusCode) {
