@@ -67,7 +67,7 @@ app.use((error, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 db.sequelize
-  .sync({force:true}).then(() => {
+  .sync().then(() => {
     app.listen(PORT, () => {
       console.log('running')
     })
