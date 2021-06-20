@@ -34,7 +34,7 @@ describe("/SIGNUP USER", () => {
           const data = res.body;
           res.should.have.status(201);
           res.body.should.be.a("object");
-          expect(res.status).to.equal(201);
+          // expect(res.status).to.equal(201);
           done();
         });
     })
@@ -95,7 +95,7 @@ describe("/SIGNUP ADMIN", () => {
           const data = res.body;
           res.should.have.status(201);
           res.body.should.be.a("object");
-          expect(res.status).to.equal(201);
+          // expect(res.status).to.equal(201);
           done();
         });
     })
