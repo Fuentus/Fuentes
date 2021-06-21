@@ -1,5 +1,6 @@
 const assert = require("assert");
 const quoteController = require("../../src/controllers/quote");
+const { adminEmail, adminPassword, userEmail, userPassword } = require('../api_test/creds')
 
 //Require the dev-dependencies
 let chai = require("chai");
@@ -11,138 +12,15 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 /*
- * Test the /SIGNUP USER
+ * Test the /QUOTE SERVICES ADMIN
  */
-describe("/SIGNUP USER", () => {
-  it("it should SIGNUP USER", (done) => {
-    setTimeout(done, 300);
-    chai
-      .request(server)
-      .post("/auth/signup")
-      .send({"email":"ravi_user@r.com","password":"12345"})
-      .end((err,res) => {
-        const {token} = res.body;
-        chai
-        .request(server)
-        .set('Authorization','Bearer '+token)
-        .post({
-            "email":"ravi_user@r.com",
-            "password":"12345",
-            "name":"ravi"
-        })
-        .end((err, res) => {
-          const data = res.body;
-          res.should.have.status(201);
-          res.body.should.be.a("object");
-          expect(res.status).to.equal(201);
-          done();
-        });
-    })
-});
-});
-
-/*
- * Test the /LOGIN USER
- */
-describe("/LOGIN USER", () => {
-  it("it should LOGIN USER", (done) => {
-    setTimeout(done, 300);
-    chai
-      .request(server)
-      .post("/auth/login")
-      .send({"email":"ravi_user@r.com","password":"12345"})
-      .end((err,res) => {
-        const {token} = res.body;
-        chai
-        .request(server)
-        .set('Authorization','Bearer '+token)
-        .post({
-            "email":"ravi_user@r.com",
-            "password":"12345"
-        })
-        .end((err, res) => {
-          const data = res.body;
-          res.should.have.status(201);
-          res.body.should.be.a("object");
-          // expect(res.status).to.equal(200);
-          done();
-        });
-    })
-});
-});
-
-/*
- * Test the /SIGNUP ADMIN
- */
-describe("/SIGNUP ADMIN", () => {
-  it("it should SIGNUP ADMIN", (done) => {
-    setTimeout(done, 300);
-    chai
-      .request(server)
-      .post("/auth/createAdmin")
-      .send({"email":"ravi_admin@r.com","password":"12345"})
-      .end((err,res) => {
-        const {token} = res.body;
-        chai
-        .request(server)
-        .set('Authorization','Bearer '+token)
-        .post({
-            "email":"ravi_admin@r.com",
-            "password":"12345",
-            "name":"ravi"
-        })
-        .end((err, res) => {
-          const data = res.body;
-          res.should.have.status(201);
-          res.body.should.be.a("object");
-          // expect(res.status).to.equal(201);
-          done();
-        });
-    })
-});
-});
-
-/*
- * Test the /LOGIN ADMIN
- */
-describe("/LOGIN ADMIN", () => {
-  it("it should LOGIN ADMIN", (done) => {
-    setTimeout(done, 300);
-    chai
-      .request(server)
-      .post("/auth/login")
-      .send({"email":"ravi_admin@r.com","password":"12345"})
-      .end((err,res) => {
-        const {token} = res.body;
-        chai
-        .request(server)
-        .set('Authorization','Bearer '+token)
-        .post({
-            "email":"ravi_admin@r.com",
-            "password":"12345"
-        })
-        .end((err, res) => {
-          const data = res.body;
-          res.should.have.status(201);
-          res.body.should.be.a("object");
-          // expect(res.status).to.equal(200);
-          done();
-        });
-    })
-});
-});
-
-
-/*
- * Test the /GET All Quotes : Admin
- */
-describe("/GET All Quotes", () => {
+describe("/QUOTE SERVICES ADMIN", () => {
   it("it should GET all the quotes", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_admin@r.com","password":"12345"})
+      .send({"email" : adminEmail, "password" : adminPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
@@ -155,48 +33,36 @@ describe("/GET All Quotes", () => {
             res.body.should.be.a("object");
             expect(data.totalItems).to.deep.equal(data.quotes.length);
             done();
-          });
+          })
       })
   });
-});
-
-/*
- * Test the /GET Quote By Id : Admin
- */
-describe("/GET A QUOTE", () => {
   it("it should GET all the quotes by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_admin@r.com","password":"12345"})
+      .send({"email" : adminEmail, "password" : adminPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
          .request(server)
-         .get("/quotes/ + quote.id")
+         .get("/quotes/1/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
            res.should.have.status(200);
            res.body.should.be.a("object");
-           expect(data.totalItems).to.deep.equal(data.quotes.length);
+           expect(res.status).to.equal(200);
            done();
          })
       })
   })
-})
-
-/*
- * Test the /POST Quote : Admin
- */
-describe("/POST QUOTE", () => {
-  it("it should POST the quotes by id", (done) => {
+  it("it should POST the quotes", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_admin@r.com","password":"12345"})
+      .send({"email" : adminEmail, "password" : adminPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
@@ -222,28 +88,22 @@ describe("/POST QUOTE", () => {
            const data = res.body;
            res.should.have.status(201);
            res.body.should.be.a("object");
-           expect(data.totalItems).to.deep.equal(data.quotes.length);
+           expect(res.status).to.equal(201);
            done();
          })
       })
   })
-})
-
-/*
- * Test the /PUT Quote : Admin
- */
-describe("/PUT QUOTE", () => {
   it("it should EDIT the quotes by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_admin@r.com","password":"12345"})
+      .send({"email" : adminEmail, "password" : adminPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
          .request(server)
-         .put("/quotes/ + quotes.id")
+         .put("/quotes/1/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_002",
@@ -264,29 +124,45 @@ describe("/PUT QUOTE", () => {
            const data = res.body;
            res.should.have.status(201);
            res.body.should.be.a("object");
-           expect(data.totalItems).to.deep.equal(data.quotes.length);
+           expect(res.status).to.equal(201);
            done();
          })
       })
   })
-})
-
-/*
- * Test the /DELETE Quote : Admin
- */
-describe("/DELETE A QUOTE", () => {
   it("it should DELETE the quote by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_admin@r.com","password":"12345"})
+      .send({"email" : adminEmail, "password" : adminPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
          .request(server)
-         .delete("/quotes/ + quote.id")
+         .delete("/quotes/1/")
          .set('Authorization', 'Bearer ' +token)
+         .end((err, res) => {
+           const data = res.body;
+           res.should.have.status(200);
+           res.body.should.be.a("object");
+           expect(res.status).to.equal(200);
+           done();
+         })
+      })
+  })
+  it("it should SEARCH for a quote", (done) => {
+    setTimeout(done, 300);
+    chai
+      .request(server)
+      .post("/auth/login")
+      .send({"email" : adminEmail, "password" : adminPassword})
+      .end((err,res) => {
+        const {token} = res.body;
+        chai
+         .request(server)
+         .post("/quotes/search/")
+         .set('Authorization', 'Bearer ' +token)
+         .send({"search":"title"})
          .end((err, res) => {
            const data = res.body;
            res.should.have.status(200);
@@ -296,47 +172,41 @@ describe("/DELETE A QUOTE", () => {
          })
       })
   })
-})
-
-/*
- * Test the /CHANGE STATUS Quote : Admin
- */
-describe("/CHANGE STATUS QUOTE", () => {
   it("it should CHANGE STATUS of the quote", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_admin@r.com","password":"12345"})
+      .send({"email" : adminEmail, "password" : adminPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
          .request(server)
-         .post("/quotes/ + quote.id")
+         .post("/quotes/1/")
          .set('Authorization', 'Bearer ' +token)
          .send({"status":"COMPLETED"})
          .end((err, res) => {
            const data = res.body;
-           res.should.have.status(200);
+           res.should.have.status(201);
            res.body.should.be.a("object");
-           expect(data.totalItems).to.deep.equal(data.quotes.length);
+           expect(res.status).to.equal(201);
            done();
          })
       })
   })
-})
+});
 
 
 /*
- * Test the /GET All Quotes : User
+ * Test the /QUOTE SERVICES USER
  */
-describe("/GET All Quotes", () => {
+describe("/QUOTE SERVICES USER", () => {
   it("it should GET all the quotes", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_user@r.com","password":"12345"})
+      .send({"email" : userEmail, "password" : userPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
@@ -349,48 +219,36 @@ describe("/GET All Quotes", () => {
             res.body.should.be.a("object");
             expect(data.totalItems).to.deep.equal(data.quotes.length);
             done();
-          });
+          })
       })
   });
-});
-
-/*
- * Test the /GET Quote By Id : User
- */
-describe("/GET A QUOTE", () => {
-  it("it should GET all the quotes by id", (done) => {
+  it("it should GET the quotes by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_user@r.com","password":"12345"})
+      .send({"email" : userEmail, "password" : userPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
          .request(server)
-         .get("/quotes/ + quote.id")
+         .get("/quotes/2/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
            res.should.have.status(200);
            res.body.should.be.a("object");
-           expect(data.totalItems).to.deep.equal(data.quotes.length);
+           expect(res.status).to.equal(200);
            done();
          })
       })
   })
-})
-
-/*
- * Test the /POST Quote : User
- */
-describe("/POST QUOTE", () => {
-  it("it should POST the quotes by id", (done) => {
+  it("it should POST the quotes", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_user@r.com","password":"12345"})
+      .send({"email" : userEmail, "password" : userPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
@@ -416,28 +274,22 @@ describe("/POST QUOTE", () => {
            const data = res.body;
            res.should.have.status(201);
            res.body.should.be.a("object");
-           expect(data.totalItems).to.deep.equal(data.quotes.length);
+           expect(res.status).to.equal(201);
            done();
          })
       })
   })
-})
-
-/*
- * Test the /PUT Quote : User
- */
-describe("/PUT QUOTE", () => {
   it("it should EDIT the quotes by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_user@r.com","password":"12345"})
+      .send({"email" : userEmail, "password" : userPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
          .request(server)
-         .put("/quotes/ + quotes.id")
+         .put("/quotes/2/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_002",
@@ -458,29 +310,45 @@ describe("/PUT QUOTE", () => {
            const data = res.body;
            res.should.have.status(201);
            res.body.should.be.a("object");
-           expect(data.totalItems).to.deep.equal(data.quotes.length);
+           expect(res.status).to.equal(201);
            done();
          })
       })
   })
-})
-
-/*
- * Test the /DELETE Quote : User
- */
-describe("/DELETE A QUOTE", () => {
   it("it should DELETE the quote by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
       .post("/auth/login")
-      .send({"email":"ravi_user@r.com","password":"12345"})
+      .send({"email" : userEmail, "password" : userPassword})
       .end((err,res) => {
         const {token} = res.body;
         chai
          .request(server)
-         .delete("/quotes/ + quote.id")
+         .delete("/quotes/2/")
          .set('Authorization', 'Bearer ' +token)
+         .end((err, res) => {
+           const data = res.body;
+           res.should.have.status(200);
+           res.body.should.be.a("object");
+           expect(res.status).to.equal(20);
+           done();
+         })
+      })
+  })
+  it("it should SEARCH for a quote", (done) => {
+    setTimeout(done, 300);
+    chai
+      .request(server)
+      .post("/auth/login")
+      .send({"email" : userEmail, "password" : userPassword})
+      .end((err,res) => {
+        const {token} = res.body;
+        chai
+         .request(server)
+         .post("/quotes/search/")
+         .set('Authorization', 'Bearer ' +token)
+         .send({"search":"title"})
          .end((err, res) => {
            const data = res.body;
            res.should.have.status(200);
@@ -490,4 +358,4 @@ describe("/DELETE A QUOTE", () => {
          })
       })
   })
-})
+});
