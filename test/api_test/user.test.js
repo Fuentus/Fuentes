@@ -1,7 +1,7 @@
 const assert = require("assert");
 const quoteController = require("../../src/controllers/quote");
 const auth = require('../api_test/user.test.js')
-const { adminEmail, adminPassword, userEmail, userPassword } = require('../api_test/creds')
+const { adminEmail, adminPassword, userEmail, userPassword, incorrectEmail, incorrectPassword } = require('../api_test/creds')
 
 //Require the dev-dependencies
 let chai = require("chai");
@@ -95,7 +95,7 @@ describe("/LOGIN USER", () => {
         chai
         .request(server)
         .post("/auth/login")
-        .send({"email" : "ravi__user@r.com", "password" : userPassword})
+        .send({"email" : incorrectEmail, "password" : userPassword})
         .end((err,res) => {
             chai
             .request(server)
@@ -166,7 +166,7 @@ describe("/LOGIN ADMIN", () => {
         chai
         .request(server)
         .post("/auth/login")
-        .send({"email" : "ravi__admin@r.com", "password" : adminPassword})
+        .send({"email" : incorrectEmail, "password" : adminPassword})
         .end((err,res) => {
             chai
             .request(server)
