@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-
 const express = require('express');
 const bodyParser = require('body-parser');
 // const multer = require('multer');
@@ -10,7 +9,6 @@ const uuid = require('node-uuid')
 const compression = require('compression');
 const db = require('./models');
 const app = express()
-
 const accessLogStream = fs.createWriteStream(
   path.join(__dirname, '../access.log'),
   { flags: 'a' }

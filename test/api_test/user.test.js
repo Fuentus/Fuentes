@@ -1,7 +1,10 @@
 const assert = require("assert");
 const quoteController = require("../../src/controllers/quote");
 const auth = require('../api_test/user.test.js')
-const { adminEmail, adminPassword, userEmail, userPassword, incorrectEmail, incorrectPassword } = require('../api_test/creds')
+const { adminEmail, adminPassword,
+    userEmail, userPassword,memberName,
+    incorrectEmail, incorrectPassword
+} = require('../api_test/creds')
 
 //Require the dev-dependencies
 let chai = require("chai");
@@ -16,50 +19,35 @@ chai.use(chaiHttp);
  * Test the /SIGNUP USER
  */
 describe("/SIGNUP USER", () => {
-  it("it should SIGNUP USER", (done) => {
-    setTimeout(done, 300);
-    chai
-      .request(server)
-      .post("/auth/signup")
-      .send({"email" : userEmail, "password" : userPassword})
-      .end((err,res) => {
-        const data = res.body;
-          res.should.have.status(201);
-          res.body.should.be.a("object");
-          expect(res.status).to.equal(201);
-          done();
-        })
+    it("it should SIGNUP USER", (done) => {
+        setTimeout(done, 300);
+        chai
+            .request(server)
+            .put("/auth/signup")
+            .send({"email": userEmail, "password": userPassword, "name": memberName})
+            .end((err, res) => {
+                const data = res.body;
+                res.should.have.status(201);
+                res.body.should.be.a("object");
+                expect(res.status).to.equal(201);
+                done();
+            })
     })
     it("it should return VALIDATION error for duplicate USER", (done) => {
         setTimeout(done, 300);
         chai
-          .request(server)
-          .post("/auth/signup")
-          .send({"email" : userEmail, "password" : userPassword})
-          .end((err,res) => {
-            chai
             .request(server)
-            .send({
-                "message": "Validation failed.",
-                "data": [
-                    {
-                        "value": "ravi_user@r.com",
-                        "msg": "E-Mail address already exists!",
-                        "param": "email",
-                        "location": "body"
-                    }
-                ]
-            })
+            .put("/auth/signup")
+            .send({"email": userEmail, "password": userPassword, "name": memberName})
             .end((err, res) => {
-              const data = res.body;
-              res.should.have.status(422);
-              res.body.should.be.a("object");
-              expect(res.status).to.equal(422);
-              done();
+                const data = res.body;
+                res.should.have.status(422);
+                res.body.should.be.a("object");
+                expect(res.status).to.equal(422);
+                done();
             });
-        })
-    });
-    });
+    })
+});
     
 
 /*

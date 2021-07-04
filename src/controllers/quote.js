@@ -8,7 +8,7 @@ const Uploads = db.Uploads;
 const Users = db.Users;
 
 const printLog = require("../util/fuentus_util");
-const { QUOTE_STATUS } = require("../util/fuentus_constants");
+const { QUOTE_STATUS, QuoteExists } = require("../util/fuentus_constants");
 
 const fetchQuoteByClause = async (whereClause) => {
   return (
@@ -45,8 +45,8 @@ const getPagingData = (data, page, limit) => {
   return { totalItems, quotes, totalPages, currentPage };
 };
 
-const getAllQuotes = (obj,whereClause,success,failure) =>{
-  const {limit,offset} = obj;
+const getAllQuotes = (obj, whereClause, success, failure) => {
+  const { limit, offset } = obj;
   Quotes.findAndCountAll({
     where: whereClause,
     attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt"],
@@ -60,9 +60,7 @@ const getAllQuotes = (obj,whereClause,success,failure) =>{
         attributes: ["fileName", "filePath"],
       },
     ],
-    order: [
-        ['updatedAt', 'DESC'],
-    ],
+    order: [["updatedAt", "DESC"]],
     limit,
     offset,
   })
@@ -84,16 +82,16 @@ exports.findAllQuotes = (req, res) => {
   }
   const { page, size } = req.query;
   const obj = getPagination(page, size);
-  const failure = (err) =>{
+  const failure = (err) => {
     res.status(500).send({
       message: err.message || "Error occurred while retrieving",
     });
   };
-  const success = (data) =>{
+  const success = (data) => {
     const response = getPagingData(data, page, obj.limit);
     res.send(response);
   };
-  getAllQuotes(obj,whereClause,success,failure)
+  getAllQuotes(obj, whereClause, success, failure);
   printLog(`Quotes : Exit findAllQuotes`);
 };
 
@@ -262,8 +260,7 @@ exports.changeStatus = (req, res, next) => {
     printLog(`Quotes : Inside changeStatus of Quote`);
     let { status } = req.body;
     const { id } = req.params;
-    status = status || QUOTE_STATUS[1];
-    const boolean = QUOTE_STATUS.includes(status);
+    const boolean = QuoteExists(status);
     if (!boolean) {
       throw Error(" Please Choose Correct Status");
     }
@@ -290,18 +287,18 @@ exports.searchResults = async (req, res, next) => {
     if (!req.admin) {
       whereClause["userId"] = { [Op.eq]: req.user.id };
     }
-    const obj = {limit:100,offset:0};
-    const failure = (err) =>{
+    const obj = { limit: 100, offset: 0 };
+    const failure = (err) => {
       res.status(500).send({
         message: err.message || "Error occurred while retrieving",
       });
     };
-    const success = (data) =>{
+    const success = (data) => {
       const response = getPagingData(data, 0, obj.limit);
       res.send(response);
     };
 
-    getAllQuotes(obj,whereClause,success,failure)
+    getAllQuotes(obj, whereClause, success, failure);
   } catch (err) {
     console.log(err);
     next(err);

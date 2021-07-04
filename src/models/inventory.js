@@ -9,15 +9,15 @@ module.exports = function (sequelize, Sequelize) {
           notNull: true,
           unique: true,
         },
-        item_name: {
+        itemName: {
           type: Sequelize.STRING,
           notNull: true,
         },
-        item_desc: {
+        itemDesc: {
           type: Sequelize.STRING,
           notNull: true,
         },
-        operations_tagged: {
+        operationsTagged: {
           type: Sequelize.STRING,
           allowNull: true,
           foreignKey: false
@@ -30,9 +30,16 @@ module.exports = function (sequelize, Sequelize) {
             type: Sequelize.INTEGER,
             notNull: true,
           },
+        supplierInfo:{
+            type: Sequelize.STRING,
+            allowNull: true
+        }
       },
       {
         schema: "tbl",
+        paranoid: true,
+        underscored: true,
+        version: true
       }
     );
 
