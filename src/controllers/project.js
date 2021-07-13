@@ -1,5 +1,5 @@
 const db = require('../models/');
-const printLog = require('../util/fuentus_util');
+const printLog = require('../util/log_utils');
 const Projects = db.Projects;
 
 exports.createProject = async (req, res, next) => {

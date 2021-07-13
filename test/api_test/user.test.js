@@ -1,5 +1,5 @@
 const assert = require("assert");
-const quoteController = require("../../src/controllers/quote");
+const quoteController = require("../../src/controllers/user/QuoteUser");
 const auth = require('../api_test/user.test.js')
 const { adminEmail, adminPassword,
     userEmail, userPassword,memberName,

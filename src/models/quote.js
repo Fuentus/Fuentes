@@ -1,7 +1,4 @@
-const { QuoteStatus } = require("../util/fuentus_constants");
-
-const qStatus = new QuoteStatus();
-
+const { QuoteStatus } = require("../controllers/service/quote/QuoteStatus");
 module.exports = function (sequelize, Sequelize) {
   const Quotes = sequelize.define(
     "Quotes",
@@ -22,10 +19,16 @@ module.exports = function (sequelize, Sequelize) {
       },
       status: {
         type: Sequelize.ENUM,
-        values: qStatus.getAllQuotesStatus(),
-        defaultValue: qStatus.get("QUOTE_RECEIVED"),
+        values: QuoteStatus.getAllQuotesStatus(),
+        defaultValue: QuoteStatus.defaultValue(),
         notNull: true,
       },
+      startDate:{
+        type: Sequelize.DATE
+      },
+      endDate:{
+        type: Sequelize.DATE,
+      }
     },
     {
       schema: "tbl",

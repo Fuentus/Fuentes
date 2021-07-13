@@ -2,23 +2,21 @@ const express = require("express");
 const multer = require("multer");
 const router = express.Router();
 
-const isAuth = require("../middleware/is-auth");
-const loadUser = require("../middleware/load-user");
-const quoteController = require("../controllers/quote");
-const measureRouter = require("./measure");
-const uploadRoute = require("./upload");
+const isAuth = require("../../middleware/is-auth");
+const loadUser = require("../../middleware/load-user");
+const quoteController = require("../../controllers/user/QuoteUser");
+const measureRouter = require("../measure");
+const uploadRoute = require("../upload");
 
 const {
   validateReq,
   quoteCreateValidator,
-  adminPrivilege,
   checkUserPrivilegeOfQuote,
-} = require("../validators/quote-validator");
+} = require("../../validators/quote-validator");
 
 router.use("/measures", measureRouter);
 router.use("/upload", uploadRoute);
-//get all quotes - w/ pagination
-router.get("/", [isAuth, loadUser], quoteController.findAllQuotes);
+router.get("/", [isAuth, loadUser], quoteController.findAllQuotesForUser);
 //creating a quote
 router.post(
   "/",
@@ -26,12 +24,12 @@ router.post(
   quoteController.createQuote
 );
 
-//Approve quote
-router.post(
-  "/:id/changeStatus",
-  [isAuth, loadUser, validateReq, adminPrivilege],
-  quoteController.changeStatus
-);
+// //Approve quote
+// router.post(
+//   "/:id/changeStatus",
+//   [isAuth, loadUser, validateReq, adminPrivilege],
+//   quoteController.changeStatus
+// );
 
 //get single quote
 router.get(
@@ -58,7 +56,7 @@ router.put(
 router.post(
   "/search",
   [isAuth, loadUser],
-  quoteController.searchResults
+  quoteController.searchResultsForUser
 );
 
 module.exports = router;

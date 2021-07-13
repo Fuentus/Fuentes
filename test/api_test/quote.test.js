@@ -1,5 +1,5 @@
 const assert = require("assert");
-const quoteController = require("../../src/controllers/quote");
+const quoteController = require("../../src/controllers/user/QuoteUser");
 const { adminEmail, adminPassword, userEmail, userPassword, user2Email, user2Password } = require('../api_test/creds')
 
 //Require the dev-dependencies
@@ -15,7 +15,7 @@ chai.use(chaiHttp);
  * Test the /QUOTE SERVICES ADMIN
  */
 describe("/QUOTE SERVICES ADMIN", () => {
-  it("it should GET all the quotes", (done) => {
+  it("it should GET all the admin", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -25,7 +25,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
           .request(server)
-          .get("/quotes")
+          .get("/admin")
           .set('Authorization','Bearer '+token)
           .end((err, res) => {
             const data = res.body;
@@ -36,7 +36,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
           })
       })
   });
-  it("it should GET all the quotes by id", (done) => {
+  it("it should GET all the admin by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -46,7 +46,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .get("/quotes/1/")
+         .get("/admin/1/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -57,7 +57,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
          })
       })
   })
-  it("it should POST the quotes", (done) => {
+  it("it should POST the admin", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -67,7 +67,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .post("/quotes/")
+         .post("/admin/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_1234",
@@ -93,7 +93,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
          })
       })
   })
-  it("it should EDIT the quotes by id", (done) => {
+  it("it should EDIT the admin by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -103,7 +103,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .put("/quotes/1/")
+         .put("/admin/1/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_002",
@@ -139,7 +139,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .delete("/quotes/1/")
+         .delete("/admin/1/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -160,7 +160,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .post("/quotes/search/")
+         .post("/admin/search/")
          .set('Authorization', 'Bearer ' +token)
          .send({"search":"title"})
          .end((err, res) => {
@@ -182,7 +182,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .post("/quotes/1/")
+         .post("/admin/1/")
          .set('Authorization', 'Bearer ' +token)
          .send({"status":"COMPLETED"})
          .end((err, res) => {
@@ -198,7 +198,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
   //error cases : ADMIN
   //user2 login scenerio
   
-  it("it should not GET all the quotes if a user with another creds login", (done) => {
+  it("it should not GET all the admin if a user with another creds login", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -208,7 +208,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
           .request(server)
-          .get("/quotes")
+          .get("/admin")
           .set('Authorization','Bearer '+token)
           .end((err, res) => {
             const data = res.body;
@@ -219,7 +219,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
           })
       })
   });
-  it("it should not GET all the quotes by id if user with another creds login", (done) => {
+  it("it should not GET all the admin by id if user with another creds login", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -229,7 +229,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .get("/quotes/111/")
+         .get("/admin/111/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -240,7 +240,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
          })
       })
   })
-  it("it should not be able EDIT quotes if user with another creds login", (done) => {
+  it("it should not be able EDIT admin if user with another creds login", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -250,7 +250,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .put("/quotes/9/")
+         .put("/admin/9/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_002",
@@ -276,7 +276,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
          })
       })
   })
-  it("it should not able to DELETE quotes if user with another creds login", (done) => {
+  it("it should not able to DELETE admin if user with another creds login", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -286,7 +286,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .delete("/quotes/99/")
+         .delete("/admin/99/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -297,7 +297,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
          })
       })
   })
-  it("it should not CHANGE STATUS of quotes if user with another creds login", (done) => {
+  it("it should not CHANGE STATUS of admin if user with another creds login", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -307,7 +307,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .post("/quotes/111/")
+         .post("/admin/111/")
          .set('Authorization', 'Bearer ' +token)
          .send({
             "message": "Insufficient Privilege"
@@ -321,7 +321,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
          })
         })
     })
-    it("it should not SEARCH for quotes if user with another creds login", (done) => {
+    it("it should not SEARCH for admin if user with another creds login", (done) => {
       setTimeout(done, 300);
       chai
         .request(server)
@@ -331,7 +331,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
           const {token} = res.body;
           chai
            .request(server)
-           .post("/quotes/search/")
+           .post("/admin/search/")
            .set('Authorization', 'Bearer ' +token)
            .send({"search":"null"})
            .end((err, res) => {
@@ -346,7 +346,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
 
   //actions on a non-eisting quote
 
-  it("it should not GET quotes by id for a non-existing quote", (done) => {
+  it("it should not GET admin by id for a non-existing quote", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -356,7 +356,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .get("/quotes/111/")
+         .get("/admin/111/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -367,7 +367,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
          })
       })
   })
-  it("it should not be able EDIT non-existing quotes", (done) => {
+  it("it should not be able EDIT non-existing admin", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -377,7 +377,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .put("/quotes/9/")
+         .put("/admin/9/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_002",
@@ -413,7 +413,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .delete("/quotes/99/")
+         .delete("/admin/99/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -434,7 +434,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .post("/quotes/111/")
+         .post("/admin/111/")
          .set('Authorization', 'Bearer ' +token)
          .send({"status":"COMPLETED"})
          .end((err, res) => {
@@ -456,7 +456,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
             const {token} = res.body;
             chai
              .request(server)
-             .post("/quotes/search/")
+             .post("/admin/search/")
              .set('Authorization', 'Bearer ' +token)
              .send({"search":"null"})
              .end((err, res) => {
@@ -475,7 +475,7 @@ describe("/QUOTE SERVICES ADMIN", () => {
  * Test the /QUOTE SERVICES USER
  */
 describe("/QUOTE SERVICES USER", () => {
-  it("it should GET all the quotes", (done) => {
+  it("it should GET all the admin", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -485,7 +485,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
           .request(server)
-          .get("/quotes")
+          .get("/admin")
           .set('Authorization','Bearer '+token)
           .end((err, res) => {
             const data = res.body;
@@ -496,7 +496,7 @@ describe("/QUOTE SERVICES USER", () => {
           })
       })
   });
-  it("it should GET the quotes by id", (done) => {
+  it("it should GET the admin by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -506,7 +506,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .get("/quotes/2/")
+         .get("/admin/2/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -517,7 +517,7 @@ describe("/QUOTE SERVICES USER", () => {
          })
       })
   })
-  it("it should POST the quotes", (done) => {
+  it("it should POST the admin", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -527,7 +527,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .post("/quotes/")
+         .post("/admin/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_1234",
@@ -553,7 +553,7 @@ describe("/QUOTE SERVICES USER", () => {
          })
       })
   })
-  it("it should EDIT the quotes by id", (done) => {
+  it("it should EDIT the admin by id", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -563,7 +563,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .put("/quotes/2/")
+         .put("/admin/2/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_002",
@@ -599,7 +599,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .delete("/quotes/2/")
+         .delete("/admin/2/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -620,7 +620,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .post("/quotes/search/")
+         .post("/admin/search/")
          .set('Authorization', 'Bearer ' +token)
          .send({"search":"title"})
          .end((err, res) => {
@@ -637,7 +637,7 @@ describe("/QUOTE SERVICES USER", () => {
   //error cases : USER
   //user2 login scenerio
   
-  it("it should not GET all the quotes if a user with another creds login", (done) => {
+  it("it should not GET all the admin if a user with another creds login", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -647,7 +647,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
           .request(server)
-          .get("/quotes")
+          .get("/admin")
           .set('Authorization','Bearer '+token)
           .end((err, res) => {
             const data = res.body;
@@ -658,7 +658,7 @@ describe("/QUOTE SERVICES USER", () => {
           })
       })
   });
-  it("it should not GET all the quotes by id if user with another creds login", (done) => {
+  it("it should not GET all the admin by id if user with another creds login", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -668,7 +668,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .get("/quotes/111/")
+         .get("/admin/111/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -679,7 +679,7 @@ describe("/QUOTE SERVICES USER", () => {
          })
       })
   })
-  it("it should not be able EDIT quotes if user with another creds login", (done) => {
+  it("it should not be able EDIT admin if user with another creds login", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -689,7 +689,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .put("/quotes/9/")
+         .put("/admin/9/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_002",
@@ -715,7 +715,7 @@ describe("/QUOTE SERVICES USER", () => {
          })
       })
   })
-  it("it should not able to DELETE quotes if user with another creds login", (done) => {
+  it("it should not able to DELETE admin if user with another creds login", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -725,7 +725,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .delete("/quotes/99/")
+         .delete("/admin/99/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -736,7 +736,7 @@ describe("/QUOTE SERVICES USER", () => {
          })
       })
   })
-  it("it should not SEARCH for quotes if user with another creds login", (done) => {
+  it("it should not SEARCH for admin if user with another creds login", (done) => {
       setTimeout(done, 300);
       chai
         .request(server)
@@ -746,7 +746,7 @@ describe("/QUOTE SERVICES USER", () => {
           const {token} = res.body;
           chai
            .request(server)
-           .post("/quotes/search/")
+           .post("/admin/search/")
            .set('Authorization', 'Bearer ' +token)
            .send({"search":"null"})
            .end((err, res) => {
@@ -761,7 +761,7 @@ describe("/QUOTE SERVICES USER", () => {
 
   //actions on a non-eisting quote
 
-  it("it should not GET quotes by id for a non-existing quote", (done) => {
+  it("it should not GET admin by id for a non-existing quote", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -771,7 +771,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .get("/quotes/111/")
+         .get("/admin/111/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -782,7 +782,7 @@ describe("/QUOTE SERVICES USER", () => {
          })
       })
   })
-  it("it should not be able EDIT non-existing quotes", (done) => {
+  it("it should not be able EDIT non-existing admin", (done) => {
     setTimeout(done, 300);
     chai
       .request(server)
@@ -792,7 +792,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .put("/quotes/9/")
+         .put("/admin/9/")
          .set('Authorization', 'Bearer ' +token)
          .send({
               "title":"test_new_002",
@@ -828,7 +828,7 @@ describe("/QUOTE SERVICES USER", () => {
         const {token} = res.body;
         chai
          .request(server)
-         .delete("/quotes/99/")
+         .delete("/admin/99/")
          .set('Authorization', 'Bearer ' +token)
          .end((err, res) => {
            const data = res.body;
@@ -849,7 +849,7 @@ describe("/QUOTE SERVICES USER", () => {
             const {token} = res.body;
             chai
              .request(server)
-             .post("/quotes/search/")
+             .post("/admin/search/")
              .set('Authorization', 'Bearer ' +token)
              .send({"search":"null"})
              .end((err, res) => {

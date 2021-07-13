@@ -1,7 +1,7 @@
 const multer = require("multer");
 const db = require("../models");
 const Uploads = db.Uploads
-const printLog = require("../util/fuentus_util");
+const printLog = require("../util/log_utils");
 
 exports.findAllUploads = (req, res, next) => {
   printLog(`Uploads : Inside findAllUploads`);
