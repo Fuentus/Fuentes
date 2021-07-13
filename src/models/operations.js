@@ -9,19 +9,11 @@ module.exports = function (sequelize, Sequelize) {
                 notNull: true,
                 unique: true,
             },
-            o_name: {
+            name: {
                 type: Sequelize.STRING,
                 notNull: true,
             },
-            o_desc: {
-                type: Sequelize.STRING,
-                notNull: true,
-            },
-            workers_req: {
-                type: Sequelize.INTEGER,
-                notNull: true,
-            },
-            tools_materials: {
+            desc: {
                 type: Sequelize.STRING,
                 notNull: true,
             }
@@ -32,12 +24,18 @@ module.exports = function (sequelize, Sequelize) {
     );
 
     Operations.associate = function (models) {
-        Operations.belongsToMany(models.Inventory, {
+        const {Quotes,Inventory} = models;
+        Operations.belongsToMany(Inventory, {
             through: "inv_operations",
-            as: "inventory",
+            as: "Inventory",
             foreignKey: "inventory_id",
         });
-        // Operations.hasMany(models.Inventory)
+
+        Operations.belongsToMany(Quotes, {
+            through: "quote_operations",
+            as: "Quotes",
+            foreignKey: "quote_id",
+        });
         // Operations.hasMany(models.Workers, { onDelete : 'cascade' , onUpdate: 'cascade'});
     };
 

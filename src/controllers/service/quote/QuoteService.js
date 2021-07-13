@@ -2,7 +2,7 @@ const db = require("../../../models");
 //
 // const {logger} = require("../../../util/log_utils");
 
-const {Quotes, Measures, Uploads, Users} = db;
+const {Quotes, Measures, Uploads, Users,Operations} = db;
 
 const fetchQuoteByClause = async (whereClause) => {
     return (
@@ -22,6 +22,14 @@ const fetchQuoteByClause = async (whereClause) => {
                     model: Measures,
                     attributes: ["name", "unit", "qty"],
                 },
+                {
+                    model: Operations,
+                    as: "Operations",
+                    attributes: ["name", "desc"],
+                    through: {
+                        attributes: ["operation_id", "quote_id"],
+                    }
+                }
             ],
         })) || {}
     );

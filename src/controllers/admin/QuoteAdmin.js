@@ -2,7 +2,7 @@ const db = require("../../models");
 const {Op} = require("sequelize");
 const {validationResult} = require("express-validator");
 
-const {Quotes} = db;
+const {Quotes, Operations} = db;
 
 const {logger} = require("../../util/log_utils");
 const {fetchQuoteByClause, getAllQuotes} = require("../service/quote/QuoteService")
@@ -29,14 +29,14 @@ exports.findAllQuotesForAdmin = (req, res) => {
     getAllQuotes(obj, whereClause, success, failure);
     logger.debug(`Quotes : Exit findAllQuotesForAdmin`);
 };
-exports.findQuoteByIdAdmin = async (req, res, next) => {
+exports.findQuoteByIdForAdmin = async (req, res, next) => {
     logger.info(`Quotes : Inside findQuoteById`);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422).send({
-                message: "Validation failed",
-                data: errors.array()
-            });
+            message: "Validation failed",
+            data: errors.array()
+        });
     }
     const {id} = req.params;
     const whereClause = {id: id};
@@ -87,8 +87,23 @@ exports.searchResultsForAdmin = async (req, res, next) => {
 
         getAllQuotes(obj, whereClause, success, failure);
     } catch (err) {
-        console.log(err);
+        logger.error(err);
         next(err);
     }
     logger.debug(`Quotes : Exit searchResults`);
 };
+
+exports.tagQuoteAndOperations = async (req, res, next) => {
+    try {
+        logger.debug(`Quotes : tagQuoteAndOperations`);
+        const {quoteId, operationId} = req.params;
+        const quote = await Quotes.findByPk(quoteId);
+        const operation = await Operations.findByPk(operationId);
+        const result = await quote.addOperations(operation);
+        res.status(200).send(result);
+    } catch (err) {
+        logger.error(err);
+        next(err);
+    }
+    logger.debug(`Quotes : Exit tagQuoteAndOperations`);
+}

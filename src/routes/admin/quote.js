@@ -16,12 +16,15 @@ router.post(
 //get single quote
 router.get(
   "/:id",
-  quoteController.findQuoteByIdAdmin
+  quoteController.findQuoteByIdForAdmin
 );
 
 router.post(
   "/search",
   quoteController.searchResultsForAdmin
 );
+
+router.put("/:quoteId/operation/:operationId",
+    quoteController.tagQuoteAndOperations);
 
 module.exports = router;
