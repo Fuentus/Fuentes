@@ -6,13 +6,10 @@ const {logger} = require("../../util/log_utils");
 const {fetchQuoteByClause, getAllQuotes} = require("../service/quote/QuoteService")
 const {getPagination, getPagingData} = require("../service/quote/PaginationService")
 
-const Quotes = db.Quotes;
-const Measures = db.Measures;
-const Uploads = db.Uploads;
-
+const {Quotes, Measures, Uploads} = db;
 
 exports.findAllQuotesForUser = (req, res) => {
-    logger.trace(`Quotes : Inside findAllQuotes`);
+    logger.debug(`Quotes : Inside findAllQuotes`);
     let {updatedAt} = req.query;
     updatedAt = updatedAt ? updatedAt : 0;
     const whereClause = {updatedAt: {[Op.gt]: updatedAt}, userId: {[Op.eq]: req.user.id}};
@@ -29,11 +26,11 @@ exports.findAllQuotesForUser = (req, res) => {
         res.send(response);
     };
     getAllQuotes(obj, whereClause, success, failure);
-    logger.trace(`Quotes : Exit findAllQuotes`);
+    logger.debug(`Quotes : Exit findAllQuotes`);
 };
 
 exports.createQuote = async (req, res, next) => {
-    logger.trace(`Quotes : Inside createQuote`);
+    logger.debug(`Quotes : Inside createQuote`);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422)
@@ -88,17 +85,15 @@ exports.createQuote = async (req, res, next) => {
         err.statusCode = 500;
         next(err);
     }
-    logger.trace(`Quotes : Exit createQuote`);
+    logger.debug(`Quotes : Exit createQuote`);
 };
 
 exports.findQuoteById = async (req, res, next) => {
-    logger.trace(`Quotes : Inside findQuoteById`);
+    logger.debug(`Quotes : Inside findQuoteById`);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const error = new Error("Validation failed.");
-        error.statusCode = 408;
-        error.data = errors.array();
-        throw error;
+        return res.status(422)
+            .json({message: "Validation failed", data: errors.array()});
     }
     const {id} = req.params;
     const whereClause = {
@@ -107,11 +102,11 @@ exports.findQuoteById = async (req, res, next) => {
     };
     const quote = await fetchQuoteByClause(whereClause);
     res.status(200).send(quote);
-    logger.trace(`Quotes : Exit findQuoteById`);
+    logger.debug(`Quotes : Exit findQuoteById`);
 };
 
 exports.deleteQuoteById = async (req, res, next) => {
-    logger.trace(`Quotes : Inside deleteQuoteById`);
+    logger.debug(`Quotes : Inside deleteQuoteById`);
     const {id} = req.params;
     const result = await db.sequelize.transaction(async (t) => {
         await Measures.destroy(
@@ -122,22 +117,21 @@ exports.deleteQuoteById = async (req, res, next) => {
             {where: {QuoteId: id}, force: true},
             {transaction: t}
         );
-        let res = await Quotes.destroy(
+        return await Quotes.destroy(
             {where: {id: id}, force: true},
             {transaction: t}
         );
-        return res;
     });
 
     const obj = {};
     obj.message = "Update Successfully";
     obj.updatedRecord = result;
     res.status(200).send(obj);
-    logger.trace(`Quotes : Exit deleteQuoteById`);
+    logger.debug(`Quotes : Exit deleteQuoteById`);
 };
 
 exports.editQuoteById = async (req, res, next) => {
-    logger.trace(`Quotes : Inside editQuoteById`);
+    logger.debug(`Quotes : Inside editQuoteById`);
     const {id} = req.params;
     const {title, desc} = req.body;
     const measures = req.body.measures;
@@ -179,12 +173,12 @@ exports.editQuoteById = async (req, res, next) => {
         const q = await fetchQuoteByClause(whereClause);
         res.status(201).send(q);
     }
-    logger.trace(`Quotes : Exit editQuoteById`);
+    logger.debug(`Quotes : Exit editQuoteById`);
 };
 
 exports.searchResultsForUser = async (req, res, next) => {
     try {
-        logger.trace(`Quotes : searchResults`);
+        logger.debug(`Quotes : searchResults`);
         const {search} = req.body;
         const whereClause = {
             title: {
@@ -210,5 +204,5 @@ exports.searchResultsForUser = async (req, res, next) => {
         console.log(err);
         next(err);
     }
-    logger.trace(`Quotes : Exit searchResults`);
+    logger.debug(`Quotes : Exit searchResults`);
 };

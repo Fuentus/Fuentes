@@ -1,18 +1,14 @@
 const db = require("../../../models");
-const {Op} = require("sequelize");
 //
 // const {logger} = require("../../../util/log_utils");
 
-const Quotes = db.Quotes;
-const Measures = db.Measures;
-const Uploads = db.Uploads;
-const Users = db.Users;
+const {Quotes, Measures, Uploads, Users} = db;
 
 const fetchQuoteByClause = async (whereClause) => {
     return (
         (await Quotes.findOne({
             where: whereClause,
-            attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt"],
+            attributes: ["id", "title", "desc", "startDate", "endDate", "status", "createdAt", "updatedAt"],
             include: [
                 {
                     model: Users,

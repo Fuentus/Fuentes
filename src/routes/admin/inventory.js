@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const inventoryController = require("../controllers/inventory");
+const inventoryController = require("../../controllers/admin/InventoryController");
 
 
 router.post('/', inventoryController.createInventory);

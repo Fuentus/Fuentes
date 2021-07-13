@@ -13,10 +13,10 @@ module.exports = (req, res, next) => {
                 req.admin = data.role === "ADMIN";
                 if (req.admin) {
                     next();
+                } else {
+                    const err = new Error(`Not Enough Privileges`)
+                    next(err);
                 }
-            } else {
-                const err = new Error(`Not Enough Privileges`)
-                next(err);
             }
         })
         .catch(err => {

@@ -17,19 +17,28 @@ class QuoteStatus {
         }
         return this.quoteStatus;
     }
-
+    static customerStatus = () => {
+        const res = [];
+        res.push(QUOTE_STATUS.QUOTE_NEW.status);
+        res.push(QUOTE_STATUS.QUOTE_ACCEPTED.status);
+        res.push(QUOTE_STATUS.QUOTE_SUBMIT.status);
+        res.push(QUOTE_STATUS.QUOTE_REJECTED.status);
+        return res;
+    }
     static findQuoteByStatus = (name) => {
-        //TODO Correct this func
-        return QUOTE_STATUS.some(status => {
-            if (status === name.toUpperCase()) {
-                return status
+        for (let key of Object.keys(QUOTE_STATUS)) {
+            if (QUOTE_STATUS[key].status === name.toUpperCase()) {
+                return QUOTE_STATUS[key];
             }
-        });
+        }
     }
 
     static checkQuotesStatusCanBeUpdated = (existingQuoteStatus, newQuoteStatus) => {
         const existingQStatus = this.findQuoteByStatus(existingQuoteStatus);
         const newQStatus = this.findQuoteByStatus(newQuoteStatus);
+        if (!newQStatus) {
+            return false;
+        }
         return newQStatus.priority >= existingQStatus.priority;
     }
 

@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const operationController = require("../controllers/operations");
+const operationController = require("../../controllers/admin/OperationsController");
 
 
 router.post('/', operationController.createOperation);
 
-router.get('/', operationController.getOperation);
+router.get('/', operationController.findAllOperations);
 
-router.get('/:id', operationController.getOneOperation)
+router.get('/:id', operationController.findByOperationId)
 
 router.put('/:id', operationController.updateOperation)
 

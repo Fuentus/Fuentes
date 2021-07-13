@@ -2,7 +2,7 @@ const db = require("../../models");
 const {Op} = require("sequelize");
 const {validationResult} = require("express-validator");
 
-const Quotes = db.Quotes;
+const {Quotes} = db;
 
 const {logger} = require("../../util/log_utils");
 const {fetchQuoteByClause, getAllQuotes} = require("../service/quote/QuoteService")
@@ -10,7 +10,7 @@ const {QuoteStatus} = require("../service/quote/QuoteStatus");
 const {getPagination, getPagingData} = require("../service/quote/PaginationService")
 
 exports.findAllQuotesForAdmin = (req, res) => {
-    logger.trace(`Quotes : Inside findAllQuotesForAdmin`);
+    logger.debug(`Quotes : Inside findAllQuotesForAdmin`);
     let {updatedAt} = req.query;
     updatedAt = updatedAt ? updatedAt : 0;
     const whereClause = {updatedAt: {[Op.gt]: updatedAt}};
@@ -27,14 +27,13 @@ exports.findAllQuotesForAdmin = (req, res) => {
         res.send(response);
     };
     getAllQuotes(obj, whereClause, success, failure);
-    logger.trace(`Quotes : Exit findAllQuotesForAdmin`);
+    logger.debug(`Quotes : Exit findAllQuotesForAdmin`);
 };
 exports.findQuoteByIdAdmin = async (req, res, next) => {
     logger.info(`Quotes : Inside findQuoteById`);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(422)
-            .json({
+        return res.status(422).send({
                 message: "Validation failed",
                 data: errors.array()
             });
@@ -53,13 +52,13 @@ exports.changeStatusForAdmin = async (req, res, next) => {
     const quote = await fetchQuoteByClause({id: id})
     const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
     if (!boolean) {
-        res.status(422).send({msg: `Please Choose Correct Status`});
+        return res.status(422).send({msg: `Please Choose Correct Status`});
     }
     Quotes.update({status: status}, {where: {id: id}})
         .then((result) => {
             const obj = {};
             obj.message = "Update Successfully";
-            obj.updatedRecord = result[0];
+            obj.updatedRecord = result.length;
             res.status(200).send(obj);
         })
         .catch((err) => next(err));
@@ -68,7 +67,7 @@ exports.changeStatusForAdmin = async (req, res, next) => {
 
 exports.searchResultsForAdmin = async (req, res, next) => {
     try {
-        printLog(`Quotes : searchResults`);
+        logger.debug(`Quotes : searchResults`);
         const {search} = req.body;
         const whereClause = {
             title: {
@@ -91,5 +90,5 @@ exports.searchResultsForAdmin = async (req, res, next) => {
         console.log(err);
         next(err);
     }
-    printLog(`Quotes : Exit searchResults`);
+    logger.debug(`Quotes : Exit searchResults`);
 };

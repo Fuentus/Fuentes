@@ -1,5 +1,5 @@
-const {param, body, check} = require("express-validator");
-const {QUOTE_STATUS} = require('../controllers/service/quote/QuoteStatus');
+const {param, body} = require("express-validator");
+const {QuoteStatus} = require('../controllers/service/quote/QuoteStatus');
 const db = require("../models/index");
 const Quotes = db.Quotes;
 
@@ -56,9 +56,10 @@ const checkUserPrivilegeOfQuote = (req, res, next) => {
         if (val) {
             const data = val.dataValues;
             const user = req.user.dataValues;
+            req.quoteStatus = data.status;
             if (req.admin) {
                 next();
-            } else if (data.UserId === user.id && data.status === QUOTE_STATUS[0]) {
+            } else if (data.UserId === user.id){
                 next()
             } else {
                 res.status(401).send({message: "Insufficient Privilege"});
@@ -68,8 +69,27 @@ const checkUserPrivilegeOfQuote = (req, res, next) => {
         }
     })
 };
+
+const deleteQuotePrivilege = (req,res,next)=>{
+    if(req.quoteStatus === QuoteStatus.defaultValue()){
+        next()
+    }else{
+        res.status(401).send({message: "Quote Status cant be deleted"});
+    }
+}
+const editQuotePrivilege = (req, res, next) => {
+    for (let a in QuoteStatus.customerStatus()) {
+        if (a === req.quoteStatus) {
+            next()
+        } else {
+            res.status(401).send({message: "Quote Status cant be deleted"});
+        }
+    }
+}
 module.exports = {
     quoteCreateValidator: quoteCreateValidator,
     validateReq: validateReq,
-    checkUserPrivilegeOfQuote: checkUserPrivilegeOfQuote
+    checkUserPrivilegeOfQuote: checkUserPrivilegeOfQuote,
+    deleteQuotePrivilege:deleteQuotePrivilege,
+    editQuotePrivilege:editQuotePrivilege
 };
