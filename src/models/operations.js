@@ -1,20 +1,21 @@
-module.exports = function (sequelize, Sequelize) {
+module.exports = function (sequelize, DataTypes) {
+    const {INTEGER, TEXT, STRING} = DataTypes;
     const Operations = sequelize.define(
         "Operations",
         {
             id: {
-                type: Sequelize.INTEGER,
+                type: INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
                 notNull: true,
                 unique: true,
             },
             name: {
-                type: Sequelize.STRING,
+                type: STRING,
                 notNull: true,
             },
             desc: {
-                type: Sequelize.STRING,
+                type: TEXT,
                 notNull: true,
             }
         },
@@ -24,12 +25,7 @@ module.exports = function (sequelize, Sequelize) {
     );
 
     Operations.associate = function (models) {
-        const {Quotes,Inventory} = models;
-        Operations.belongsToMany(Inventory, {
-            through: "inv_operations",
-            as: "Inventory",
-            foreignKey: "inventory_id",
-        });
+        const {Quotes} = models;
 
         Operations.belongsToMany(Quotes, {
             through: "quote_operations",

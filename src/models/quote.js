@@ -1,33 +1,34 @@
 const {QuoteStatus} = require("../controllers/service/quote/QuoteStatus");
 module.exports = function (sequelize, Sequelize) {
+    const {INTEGER, TEXT, STRING, ENUM, DATE} = Sequelize;
     const Quotes = sequelize.define(
         "Quotes",
         {
             id: {
-                type: Sequelize.INTEGER,
+                type: INTEGER,
                 primaryKey: true,
                 autoIncrement: true,
                 notNull: true,
                 unique: true,
             },
             title: {
-                type: Sequelize.STRING,
+                type: TEXT,
                 notNull: true,
             },
             desc: {
-                type: Sequelize.STRING,
+                type: STRING,
             },
             status: {
-                type: Sequelize.ENUM,
+                type: ENUM,
                 values: QuoteStatus.getAllQuotesStatus(),
                 defaultValue: QuoteStatus.defaultValue(),
                 notNull: true,
             },
             startDate: {
-                type: Sequelize.DATE
+                type: DATE
             },
             endDate: {
-                type: Sequelize.DATE,
+                type: DATE
             }
         },
         {

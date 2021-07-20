@@ -4,12 +4,10 @@ const {Operations} = db;
 
 exports.createOperation = async (req, res, next) => {
     logger.debug(`Operations : Inside createOperation`);
-    const {name, desc} = req.body
+    // Item is inventory here , expecting id od inv and required quantity
+    const {name, desc,items,workers } = req.body
     try {
-        const operation = await Operations.create({
-            name: name,
-            desc: desc
-        })
+        const operation = await Operations.create({name: name, desc: desc})
         res.status(201).json({message: 'operation created', data: operation})
     } catch (err) {
         logger.error(err)

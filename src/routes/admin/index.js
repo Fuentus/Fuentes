@@ -14,9 +14,11 @@ const router = express.Router();
 // const workerRoute = require('./routes/worker')
 
 const quoteRoutes = require('./quote');
+const inventoryRoute = require('./inventory');
 const operationRoute = require('./operations');
 
 router.use('/quotes', quoteRoutes);
+router.use('/inventory', inventoryRoute)
 router.use('/operation', operationRoute)
 
 module.exports = router;

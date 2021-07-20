@@ -1,62 +1,62 @@
-module.exports = function (sequelize, Sequelize) {
+module.exports = function (sequelize, DataTypes) {
+    const {INTEGER, TEXT, STRING, DECIMAL} = DataTypes;
     const Workers = sequelize.define(
-      "Workers",
-      {
-        id: {
-          type: Sequelize.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-          notNull: true,
-          unique: true,
-        },
-        w_name: {
-          type: Sequelize.STRING,
-          notNull: true,
-        },
-        w_phone: {
-            type: Sequelize.STRING,
-            notNull: true
-          },
-        w_address: {
-          type: Sequelize.STRING,
-          notNull: true,
-        },
-        w_email: {
-          type: Sequelize.STRING,
-          unique: true,
-          validate: {
-            isEmail: {
-                msg: "Must be a valid email address",
+        "Workers",
+        {
+            id: {
+                type: INTEGER,
+                primaryKey: true,
+                autoIncrement: true,
+                notNull: true,
+                unique: true,
             },
+            name: {
+                type: STRING,
+                notNull: true,
             },
-            notNull: true,
+            phone: {
+                type: STRING,
+                notNull: true
+            },
+            address: {
+                type: STRING,
+                notNull: true,
+            },
+            email: {
+                type: STRING,
+                unique: true,
+                validate: {
+                    isEmail: {
+                        msg: "Must be a valid email address",
+                    },
+                },
+                notNull: true,
+            },
+            avail_per_day: {
+                type: DECIMAL,
+                validate: {
+                    isDecimal: true
+                }
+            },
+            cost_per_hr: {
+                type: DECIMAL,
+                validate: {
+                    isDecimal: true
+                }
+            }
         },
-        w_status: {
-          type: Sequelize.ENUM("AVAILABLE"),
-          defaultValue: "AVAILABLE",
-          notNull: true,
-        },
-        w_operations: {
-            type: Sequelize.STRING,
-            allowNull: true,
-        },
-      },
-      {
-        schema: "tbl",
-      }
+        {
+            schema: "tbl",
+        }
     );
 
     Workers.associate = function (models) {
-        Workers.belongsTo(models.Projects, {
-          foreignKey: {
-            allowNull: false,
-          },
-        });
-        Workers.belongsTo(models.Operations, {
+        const {Professions} = models;
+        Workers.belongsTo(Professions, {
             foreignKey: {
                 allowNull: false,
-            }
-        })
-      };
+            },
+        });
+    };
     return Workers;
-  };
+};

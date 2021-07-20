@@ -1,54 +1,44 @@
-module.exports = function (sequelize, Sequelize) {
+module.exports = function (sequelize, DataTypes) {
+    const {INTEGER, TEXT, STRING, DECIMAL} = DataTypes;
     const Inventory = sequelize.define(
         "Inventory",
         {
             id: {
-                type: Sequelize.INTEGER,
+                type: INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
                 notNull: true,
                 unique: true,
             },
             itemName: {
-                type: Sequelize.STRING,
+                type: STRING,
                 notNull: true,
             },
             itemDesc: {
-                type: Sequelize.STRING,
+                type: TEXT,
                 notNull: true,
             },
-            operationsTagged: {
-                type: Sequelize.STRING,
-                allowNull: true,
-                foreignKey: false
-            },
             availability: {
-                type: Sequelize.INTEGER,
+                type: INTEGER,
                 notNull: true,
             },
             cost: {
-                type: Sequelize.INTEGER,
-                notNull: true,
+                type: DECIMAL,
+                validate: {
+                    isDecimal: true
+                }
             },
             supplierInfo: {
-                type: Sequelize.STRING,
+                type: STRING,
                 allowNull: true
             }
         },
         {
-            schema: "tbl",
-            paranoid: true,
-            underscored: true,
-            version: true
+            schema: "tbl"
         }
     );
 
     Inventory.associate = function (models) {
-        Inventory.belongsToMany(models.Operations, {
-            through: "inv_operations",
-            as: "operations",
-            foreignKey: "operation_id",
-        });
     };
     return Inventory;
 };

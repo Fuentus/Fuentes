@@ -2,17 +2,23 @@ const db = require('../../models');
 const {Inventory} = db;
 
 const {logger} = require("../../util/log_utils");
+const {validationResult} = require("express-validator");
 
 exports.createInventory = async (req, res, next) => {
     logger.debug(`Inventory : Inside createInventory`);
-    const {item_name, item_desc, availability, cost, supplier_email} = req.body
+    const {itemName, itemDesc, availability, cost, supplier_email} = req.body
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422)
+                .json({message: "Validation failed", data: errors.array()});
+        }
         const inventory = await Inventory.create({
-            item_name: item_name,
-            item_desc: item_desc,
+            itemName: itemName,
+            itemDesc: itemDesc,
             availability: availability,
             cost: cost,
-            supplier: supplier_email
+            supplierInfo: supplier_email
         })
         res.status(200).json({message: 'Inventory Created', data: inventory})
     } catch (err) {
@@ -23,7 +29,7 @@ exports.createInventory = async (req, res, next) => {
 }
 
 exports.getInventory = (req, res, next) => {
-    printLog(`Inventory : Inside getInventory`);
+    logger.debug(`Inventory : Inside getInventory`);
     const getPagination = (page, size) => {
         const limit = size ? +size : 3;
         const offset = page ? page * limit : 0;
@@ -47,7 +53,7 @@ exports.getInventory = (req, res, next) => {
                 message: err.message || "Error occurred while retrieving",
             });
         });
-    printLog(`Inventory : Exit getInventory`);
+    logger.debug(`Inventory : Exit getInventory`);
 }
 
 exports.getOneInventory = (req, res, next) => {

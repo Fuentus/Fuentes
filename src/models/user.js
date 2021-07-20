@@ -1,49 +1,51 @@
 module.exports = function (sequelize, Sequelize) {
-  const Users = sequelize.define(
-    "Users",
-    {
-      id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true,
-      },
-      name: {
-        type: Sequelize.STRING,
-        notNull: true,
-      },
-      email: {
-        type: Sequelize.STRING,
-        unique: true,
-        validate: {
-          isEmail: {
-            msg: "Must be a valid email address",
-          },
+    const {INTEGER, STRING, ENUM} = Sequelize;
+    const Users = sequelize.define(
+        "Users",
+        {
+            id: {
+                type: INTEGER,
+                autoIncrement: true,
+                allowNull: false,
+                primaryKey: true,
+            },
+            name: {
+                type: STRING,
+                notNull: true,
+            },
+            email: {
+                type: STRING,
+                unique: true,
+                validate: {
+                    isEmail: {
+                        msg: "Must be a valid email address",
+                    },
+                },
+                notNull: true,
+            },
+            password: {
+                type: STRING,
+                required: true,
+            },
+            status: {
+                type: ENUM("CREATED", "DELETED"),
+                defaultValue: "CREATED",
+            },
+            role: {
+                type: ENUM("ADMIN", "USER", "WORKER"),
+                defaultValue: "USER",
+            }
         },
-        notNull: true,
-      },
-      password: {
-        type: Sequelize.STRING,
-        required: true,
-      },
-      status: {
-        type: Sequelize.ENUM("CREATED", "DELETED"),
-        defaultValue: "CREATED",
-      },
-      role: {
-        type: Sequelize.ENUM("ADMIN", "USER"),
-        defaultValue: "USER",
-      }
-    },
-    {
-      schema: "tbl",
-      paranoid: true,
-      version: true
-    }
-  );
+        {
+            schema: "tbl",
+            paranoid: true,
+            version: true
+        }
+    );
 
-  Users.associate = function (models) {
-    Users.hasMany(models.Quotes);
-  };
-  return Users;
+    Users.associate = function (models) {
+        const {Quotes} = models;
+        Users.hasMany(Quotes);
+    };
+    return Users;
 };
