@@ -1,9 +1,10 @@
 module.exports = function (sequelize, DataTypes) {
-    const {INTEGER, UUID} = DataTypes;
+    const {INTEGER, UUID,UUIDV4} = DataTypes;
     const InvOperations = sequelize.define('inv_operations', {
         tag_inv_operations_id: {
             type: UUID,
-            defaultValue: INTEGER,
+            allowNull: false,
+            defaultValue: UUIDV4,
             primaryKey: true
         },
         inv_id: {
@@ -41,7 +42,7 @@ module.exports = function (sequelize, DataTypes) {
 
     InvOperations.associate = function (models) {
         const {Operations,Inventory} = models;
-        InvOperations.belongsTo(Inventory, { foreignKey: 'inv_id', targetKey: 'id', as: 'Inventory' });
+        InvOperations.belongsTo(Inventory, { foreignKey: 'inv_id', targetKey: 'id', as: 'Inventories' });
         InvOperations.belongsTo(Operations, { foreignKey: 'operation_id', targetKey: 'id', as: 'Operations' });
     };
     return InvOperations;

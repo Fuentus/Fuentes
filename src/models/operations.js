@@ -25,14 +25,17 @@ module.exports = function (sequelize, DataTypes) {
     );
 
     Operations.associate = function (models) {
-        const {Quotes} = models;
+        const {Quotes, inv_operations: InvOperations} = models;
 
         Operations.belongsToMany(Quotes, {
             through: "quote_operations",
             as: "Quotes",
             foreignKey: "quote_id",
         });
-        // Operations.hasMany(models.Workers, { onDelete : 'cascade' , onUpdate: 'cascade'});
+        Operations.hasMany(InvOperations, {
+            foreignKey: "operation_id",
+            as: "OperationInventories",
+        });
     };
 
 

@@ -1,9 +1,9 @@
 module.exports = function (sequelize, DataTypes) {
-    const {INTEGER, UUID, DECIMAL} = DataTypes;
+    const {INTEGER, UUID, UUIDV4, DECIMAL} = DataTypes;
     const WorkerOperations = sequelize.define('worker_operations', {
         tag_inv_operations_id: {
             type: UUID,
-            defaultValue: INTEGER,
+            defaultValue: UUIDV4,
             primaryKey: true
         },
         worker_id: {
@@ -29,6 +29,10 @@ module.exports = function (sequelize, DataTypes) {
             unique: 'unique-worker-per-operations'
         },
         avail_per_day: {
+            type: DECIMAL,
+            notNull: true,
+        },
+        est_cost: {
             type: DECIMAL,
             notNull: true,
         }

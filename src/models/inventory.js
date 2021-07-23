@@ -39,6 +39,11 @@ module.exports = function (sequelize, DataTypes) {
     );
 
     Inventory.associate = function (models) {
+        const {inv_operations: InvOperations} = models
+        Inventory.hasMany(InvOperations, {
+            foreignKey: "inv_id",
+            as: "Inventories",
+        });
     };
     return Inventory;
 };

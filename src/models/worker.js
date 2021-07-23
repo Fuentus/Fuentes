@@ -19,7 +19,7 @@ module.exports = function (sequelize, DataTypes) {
                 notNull: true
             },
             address: {
-                type: STRING,
+                type: TEXT,
                 notNull: true,
             },
             email: {
@@ -32,6 +32,13 @@ module.exports = function (sequelize, DataTypes) {
                 },
                 notNull: true,
             },
+            password: {
+                type: STRING,
+                required: true,
+            },
+            firstTime:{
+                type:INTEGER
+            },
             avail_per_day: {
                 type: DECIMAL,
                 validate: {
@@ -43,6 +50,9 @@ module.exports = function (sequelize, DataTypes) {
                 validate: {
                     isDecimal: true
                 }
+            },
+            total_avail_per_week: {
+                type: INTEGER
             }
         },
         {

@@ -40,9 +40,5 @@ module.exports = function (sequelize, Sequelize) {
         schema: "tbl",
       }
     );
-      Projects.associate = function (models) {
-
-        Projects.hasMany(models.Workers, { onDelete : 'cascade' , onUpdate: 'cascade'});
-      };
     return Projects;
   };

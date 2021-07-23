@@ -32,7 +32,7 @@ module.exports = function (sequelize, Sequelize) {
                 defaultValue: "CREATED",
             },
             role: {
-                type: ENUM("ADMIN", "USER", "WORKER"),
+                type: ENUM("ADMIN", "USER"),
                 defaultValue: "USER",
             }
         },
@@ -42,7 +42,20 @@ module.exports = function (sequelize, Sequelize) {
             version: true
         }
     );
-
+    // Users.sync().then(() => {
+    //     Users.create({
+    //         email:"ravi_admin@r.com",
+    //         password:"12345",
+    //         role:"ADMIN",
+    //         name:"ravi"
+    //     });
+    //     Users.create({
+    //         email:"ravi_user@r.com",
+    //         password:"12345",
+    //         role:"USER",
+    //         name:"ravi"
+    //     });
+    // });
     Users.associate = function (models) {
         const {Quotes} = models;
         Users.hasMany(Quotes);

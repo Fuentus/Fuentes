@@ -1,5 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
-    const {INTEGER, TEXT, STRING, DECIMAL} = DataTypes;
+    const {INTEGER, STRING} = DataTypes;
     const Professions = sequelize.define(
         "Professions",
         {
@@ -20,14 +20,14 @@ module.exports = function (sequelize, DataTypes) {
         }
     );
 
-    Professions.sync().then(() => {
-        Professions.create({
-            name: 'PAINTING',
-        });
-        Professions.create({
-            name: 'DRILLING'
-        });
-    });
+    // Professions.sync().then(() => {
+    //     Professions.create({
+    //         name: 'PAINTING',
+    //     });
+    //     Professions.create({
+    //         name: 'DRILLING'
+    //     });
+    // });
 
     Professions.associate = function (models) {
         const {Workers} = models;
