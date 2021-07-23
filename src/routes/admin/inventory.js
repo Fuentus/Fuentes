@@ -6,9 +6,9 @@ const inventoryController = require("../../controllers/admin/InventoryController
 
 router.post('/', inventoryController.createInventory);
 
-router.get('/', inventoryController.getInventory);
+router.get('/', inventoryController.findAllInventory);
 
-router.get('/:id', inventoryController.getOneInventory)
+router.get('/:id', inventoryController.findInventoryById)
 
 router.put('/:id', inventoryController.updateInventory)
 

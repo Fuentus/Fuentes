@@ -5,8 +5,8 @@ const {logger} = require("../../util/log_utils");
 const {validationResult} = require("express-validator");
 const bcrypt = require("bcryptjs");
 const {Op} = require("sequelize");
-const {getPagination, getPagingData} = require("../service/quote/PaginationService");
-const {getAllWorkers} = require("../service/quote/WorkerService");
+const {getPagination, getPagingData} = require("../service/PaginationService");
+const {getAllWorkers} = require("../service/WorkerService");
 
 exports.getAllWorkers = (req, res) => {
     logger.debug(`Workers : Inside getWorkers`);

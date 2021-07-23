@@ -1,4 +1,4 @@
-const {QuoteStatus} = require("../controllers/service/quote/QuoteStatus");
+const {QuoteStatus} = require("../controllers/service/QuoteStatus");
 module.exports = function (sequelize, Sequelize) {
     const {INTEGER, TEXT, STRING, ENUM, DATE} = Sequelize;
     const Quotes = sequelize.define(

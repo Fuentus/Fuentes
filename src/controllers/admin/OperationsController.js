@@ -1,8 +1,8 @@
 const db = require('../../models');
 const {logger} = require("../../util/log_utils");
 const {Op} = require("sequelize");
-const {getPagination, getPagingData} = require("../service/quote/PaginationService");
-const {getAllOperations, fetchOperationsByClause} = require("../service/quote/OperationService");
+const {getPagination, getPagingData} = require("../service/PaginationService");
+const {getAllOperations, fetchOperationsByClause} = require("../service/OperationService");
 const {validationResult} = require("express-validator");
 const {Operations, inv_operations: InvOperations, worker_operations: WorkerOperations} = db;
 

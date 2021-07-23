@@ -3,8 +3,8 @@ const {Op} = require("sequelize");
 const {validationResult} = require("express-validator");
 
 const {logger} = require("../../util/log_utils");
-const {fetchQuoteByClause, getAllQuotes} = require("../service/quote/QuoteService")
-const {getPagination, getPagingData} = require("../service/quote/PaginationService")
+const {fetchQuoteByClause, getAllQuotes} = require("../service/QuoteService")
+const {getPagination, getPagingData} = require("../service/PaginationService")
 
 const {Quotes, Measures, Uploads} = db;
 

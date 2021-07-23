@@ -5,9 +5,9 @@ const {validationResult} = require("express-validator");
 const {Quotes, Operations} = db;
 
 const {logger} = require("../../util/log_utils");
-const {fetchQuoteByClause, getAllQuotes} = require("../service/quote/QuoteService")
-const {QuoteStatus} = require("../service/quote/QuoteStatus");
-const {getPagination, getPagingData} = require("../service/quote/PaginationService")
+const {fetchQuoteByClause, getAllQuotes} = require("../service/QuoteService")
+const {QuoteStatus} = require("../service/QuoteStatus");
+const {getPagination, getPagingData} = require("../service/PaginationService")
 
 exports.findAllQuotesForAdmin = (req, res) => {
     logger.debug(`Quotes : Inside findAllQuotesForAdmin`);

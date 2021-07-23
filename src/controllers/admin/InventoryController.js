@@ -1,71 +1,90 @@
 const db = require('../../models');
-const {Inventory} = db;
+const {Inventory,inv_operations: InvOperations} = db;
 
 const {logger} = require("../../util/log_utils");
 const {validationResult} = require("express-validator");
+const {Op} = require("sequelize");
+const {getPagination, getPagingData} = require("../service/PaginationService");
+const {fetchInventoryByClause,getAllInventories} = require("../service/InventoryService");
 
 exports.createInventory = async (req, res, next) => {
     logger.debug(`Inventory : Inside createInventory`);
-    const {itemName, itemDesc, availability, cost, supplier_email} = req.body
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(422)
-                .json({message: "Validation failed", data: errors.array()});
-        }
-        const inventory = await Inventory.create({
-            itemName: itemName,
-            itemDesc: itemDesc,
-            availability: availability,
-            cost: cost,
-            supplierInfo: supplier_email
-        })
-        res.status(200).json({message: 'Inventory Created', data: inventory})
-    } catch (err) {
-        logger.error(err);
+    const {itemName, itemDesc, availability, cost, supplier_email, operations} = req.body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422)
+            .json({message: "Validation failed", data: errors.array()});
+    }
+    const result = await db.sequelize
+        .transaction(async (t) => {
+            const inventory = await Inventory.create({
+                itemName: itemName,
+                itemDesc: itemDesc,
+                availability: availability,
+                cost: cost,
+                supplierInfo: supplier_email
+            }, {transaction: t});
+            if (operations) {
+                operations.map((item) => {
+                    item.inv_id = inventory.id;
+                    item.operation_id = item.id;
+                    item.req_avail = 0;
+                    return item;
+                })
+                const invOperationBulk = await InvOperations.bulkCreate(operations, {transaction: t})
+                logger.info(`Inserted ${invOperationBulk.length} items to InvOperations`);
+            }
+            return Inventory;
+        }).catch(function (err) {
+            logger.error(err)
+            return null;
+        });
+
+    if (result) {
+        res.status(201).json({message: "Inventory created!", data: req.body});
+    } else {
+        const err = new Error("Please try back Later");
+        err.statusCode = 500;
         next(err);
     }
     logger.debug(`Inventory : Exit createInventory`);
 }
 
-exports.getInventory = (req, res, next) => {
-    logger.debug(`Inventory : Inside getInventory`);
-    const getPagination = (page, size) => {
-        const limit = size ? +size : 3;
-        const offset = page ? page * limit : 0;
-        return {limit, offset};
-    };
-    const getPagingData = (data, page, limit) => {
-        const {count: totalItems, rows: inventory} = data;
-        const currentPage = page ? +page : 0;
-        const totalPages = Math.ceil(totalItems / limit);
-        return {totalItems, inventory, totalPages, currentPage};
-    };
+exports.findAllInventory = (req, res, next) => {
+    logger.debug(`Inventory : Inside findAllInventory`);
+    let {updatedAt} = req.query;
+    updatedAt = updatedAt ? updatedAt : 0;
+    const whereClause = {updatedAt: {[Op.gt]: updatedAt}};
     const {page, size} = req.query;
-    const {limit, offset} = getPagination(page, size);
-    Inventory.findAndCountAll({where: null, limit, offset})
-        .then((data) => {
-            const response = getPagingData(data, page, limit);
-            res.send(response);
-        })
-        .catch((err) => {
-            res.status(500).send({
-                message: err.message || "Error occurred while retrieving",
-            });
+    const obj = getPagination(page, size);
+    const failure = (err) => {
+        logger.error(err);
+        res.status(500).send({
+            message: err.message || "Error occurred while retrieving",
         });
-    logger.debug(`Inventory : Exit getInventory`);
+    };
+    const success = (data) => {
+        const response = getPagingData(data, page, obj.limit);
+        res.send(response);
+    };
+    getAllInventories(obj, whereClause, success, failure);
+    logger.debug(`Inventory : Exit findAllInventory`);
 }
 
-exports.getOneInventory = (req, res, next) => {
-    printLog(`Inventory : Inside getOneInventory`);
-    const {id} = req.params
-    const inventory = Inventory.findOne({where: {id: id}})
-        .then((inventory) => {
-            res.status(200).send(inventory)
-        }).catch((err) => {
-            console.log(err)
-        })
-    printLog(`Inventory : Exit getOneInventory`);
+exports.findInventoryById = async (req, res, next) => {
+    logger.info(`Inventory : Inside findInventoryById`);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).send({
+            message: "Validation failed",
+            data: errors.array()
+        });
+    }
+    const {id} = req.params;
+    const whereClause = {id: id};
+    const quote = await fetchInventoryByClause(whereClause);
+    res.status(200).send(quote);
+    logger.info(`Inventory : Exit findInventoryById`);
 }
 
 exports.deleteInventory = (req, res, next) => {

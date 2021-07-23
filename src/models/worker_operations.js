@@ -1,7 +1,7 @@
 module.exports = function (sequelize, DataTypes) {
     const {INTEGER, UUID, UUIDV4, DECIMAL} = DataTypes;
     const WorkerOperations = sequelize.define('worker_operations', {
-        tag_inv_operations_id: {
+        tag_workers_operations_id: {
             type: UUID,
             defaultValue: UUIDV4,
             primaryKey: true

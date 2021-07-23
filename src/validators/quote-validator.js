@@ -1,5 +1,5 @@
 const {param, body} = require("express-validator");
-const {QuoteStatus} = require('../controllers/service/quote/QuoteStatus');
+const {QuoteStatus} = require('../controllers/service/QuoteStatus');
 const db = require("../models/index");
 const Quotes = db.Quotes;
 
