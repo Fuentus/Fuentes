@@ -29,6 +29,8 @@ const workerCreateValidator = [
 
 router.get('/', workerController.getAllWorkers);
 
+router.get('/profession/:professionId', workerController.getAllWorkersByProfessionId);
+
 router.post('/', workerCreateValidator,workerController.createWorkers);
 
 router.get('/:id', workerController.getWorkersById)

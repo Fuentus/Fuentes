@@ -8,11 +8,7 @@ const {Op} = require("sequelize");
 const {getPagination, getPagingData} = require("../service/PaginationService");
 const {getAllWorkers} = require("../service/WorkerService");
 
-exports.getAllWorkers = (req, res) => {
-    logger.debug(`Workers : Inside getWorkers`);
-    let {updatedAt} = req.query;
-    updatedAt = updatedAt ? updatedAt : 0;
-    const whereClause = {updatedAt: {[Op.gt]: updatedAt}};
+const findAllWorkers = (req, res, whereClause) => {
     const {page, size} = req.query;
     const obj = getPagination(page, size);
     const failure = (err) => {
@@ -26,7 +22,23 @@ exports.getAllWorkers = (req, res) => {
         res.send(response);
     };
     getAllWorkers(obj, whereClause, success, failure);
+}
+
+exports.getAllWorkers = (req, res) => {
+    logger.debug(`Workers : Inside getWorkers`);
+    let {updatedAt} = req.query;
+    updatedAt = updatedAt ? updatedAt : 0;
+    const whereClause = {updatedAt: {[Op.gt]: updatedAt}};
+    findAllWorkers(req, res, whereClause);
     logger.debug(`Workers : Exit getWorkers`);
+}
+exports.getAllWorkersByProfessionId = (req, res) => {
+    logger.debug(`Workers : Inside getWorkers`);
+    let {updatedAt} = req.query;
+    const {professionId} = req.params
+    updatedAt = updatedAt ? updatedAt : 0;
+    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, ProfessionId: {[Op.eq]: professionId}};
+    findAllWorkers(req, res, whereClause);
 }
 
 exports.createWorkers = async (req, res, next) => {
@@ -60,12 +72,12 @@ exports.createWorkers = async (req, res, next) => {
     logger.debug(`Workers : Exit createWorkers`);
 }
 
-exports.getWorkersById = (req, res, next) => {
+exports.getWorkersById = (req, res) => {
     logger.debug(`Workers : Inside getWorkersById`);
     const {id} = req.params
     Workers.findOne({
         where: {id: id},
-        attributes: {exclude: ['password','firstTime']}
+        attributes: {exclude: ['password', 'firstTime']}
     })
         .then((workers) => {
             res.send(workers).status(200)

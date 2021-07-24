@@ -1,4 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
+    const {Operations, Workers} = sequelize.models;
     const {INTEGER, UUID, UUIDV4, DECIMAL} = DataTypes;
     const WorkerOperations = sequelize.define('worker_operations', {
         tag_workers_operations_id: {
@@ -10,7 +11,7 @@ module.exports = function (sequelize, DataTypes) {
             type: INTEGER,
             primaryKey: false,
             references: {
-                model: 'tbl.Workers',
+                model: Workers,
                 key: 'id'
             },
             onDelete: 'cascade',
@@ -21,7 +22,7 @@ module.exports = function (sequelize, DataTypes) {
             type: INTEGER,
             primaryKey: false,
             references: {
-                model: 'tbl.Operations',
+                model: Operations,
                 key: 'id'
             },
             onDelete: 'cascade',

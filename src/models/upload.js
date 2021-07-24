@@ -8,26 +8,26 @@ module.exports = function (sequelize, Sequelize) {
                 autoIncrement: true,
                 notNull: true,
                 unique: true,
-              },
-              fileDocument: {
+            },
+            fileDocument: {
                 type: Sequelize.BLOB
-              },
-              fileName:{
+            },
+            fileName: {
                 type: Sequelize.STRING,
                 notNull: true
-              },
-              filePath:{
+            },
+            filePath: {
                 type: Sequelize.STRING,
                 notNull: true
-              },
-              createdAt: {
+            },
+            createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE
-              },
-              updatedAt: {
+            },
+            updatedAt: {
                 allowNull: false,
                 type: Sequelize.DATE
-              }
+            }
         }, {
             schema: "tbl"
         }

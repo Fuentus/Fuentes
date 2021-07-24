@@ -1,23 +1,23 @@
 module.exports = function (sequelize, DataTypes) {
-    const {Operations, Inventory} = sequelize.models;
+    const {Quotes, Operations} = sequelize.models;
     const {INTEGER, UUID, UUIDV4} = DataTypes;
-    const InvOperations = sequelize.define('inv_operations', {
+    const QuoteOperation = sequelize.define('quote_operations', {
         tag_inv_operations_id: {
             type: UUID,
             allowNull: false,
             defaultValue: UUIDV4,
             primaryKey: true
         },
-        inv_id: {
+        quote_id: {
             type: INTEGER,
             primaryKey: false,
             references: {
-                model: Inventory,
+                model: Quotes,
                 key: 'id'
             },
             onDelete: 'cascade',
             onUpdate: 'cascade',
-            unique: 'unique-inv-per-operations'
+            unique: 'quote-per-operations'
         },
         operation_id: {
             type: INTEGER,
@@ -28,12 +28,9 @@ module.exports = function (sequelize, DataTypes) {
             },
             onDelete: 'cascade',
             onUpdate: 'cascade',
-            unique: 'unique-inv-per-operations'
+            unique: 'quote-per-operations'
         },
-        req_avail: {
-            type: INTEGER,
-            notNull: true,
-        }
+
     }, {
         timestamps: true,
         underscored: true,
@@ -41,10 +38,11 @@ module.exports = function (sequelize, DataTypes) {
         version: true
     });
 
-    InvOperations.associate = function (models) {
-        const {Operations, Inventory} = models;
-        InvOperations.belongsTo(Inventory, {foreignKey: 'inv_id', targetKey: 'id', as: 'Inventories'});
-        InvOperations.belongsTo(Operations, {foreignKey: 'operation_id', targetKey: 'id', as: 'Operations'});
+    QuoteOperation.associate = function (models) {
+        const {Quote, Operations} = models;
+        // QuoteOperationInv.belongsTo(Quote, { foreignKey: 'quote_id', targetKey: 'id', as: 'Quotes' });
+        // QuoteOperationInv.belongsTo(Inventory, { foreignKey: 'inv_id', targetKey: 'id', as: 'Inventories' });
+        // QuoteOperationInv.belongsTo(Operations, { foreignKey: 'operation_id', targetKey: 'id', as: 'Operations' });
     };
-    return InvOperations;
+    return QuoteOperation;
 };

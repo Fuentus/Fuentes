@@ -52,11 +52,11 @@ module.exports = function (sequelize, Sequelize) {
             onDelete: "cascade",
             onUpdate: "cascade",
         });
-        Quotes.belongsToMany(Operations, {
-            through: "quote_operations",
-            as: "Operations",
-            foreignKey: "operation_id"
-        });
+        // Quotes.belongsToMany(Operations, {
+        //     through: "quote_operations",
+        //     as: "Operations",
+        //     foreignKey: "operation_id"
+        // });
     };
     return Quotes;
 };

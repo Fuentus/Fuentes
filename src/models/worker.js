@@ -36,8 +36,8 @@ module.exports = function (sequelize, DataTypes) {
                 type: STRING,
                 required: true,
             },
-            firstTime:{
-                type:INTEGER
+            firstTime: {
+                type: INTEGER
             },
             avail_per_day: {
                 type: DECIMAL,
