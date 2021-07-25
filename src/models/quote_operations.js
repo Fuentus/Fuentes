@@ -1,8 +1,8 @@
 module.exports = function (sequelize, DataTypes) {
     const {Quotes, Operations} = sequelize.models;
-    const {INTEGER, UUID, UUIDV4} = DataTypes;
+    const {INTEGER, FLOAT, STRING, UUID, UUIDV4, DECIMAL} = DataTypes;
     const QuoteOperation = sequelize.define('quote_operations', {
-        tag_inv_operations_id: {
+        tag_quote_operations_id: {
             type: UUID,
             allowNull: false,
             defaultValue: UUIDV4,
@@ -30,7 +30,20 @@ module.exports = function (sequelize, DataTypes) {
             onUpdate: 'cascade',
             unique: 'quote-per-operations'
         },
-
+        inspection: {
+            type: STRING,
+            notNull: true,
+        },
+        operation_total_hrs: {
+            type: FLOAT,
+            notNull: true,
+        },
+        operation_cost: {
+            type: DECIMAL,
+            validate: {
+                isDecimal: true
+            }
+        }
     }, {
         timestamps: true,
         underscored: true,
@@ -39,10 +52,9 @@ module.exports = function (sequelize, DataTypes) {
     });
 
     QuoteOperation.associate = function (models) {
-        const {Quote, Operations} = models;
-        // QuoteOperationInv.belongsTo(Quote, { foreignKey: 'quote_id', targetKey: 'id', as: 'Quotes' });
-        // QuoteOperationInv.belongsTo(Inventory, { foreignKey: 'inv_id', targetKey: 'id', as: 'Inventories' });
-        // QuoteOperationInv.belongsTo(Operations, { foreignKey: 'operation_id', targetKey: 'id', as: 'Operations' });
+        const {Quotes, Operations} = models;
+        QuoteOperation.belongsTo(Quotes, {foreignKey: 'quote_id', targetKey: 'id', as: 'Quotes'});
+        QuoteOperation.belongsTo(Operations, {foreignKey: 'operation_id', targetKey: 'id', as: 'Operations'});
     };
     return QuoteOperation;
 };

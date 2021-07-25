@@ -1,8 +1,9 @@
+const {FLOAT} = require("sequelize");
 module.exports = function (sequelize, DataTypes) {
-    const {quote_operations: QuotesOperations, Inventory} = sequelize.models;
+    const {quote_operations: QuotesOperations, Workers} = sequelize.models;
     const {INTEGER, UUID, UUIDV4} = DataTypes;
-    const QuoteOperationInv = sequelize.define('quote_operation_inv', {
-        tag_inv_operations_id: {
+    const QuoteOperationWorkers = sequelize.define('quote_operation_workers', {
+        tag_worker_operations_id: {
             type: UUID,
             allowNull: false,
             defaultValue: UUIDV4,
@@ -17,22 +18,22 @@ module.exports = function (sequelize, DataTypes) {
             },
             onDelete: 'cascade',
             onUpdate: 'cascade',
-            unique: 'quote-inv-per-operations'
+            unique: 'quote-worker-per-operations'
         },
-        inv_id: {
+        worker_id: {
             type: INTEGER,
             primaryKey: false,
             allowNull: true,
             references: {
-                model: Inventory,
+                model: Workers,
                 key: 'id'
             },
             onDelete: 'cascade',
             onUpdate: 'cascade',
-            unique: 'quote-inv-per-operations'
+            unique: 'quote-worker-per-operations'
         },
-        req_quantity:{
-            type: INTEGER
+        hrs_req: {
+            type: FLOAT
         }
     }, {
         timestamps: true,
@@ -41,14 +42,14 @@ module.exports = function (sequelize, DataTypes) {
         version: true
     });
 
-    QuoteOperationInv.associate = function (models) {
-        const {quote_operations: QuotesOperations, Inventory} = models;
-        QuoteOperationInv.belongsTo(QuotesOperations, {
+    QuoteOperationWorkers.associate = function (models) {
+        const {quote_operations: QuotesOperations, Workers} = models;
+        QuoteOperationWorkers.belongsTo(QuotesOperations, {
             foreignKey: 'quote_operation_id',
             targetKey: 'tag_quote_operations_id',
             as: 'QuotesOperations'
         });
-        QuoteOperationInv.belongsTo(Inventory, {foreignKey: 'inv_id', targetKey: 'id', as: 'Inventories'});
+        QuoteOperationWorkers.belongsTo(Workers, {foreignKey: 'worker_id', targetKey: 'id', as: 'Workers'});
     };
-    return QuoteOperationInv;
+    return QuoteOperationWorkers;
 };

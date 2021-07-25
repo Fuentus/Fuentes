@@ -24,7 +24,7 @@ router.post(
   quoteController.searchResultsForAdmin
 );
 
-router.put("/:quoteId/operation/:operationId",
+router.put("/tagQuotes",
     quoteController.tagQuoteAndOperations);
 
 module.exports = router;

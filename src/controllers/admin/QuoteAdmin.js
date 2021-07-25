@@ -2,7 +2,7 @@ const db = require("../../models");
 const {Op} = require("sequelize");
 const {validationResult} = require("express-validator");
 
-const {Quotes, Operations} = db;
+const {Quotes,quote_operations:QuoteOperations} = db;
 
 const {logger} = require("../../util/log_utils");
 const {fetchQuoteByClause, getAllQuotes} = require("../service/QuoteService")
@@ -94,16 +94,27 @@ exports.searchResultsForAdmin = async (req, res, next) => {
 };
 
 exports.tagQuoteAndOperations = async (req, res, next) => {
-    try {
-        logger.debug(`Quotes : tagQuoteAndOperations`);
-        const {quoteId, operationId} = req.params;
-        const quote = await Quotes.findByPk(quoteId);
-        const operation = await Operations.findByPk(operationId);
-        const result = await quote.addOperations(operation);
-        res.status(200).send(result);
-    } catch (err) {
-        logger.error(err);
+    logger.info(`Quotes : Inside changeStatus of Quote`);
+    const {quoteId,operations} = req.body;
+    const quote = await Quotes.findByPk(quoteId);
+    const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
+    if (!boolean) {
+        return res.status(422).send({msg: `Please Choose Correct Status`});
+    }
+    const result = await db.sequelize.transaction(async (t) => {
+        operations.map((operation)=>{
+            operation.operation_id = opera.operationId;
+            operation.quote_id= quoteId;
+        });
+            const invOperationBulk = await QuoteOperations.bulkCreate(operations, {transaction: t})
+        logger.info(`Inserted ${invOperationBulk.length} items to InvOperations`);
+    });
+    if (result) {
+        res.status(201).json({message: "Status Changed!", data: req.body});
+    } else {
+        const err = new Error("Please try back Later");
+        err.statusCode = 500;
         next(err);
     }
-    logger.debug(`Quotes : Exit tagQuoteAndOperations`);
+    logger.info(`Quotes : Exit changeStatus of Quote`);
 }
