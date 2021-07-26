@@ -2,7 +2,12 @@ const db = require("../../models");
 const {Op} = require("sequelize");
 const {validationResult} = require("express-validator");
 
-const {Quotes,quote_operations:QuoteOperations} = db;
+const {
+    Quotes,
+    quote_operations: QuoteOperations,
+    quote_operation_inv: QuoteOperationInv,
+    quote_operation_workers: QuoteOperationWorker
+} = db;
 
 const {logger} = require("../../util/log_utils");
 const {fetchQuoteByClause, getAllQuotes} = require("../service/QuoteService")
@@ -95,22 +100,57 @@ exports.searchResultsForAdmin = async (req, res, next) => {
 
 exports.tagQuoteAndOperations = async (req, res, next) => {
     logger.info(`Quotes : Inside changeStatus of Quote`);
-    const {quoteId,operations} = req.body;
+    const {quoteId, operations, status} = req.body;
     const quote = await Quotes.findByPk(quoteId);
     const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
     if (!boolean) {
         return res.status(422).send({msg: `Please Choose Correct Status`});
     }
     const result = await db.sequelize.transaction(async (t) => {
-        operations.map((operation)=>{
-            operation.operation_id = opera.operationId;
-            operation.quote_id= quoteId;
-        });
-            const invOperationBulk = await QuoteOperations.bulkCreate(operations, {transaction: t})
-        logger.info(`Inserted ${invOperationBulk.length} items to InvOperations`);
+        if (operations) {
+            operations.map((operation) => {
+                operation.operation_id = operation.operationId;
+                operation.quote_id = quoteId;
+            });
+            const quoteOperationBulk = await QuoteOperations.bulkCreate(operations, {transaction: t})
+            logger.info(`Inserted ${quoteOperationBulk.length} items to QuoteOperations`);
+            const invArr = [], workArr = [];
+            for (let i = 0; i < quoteOperationBulk.length; i++) {
+                const qBulk = quoteOperationBulk[i];
+                const operation = operations[i];
+                const {tools: inventoryArr} = operation;
+                inventoryArr.map(s => {
+                    const {invId, reqQty} = s;
+                    s.quote_operation_id = qBulk.tag_quote_operations_id
+                    s.inv_id = invId;
+                    s.req_quantity = reqQty;
+                    return s;
+                });
+                invArr.push(inventoryArr);
+                const {workers: workerArr} = operation;
+                workerArr.map(s => {
+                    const {workerId, reqHrs} = s;
+                    s.quote_operation_id = qBulk.tag_quote_operations_id;
+                    s.worker_id = workerId;
+                    s.hrs_req = reqHrs;
+                    return s;
+                })
+                workArr.push(workerArr);
+            }
+            const quoteInvOperationArr = invArr.flat(1);
+            const quoteInvOperationBulk = await QuoteOperationInv.bulkCreate(quoteInvOperationArr, {transaction: t})
+            logger.info(`Inserted ${quoteInvOperationBulk.length} items to QuoteOperationInv`);
+            const quoteWorkerOperationArr = workArr.flat(1);
+            const quoteWorkerOperationBulk = await QuoteOperationWorker.bulkCreate(quoteWorkerOperationArr, {transaction: t})
+            logger.info(`Inserted ${quoteWorkerOperationBulk.length} items to QuoteOperationWorker`);
+            return operations;
+        }
+    }).catch(function (err) {
+        logger.error(err)
+        return null;
     });
     if (result) {
-        res.status(201).json({message: "Status Changed!", data: req.body});
+        res.status(201).json({message: "Status Changed!"});
     } else {
         const err = new Error("Please try back Later");
         err.statusCode = 500;
