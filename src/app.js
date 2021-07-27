@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const uuid = require('node-uuid')
 const db = require('./models');
-const { logger } = require('./util/log_utils')
+const logger = require('./util/log_utils')
 const app = express()
 
 morgan.token('id', function getId(req) {
@@ -22,8 +22,7 @@ function assignId(req, res, next) {
 app.use(assignId)
 app.use(helmet());
 app.use(compression());
-app.use(morgan(':id :method :url :response-time'))
-app.use(morgan('combined', { stream: logger.stream }));
+app.use(morgan('combined', {stream: logger.stream}));
 
 app.use(bodyParser.json());
 
@@ -48,43 +47,40 @@ app.use('/', userRoutes);
 
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
-    const message = error.message;
-    const data = error.data;
-    res.status(status).json({ message: message, data: data });
+    const {message, data} = error;
+    const {originalUrl, method, ip} = req;
+    // add this line to include winston logging
+    logger.error(`${status} - ${message} - ${originalUrl} - ${method} - ${ip}`);
+
+    res.status(status).json({message: message, data: data});
 });
 // get the unhandled rejection and throw it to another fallback handler we already have.
 process.on('unhandledRejection', (reason, promise) => {
+    logger.error('There was an unhandledRejection', reason)
     throw reason;
 });
 process.on('uncaughtException', err => {
     logger.error('There was an uncaught error', err)
     process.exit(1) //mandatory (as per the Node.js docs)
 })
-const cluster = require('cluster');
-
-const workers = process.env.WORKERS || require('os').cpus().length;
 const PORT = process.env.PORT || 3000;
-
+var cluster = require('cluster');
 if (cluster.isMaster) {
-    logger.info('start cluster with %s workers', workers);
-    for (let i = 0; i < workers; ++i) {
-        let worker = cluster.fork().process;
-        logger.info('worker %s started.', worker.pid);
-    }
-    cluster.on('exit', function (worker) {
-        logger.info('worker %s died. restart...', worker.process.pid);
+    cluster.fork();
+
+    cluster.on('exit', function (worker, code, signal) {
         cluster.fork();
     });
-
-} else {
+}
+if (cluster.isWorker) {
     db.sequelize
         .sync().then(() => {
-            app.listen(PORT, () => {
-                console.log('running')
-            })
-        }).catch(err => {
-            console.log(err);
-        });
+        app.listen(PORT, () => {
+            console.log('running')
+        })
+    }).catch(err => {
+        console.log(err);
+    });
 }
 
 module.exports = app;
