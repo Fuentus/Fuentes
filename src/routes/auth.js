@@ -38,5 +38,6 @@ router.put(
 );
 
 router.post("/login", authController.login);
+router.post("/workerLogin", authController.workerLogin);
 
 module.exports = router;

@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const {JWT_SECRET} = require("../util/config");
 
-const {Users} = require("../models");
+const {Users, Workers} = require("../models");
 
 exports.signup = (req, res, next) => {
     const errors = validationResult(req);
@@ -50,6 +50,33 @@ exports.login = (req, res, next) => {
             const isEqual = bcrypt.compare(password, user.password);
             if (!isEqual) {
                 const error = new Error("A user with this email could not be found.");
+                error.statusCode = 401;
+                throw error;
+            }
+            const token = jwt.sign({email: user.email, userId: user.id,}, JWT_SECRET, {expiresIn: "24h"});
+            res.status(200).json({token: token, userId: user.id});
+        })
+        .catch((err) => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            res.status(err.statusCode).json({message: err.message});
+        });
+};
+
+exports.workerLogin = (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    Workers.findOne({where: {email: email}})
+        .then((user) => {
+            if (!user) {
+                const error = new Error("Worker with this email could not be found");
+                error.statusCode = 401;
+                throw error;
+            }
+            const isEqual = bcrypt.compare(password, user.password);
+            if (!isEqual) {
+                const error = new Error("Worker with this email could not be found.");
                 error.statusCode = 401;
                 throw error;
             }

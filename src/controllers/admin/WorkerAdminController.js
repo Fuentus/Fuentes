@@ -88,6 +88,7 @@ exports.getWorkersById = (req, res) => {
 }
 
 exports.deleteWorkersById = async (req, res) => {
+    //TODO dont delete any workers who are associated to any projects
     logger.debug(`Workers : Inside deleteWorkersById`);
     const {id} = req.params
     const workers = Workers.destroy({where: {id: id}})
