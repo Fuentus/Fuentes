@@ -1,5 +1,5 @@
-const db = require('../models/');
-const printLog = require('../util/log_utils');
+const db = require('../../models');
+const printLog = require('../../util/log_utils');
 const Measures = db.Measures;
 
 

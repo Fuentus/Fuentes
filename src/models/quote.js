@@ -38,7 +38,7 @@ module.exports = function (sequelize, Sequelize) {
         }
     );
     Quotes.associate = function (models) {
-        const {Users, Measures, Uploads, Operations} = models;
+        const {Users, Measures, Uploads,quote_operations:QuoteOperations} = models;
         Quotes.belongsTo(Users, {
             foreignKey: {
                 allowNull: false,
@@ -51,6 +51,10 @@ module.exports = function (sequelize, Sequelize) {
         Quotes.hasMany(Uploads, {
             onDelete: "cascade",
             onUpdate: "cascade",
+        });
+        Quotes.hasMany(QuoteOperations, {
+            foreignKey: "quote_id",
+            as: "QuoteOperation",
         });
     };
     return Quotes;

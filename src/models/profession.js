@@ -20,15 +20,6 @@ module.exports = function (sequelize, DataTypes) {
         }
     );
 
-    // Professions.sync().then(() => {
-    //     Professions.create({
-    //         name: 'PAINTING',
-    //     });
-    //     Professions.create({
-    //         name: 'DRILLING'
-    //     });
-    // });
-
     Professions.associate = function (models) {
         const {Workers} = models;
         Professions.hasMany(Workers);

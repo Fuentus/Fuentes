@@ -11,7 +11,14 @@ class QuoteStatus {
     static defaultValue = () => {
         return QUOTE_STATUS.QUOTE_NEW.status;
     }
+    static adminAcceptedQuote = () => {
+        return QUOTE_STATUS.QUOTE_ADMIN_ACCEPTED.status;
+    }
+
     static getAllQuotesStatus = () => {
+        if (this.quoteStatus != null && this.quoteStatus.length > 0) {
+            return this.quoteStatus;
+        }
         for (let qState of Object.values(QUOTE_STATUS)) {
             this.quoteStatus.push(qState.status);
         }

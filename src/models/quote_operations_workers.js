@@ -32,7 +32,7 @@ module.exports = function (sequelize, DataTypes) {
             onUpdate: 'cascade',
             unique: 'quote-worker-per-operations'
         },
-        hrs_req: {
+        total_hrs_req: {
             type: FLOAT
         }
     }, {

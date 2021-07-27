@@ -52,9 +52,26 @@ module.exports = function (sequelize, DataTypes) {
     });
 
     QuoteOperation.associate = function (models) {
-        const {Quotes, Operations} = models;
+        const {
+            Quotes,
+            Operations,
+            quote_operation_inv: QuoteOperationInv,
+            quote_operation_workers: QuoteOperationWorkers
+        } = models;
         QuoteOperation.belongsTo(Quotes, {foreignKey: 'quote_id', targetKey: 'id', as: 'Quotes'});
         QuoteOperation.belongsTo(Operations, {foreignKey: 'operation_id', targetKey: 'id', as: 'Operations'});
+
+        QuoteOperation.hasMany(QuoteOperationInv, {
+            foreignKey: "quote_operation_id",
+            as: "QuoteOperationInv",
+        });
+
+
+        QuoteOperation.hasMany(QuoteOperationWorkers, {
+            foreignKey: "quote_operation_id",
+            as: "QuoteOperationWorker",
+        });
+
     };
     return QuoteOperation;
 };

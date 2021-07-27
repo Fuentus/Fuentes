@@ -2,7 +2,12 @@ const db = require("../../models");
 //
 // const {logger} = require("../../../util/log_utils");
 
-const {Quotes, Measures, Uploads, Users,Operations} = db;
+const {
+    Quotes, Measures, Uploads, Users, Operations, Inventory,Workers,
+    quote_operations: QuoteOperations,
+    quote_operation_inv: QuoteOperationInv,
+    quote_operation_workers: QuoteOperationWorkers
+} = db;
 
 const fetchQuoteByClause = async (whereClause) => {
     return (
@@ -23,12 +28,40 @@ const fetchQuoteByClause = async (whereClause) => {
                     attributes: ["name", "unit", "qty"],
                 },
                 {
-                    model: Operations,
-                    as: "Operations",
-                    attributes: ["name", "desc"],
-                    through: {
-                        attributes: ["operation_id", "quote_id"],
-                    }
+                    model: QuoteOperations,
+                    as: "QuoteOperation",
+                    attributes: ["tag_quote_operations_id"],
+                    include: [
+                        {
+                            model: Operations,
+                            as: "Operations",
+                            attributes: ["id","name"]
+                        },
+                        {
+                            model: QuoteOperationInv,
+                            as: "QuoteOperationInv",
+                            attributes: ["tag_inv_operations_id","quote_operation_id", "req_quantity"],
+                            include: [
+                                {
+                                    model: Inventory,
+                                    as: "Inventories",
+                                    attributes: ["id", "itemName", "itemDesc", "availability", "cost"]
+                                }
+                            ]
+                        },
+                        {
+                            model: QuoteOperationWorkers,
+                            as: "QuoteOperationWorker",
+                            attributes: ["tag_worker_operations_id","quote_operation_id", "total_hrs_req"],
+                            include: [
+                                {
+                                    model: Workers,
+                                    as: "Workers",
+                                    attributes: ["id", "cost_per_hr", "total_avail_per_week", "avail_per_day", "email"]
+                                }
+                            ]
+                        }
+                    ]
                 }
             ],
         })) || {}

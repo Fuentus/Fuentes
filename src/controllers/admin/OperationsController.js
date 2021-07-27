@@ -1,5 +1,5 @@
 const db = require('../../models');
-const {logger} = require("../../util/log_utils");
+const logger = require("../../util/log_utils");
 const {Op} = require("sequelize");
 const {getPagination, getPagingData} = require("../service/PaginationService");
 const {getAllOperations, fetchOperationsByClause} = require("../service/OperationService");

@@ -1,44 +1,40 @@
-module.exports = function (sequelize, Sequelize) {
+module.exports = function (sequelize, DataTypes) {
+    const {INTEGER, TEXT, STRING, DATE} = DataTypes;
     const Projects = sequelize.define(
         "Projects",
         {
             id: {
-                type: Sequelize.INTEGER,
+                type: INTEGER,
                 primaryKey: true,
                 autoIncrement: true,
                 notNull: true,
                 unique: true,
             },
-            p_name: {
-                type: Sequelize.STRING,
+            name: {
+                type: STRING,
                 notNull: true,
             },
-            p_desc: {
-                type: Sequelize.STRING,
-            },
-            hours_commited: {
-                type: Sequelize.INTEGER
-            },
-            hours_left: {
-                type: Sequelize.INTEGER
+            desc: {
+                type: TEXT,
             },
             start_date: {
-                type: Sequelize.DATE,
+                type: DATE,
                 notNull: true
             },
             end_date: {
-                type: Sequelize.DATE,
+                type: DATE,
                 notNull: true
-            },
-            p_status: {
-                type: Sequelize.ENUM("REQUEST RECIEVED", "NOT STARTED", "IN PROGRESS", "COMPLETED"),
-                defaultValue: "REQUEST RECIEVED",
-                notNull: true,
             },
         },
         {
             schema: "tbl",
+            paranoid: true,
+            version: true
         }
     );
+    Projects.associate = function (models) {
+        const {Quotes} = models;
+        Projects.belongsTo(Quotes);
+    };
     return Projects;
 };

@@ -4,12 +4,15 @@ const {validationResult} = require("express-validator");
 
 const {
     Quotes,
+    Inventory,
+    Projects,
     quote_operations: QuoteOperations,
     quote_operation_inv: QuoteOperationInv,
-    quote_operation_workers: QuoteOperationWorker
+    quote_operation_workers: QuoteOperationWorker,
+    project_workers: ProjectWorkers
 } = db;
 
-const {logger} = require("../../util/log_utils");
+const logger = require("../../util/log_utils");
 const {fetchQuoteByClause, getAllQuotes} = require("../service/QuoteService")
 const {QuoteStatus} = require("../service/QuoteStatus");
 const {getPagination, getPagingData} = require("../service/PaginationService")
@@ -45,8 +48,12 @@ exports.findQuoteByIdForAdmin = async (req, res, next) => {
     }
     const {id} = req.params;
     const whereClause = {id: id};
-    const quote = await fetchQuoteByClause(whereClause);
-    res.status(200).send(quote);
+    fetchQuoteByClause(whereClause).then((quote) => {
+        res.status(200).send(quote)
+    }).catch((err) => {
+        logger.error(err);
+        next(err);
+    });
     logger.info(`Quotes : Exit findQuoteById`);
 };
 
@@ -102,9 +109,11 @@ exports.tagQuoteAndOperations = async (req, res, next) => {
     logger.info(`Quotes : Inside changeStatus of Quote`);
     const {quoteId, operations, status} = req.body;
     const quote = await Quotes.findByPk(quoteId);
-    const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
-    if (!boolean) {
-        return res.status(422).send({msg: `Please Choose Correct Status`});
+    if (status) {
+        const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
+        if (!boolean) {
+            return res.status(422).send({msg: `Please Choose Correct Status`});
+        }
     }
     const result = await db.sequelize.transaction(async (t) => {
         if (operations) {
@@ -129,10 +138,10 @@ exports.tagQuoteAndOperations = async (req, res, next) => {
                 invArr.push(inventoryArr);
                 const {workers: workerArr} = operation;
                 workerArr.map(s => {
-                    const {workerId, reqHrs} = s;
+                    const {workerId, totalHrs} = s;
                     s.quote_operation_id = qBulk.tag_quote_operations_id;
                     s.worker_id = workerId;
-                    s.hrs_req = reqHrs;
+                    s.total_hrs_req = totalHrs;
                     return s;
                 })
                 workArr.push(workerArr);
@@ -143,6 +152,9 @@ exports.tagQuoteAndOperations = async (req, res, next) => {
             const quoteWorkerOperationArr = workArr.flat(1);
             const quoteWorkerOperationBulk = await QuoteOperationWorker.bulkCreate(quoteWorkerOperationArr, {transaction: t})
             logger.info(`Inserted ${quoteWorkerOperationBulk.length} items to QuoteOperationWorker`);
+            if (status) {
+                return await Quotes.update({status: status}, {where: {id: quoteId}, transaction: t});
+            }
             return operations;
         }
     }).catch(function (err) {
@@ -150,11 +162,76 @@ exports.tagQuoteAndOperations = async (req, res, next) => {
         return null;
     });
     if (result) {
-        res.status(201).json({message: "Status Changed!"});
+        res.status(201).json({message: "Quote and Operations are Tagged Successfully"});
     } else {
         const err = new Error("Please try back Later");
         err.statusCode = 500;
         next(err);
     }
     logger.info(`Quotes : Exit changeStatus of Quote`);
+}
+
+exports.convertToProject = async (req, res, next) => {
+    logger.debug(`Quotes : Enter convertToProject`);
+    const {quoteId} = req.params;
+    let {name, desc, startDate, endDate} = req.body;
+    const q = await fetchQuoteByClause({id: quoteId});
+    const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(q.status, QuoteStatus.adminAcceptedQuote());
+    if (!boolean) {
+        return res.status(422).send({msg: `Quote cannot be Converted`});
+    }
+    const result = await db.sequelize
+        .transaction(async (t) => {
+            const {QuoteOperation: qOperations} = q;
+            if (!startDate) {
+                startDate = q.startDate;
+            }
+            if (!endDate) {
+                endDate = q.endDate;
+            }
+            const project = await Projects.create({
+                name,
+                desc,
+                start_date: startDate,
+                end_date: endDate
+            }, {transaction: t});
+
+            for (let i = 0; i < qOperations.length; i++) {
+                let workerArr = [];
+                let projectWorker = {};
+                const {QuoteOperationInv: qInv, QuoteOperationWorker: qWorker} = qOperations[i];
+                for (let j = 0; j < qInv.length; j++) {
+                    const inv = qInv[j];
+                    const reqQty = inv.req_quantity;
+                    const inventoryData = await Inventory.findByPk(inv.Inventories.id);
+                    if (inventoryData.availability - reqQty < 0) {
+                        throw new Error(`Cannot Process Availabilty is too Low for Inv ${inv.Inventories.itemName}`);
+                    }
+                    const result = await Inventory.update({availability: db.Sequelize.literal('availability - ' + reqQty)}, {
+                        where: {id: inv.Inventories.id},
+                        transaction: t
+                    });
+                    logger.debug(`${result[0]} Availabilty Updated for Inv ID- ${inv.Inventories.id} _  ${inv.Inventories.itemName}`);
+                }
+
+                for (let j = 0; j < qWorker.length; j++) {
+                    projectWorker = {};
+                    projectWorker.operation_id = qOperations[i].Operations.id;
+                    projectWorker.worker_id = qWorker[j].Workers.id;
+                    projectWorker.project_id = project.id;
+                    projectWorker.total_hrs = qWorker[j].total_hrs_req;
+                    workerArr.push(projectWorker);
+                }
+                const projectWorkerBulk = await ProjectWorkers.bulkCreate(workerArr, {transaction: t})
+                logger.info(`Inserted ${projectWorkerBulk.length} items to ProjectWorkers`);
+            }
+            return project;
+        }).catch(function (err) {
+            next(err);
+        });
+
+    if (result) {
+        res.status(201).json({message: "Project created!", data: result});
+    }
+    logger.debug(`Quotes : Exit convertToProject`);
 }

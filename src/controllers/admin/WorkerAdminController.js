@@ -1,7 +1,7 @@
 const db = require('../../models');
 const {Workers, Professions} = db;
 
-const {logger} = require("../../util/log_utils");
+const logger = require("../../util/log_utils");
 const {validationResult} = require("express-validator");
 const bcrypt = require("bcryptjs");
 const {Op} = require("sequelize");

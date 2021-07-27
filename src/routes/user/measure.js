@@ -1,9 +1,9 @@
 const express = require('express')
-const Measures = require('../models/measure')
+const Measures = require('../../models/measure')
 
-const measureController = require('../controllers/measure');
-const isAuth = require('../middleware/is-auth');
-const loadUser = require('../middleware/load-user');
+const measureController = require('../../controllers/user/measure');
+const isAuth = require('../../middleware/is-auth');
+const loadUser = require('../../middleware/load-user');
 
 
 const router = express.Router();

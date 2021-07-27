@@ -1,7 +1,7 @@
 const db = require('../../models');
 const {Inventory,inv_operations: InvOperations} = db;
 
-const {logger} = require("../../util/log_utils");
+const logger = require("../../util/log_utils");
 const {validationResult} = require("express-validator");
 const {Op} = require("sequelize");
 const {getPagination, getPagingData} = require("../service/PaginationService");

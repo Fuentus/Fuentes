@@ -5,8 +5,8 @@ const router = express.Router();
 const isAuth = require("../../middleware/is-auth");
 const loadUser = require("../../middleware/load-user");
 const quoteController = require("../../controllers/user/QuoteUser");
-const measureRouter = require("../measure");
-const uploadRoute = require("../upload");
+const measureRouter = require("./measure");
+const uploadRoute = require("./upload");
 
 const {
   validateReq,

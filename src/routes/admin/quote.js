@@ -27,4 +27,7 @@ router.post(
 router.put("/tagQuotes",
     quoteController.tagQuoteAndOperations);
 
+router.put("/convertToProject/:quoteId",
+    quoteController.convertToProject);
+
 module.exports = router;
