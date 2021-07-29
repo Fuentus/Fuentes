@@ -1,7 +1,7 @@
 const {validationResult} = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const {JWT_SECRET} = require("../util/config");
+const {JWT_SECRET, JWT_SECRET_WORKER} = require("../util/config");
 
 const {Users, Workers} = require("../models");
 
@@ -54,7 +54,11 @@ exports.login = (req, res, next) => {
                 throw error;
             }
             const token = jwt.sign({email: user.email, userId: user.id,}, JWT_SECRET, {expiresIn: "24h"});
-            res.status(200).json({token: token, userId: user.id});
+            if (user.role === "ADMIN") {
+                res.status(200).json({token: token, userId: user.id, admin: true})
+            } else {
+                res.status(200).json({token: token, userId: user.id});
+            }
         })
         .catch((err) => {
             if (!err.statusCode) {
@@ -80,7 +84,7 @@ exports.workerLogin = (req, res, next) => {
                 error.statusCode = 401;
                 throw error;
             }
-            const token = jwt.sign({email: user.email, userId: user.id,}, JWT_SECRET, {expiresIn: "24h"});
+            const token = jwt.sign({email: user.email, workerId: user.id,}, JWT_SECRET_WORKER, {expiresIn: "24h"});
             res.status(200).json({token: token, userId: user.id});
         })
         .catch((err) => {

@@ -1,8 +1,6 @@
 const db = require("../../models");
-//
-// const {logger} = require("../../../util/log_utils");
 
-const {Workers} = db;
+const {Workers, project_workers: ProjectWorkers,Projects,Operations} = db;
 
 const fetchWorkersByClause = async (whereClause) => {
     return (
@@ -32,7 +30,36 @@ const getAllWorkers = (obj, whereClause, success, failure) => {
         });
 };
 
+const getAllProjects = (obj, whereClause, success, failure) => {
+    const {limit, offset} = obj;
+    ProjectWorkers.findAndCountAll({
+        where: whereClause,
+        attributes:["tag_workers_project_id","total_hrs"],
+        include: [
+            {
+                model: Projects,
+                as: "Projects",
+                attributes:["id","name","start_date","end_date"]
+            },
+            {
+                model: Operations,
+                as: "Operations",
+                attributes:["id","name"]
+            }
+        ],
+        order: [["updatedAt", "DESC"]],
+        limit,
+        offset,
+    }).then((data) => {
+        success(data);
+    })
+        .catch((err) => {
+            failure(err);
+        });
+}
+
 module.exports = {
     fetchWorkersByClause: fetchWorkersByClause,
-    getAllWorkers: getAllWorkers
+    getAllWorkers: getAllWorkers,
+    getAllProjects: getAllProjects
 };

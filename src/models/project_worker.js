@@ -51,7 +51,7 @@ module.exports = function (sequelize, DataTypes) {
     });
 
     ProjectWorkers.associate = function (models) {
-        const {Projects, Workers} = models;
+        const {Projects, Workers, project_workers_log: ProjectWorkersLog} = models;
         ProjectWorkers.belongsTo(Operations, {foreignKey: 'operation_id', targetKey: 'id', as: 'Operations'});
         ProjectWorkers.belongsTo(Workers, {foreignKey: 'worker_id', targetKey: 'id', as: 'Workers'});
         ProjectWorkers.belongsTo(Projects, {foreignKey: 'project_id', targetKey: 'id', as: 'Projects'});

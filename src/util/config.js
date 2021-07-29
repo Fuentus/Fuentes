@@ -5,5 +5,6 @@ module.exports = {
   "MYSQL_USER":`${process.env['MYSQL_USER']}`,
   "MYSQL_PASS":`${process.env['MYSQL_PASS']}`,
   "MYSQL_HOST":`${process.env['MYSQL_HOST']}`,
-  "MYSQL_DATABASE": `${process.env['MYSQL_DATABASE']}`
+  "MYSQL_DATABASE": `${process.env['MYSQL_DATABASE']}`,
+  "JWT_SECRET_WORKER":`${process.env['JWT_SECRET_WORKER']}`
 }

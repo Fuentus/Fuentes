@@ -10,6 +10,7 @@ const sequelize = new Sequelize(
     MYSQL_USER,
     MYSQL_PASS,
     {
+        logging: false,
         host: MYSQL_HOST,
         port: '3306',
         dialect: "mysql",

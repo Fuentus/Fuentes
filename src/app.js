@@ -3,6 +3,7 @@ const compression = require('compression');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 // const multer = require('multer');
 const helmet = require('helmet');
 const uuid = require('node-uuid')
@@ -19,6 +20,7 @@ function assignId(req, res, next) {
     next()
 }
 
+app.use(cors())
 app.use(assignId)
 app.use(helmet());
 app.use(compression());
@@ -26,22 +28,14 @@ app.use(morgan('combined', {stream: logger.stream}));
 
 app.use(bodyParser.json());
 
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader(
-        'Access-Control-Allow-Methods',
-        'OPTIONS, GET, POST, PUT, PATCH, DELETE'
-    );
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
-
 const userRoutes = require('./routes/user/index.js');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin/index.js');
+const workerRoutes = require('./routes/worker/worker');
 const AdminUser = require('./middleware/admin-user');
 const isAuth = require("./middleware/is-auth");
 app.use('/auth', authRoutes);
+app.use('/worker', workerRoutes);
 app.use('/admin', [isAuth, AdminUser], adminRoutes);
 app.use('/', userRoutes);
 
