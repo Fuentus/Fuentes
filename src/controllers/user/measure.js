@@ -1,7 +1,7 @@
 const db = require('../../models');
 const printLog = require('../../util/log_utils');
 const Measures = db.Measures;
-
+const {validationResult} = require("express-validator");
 
 exports.getMeasures = (req, res, next) => {
     printLog(`Measures : Inside getMeasures`);
@@ -16,6 +16,11 @@ exports.getMeasures = (req, res, next) => {
 
 exports.createMeasures = async(req, res, next) => {
     printLog(`Measures : Inside createMeasures`);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422)
+            .json({message: "Validation failed", data: errors.array()});
+    }
     const { name, unit, qty, QuoteId } = req.body
     try {
        let measure = await Measures.create({
@@ -35,6 +40,11 @@ exports.createMeasures = async(req, res, next) => {
 
 exports.getMeasuresById = (req, res, next) => {
     printLog(`Measures : Inside getMeasuresById`);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422)
+            .json({message: "Validation failed", data: errors.array()});
+    }
     const { id } = req.params;
     const measures = Measures.findOne({ where : {id : id}})
     .then((measures) => {

@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 const db = require('../models/');
 const printLog = require('../util/log_utils');
 const Projects = db.Projects;
@@ -33,6 +34,11 @@ exports.getProject = (req, res, next) => {
 
 exports.getOneProject = (req, res, next) => {
     printLog(`Projects : Inside getOneProject`);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422)
+            .json({message: "Validation failed", data: errors.array()});
+    }
     const { id } = req.params
     const project = Projects.findOne({where : {id : id}})
     .then((project) => {
