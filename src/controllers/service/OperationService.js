@@ -5,7 +5,7 @@ const fetchOperationsByClause = async (whereClause) => {
     return (
         (await Operations.findOne({
             where: whereClause,
-            attributes: ["name", "desc","createdAt","updatedAt"],
+            attributes: ["id", "name", "desc","createdAt","updatedAt"],
             include: [
                 {
                     model: InvOperations,
@@ -33,7 +33,7 @@ const getAllOperations = (obj, whereClause, success, failure) => {
     const {limit, offset} = obj;
     Operations.findAndCountAll({
         where: whereClause,
-        attributes: ["name", "desc", "updatedAt"],
+        attributes: ["id", "name", "desc", "updatedAt"],
         include: [
             {
                 model: InvOperations,
