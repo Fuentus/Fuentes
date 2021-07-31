@@ -9,6 +9,11 @@ const {Operations, inv_operations: InvOperations, worker_operations: WorkerOpera
 exports.createOperation = async (req, res, next) => {
     logger.debug(`Operations : Inside createOperation`);
     // Item is inventory here , expecting id od inv and required quantity
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422)
+            .json({message: "Validation failed", data: errors.array()});
+    }
     const {name, desc, items, workers} = req.body
     const result = await db.sequelize
         .transaction(async (t) => {

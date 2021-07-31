@@ -74,6 +74,11 @@ exports.createWorkers = async (req, res, next) => {
 
 exports.getWorkersById = (req, res) => {
     logger.debug(`Workers : Inside getWorkersById`);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422)
+            .json({message: "Validation failed", data: errors.array()});
+    }
     const {id} = req.params
     Workers.findOne({
         where: {id: id},
