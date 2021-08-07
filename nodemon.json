@@ -2,7 +2,7 @@
     "env":{
         "JWT_SECRET":"FUENTES_SECRET_DEV_KEY",
         "MYSQL_USER":"root",
-        "MYSQL_PASS":"ravi",
+        "MYSQL_PASS":"root",
         "MYSQL_HOST":"127.0.0.1",
         "MYSQL_DATABASE": "fuentus_db"
     }
