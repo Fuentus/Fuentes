@@ -16,12 +16,14 @@ const quoteRoutes = require('./quote');
 const inventoryRoute = require('./inventory');
 const operationRoute = require('./operations');
 const workerRoute = require('./worker')
+const customerRoute = require('./customer')
 const MasterDController = require("../../controllers/admin/MasterDataController");
 
 router.use('/quotes', quoteRoutes);
 router.use('/inventory', inventoryRoute)
 router.use('/operation', operationRoute)
 router.use('/workers', workerRoute)
+router.use('/customer', customerRoute)
 router.use('/masterData', MasterDController.fetchAllMasterData);
 
 module.exports = router;
