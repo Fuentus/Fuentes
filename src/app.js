@@ -30,13 +30,11 @@ app.use(bodyParser.json());
 
 const userRoutes = require('./routes/user/index.js');
 const authRoutes = require('./routes/auth');
-const projectRoutes = require('./routes/project');
 const adminRoutes = require('./routes/admin/index.js');
 const workerRoutes = require('./routes/worker/worker');
 const AdminUser = require('./middleware/admin-user');
 const isAuth = require("./middleware/is-auth");
 app.use('/auth', authRoutes);
-app.use('/project', projectRoutes);
 app.use('/worker', workerRoutes);
 app.use('/admin', [isAuth, AdminUser], adminRoutes);
 app.use('/', userRoutes);
