@@ -4,6 +4,7 @@ const {Op} = require("sequelize");
 const {getPagination, getPagingData} = require("../service/PaginationService");
 const {getAllOperations, fetchOperationsByClause} = require("../service/OperationService");
 const {validationResult} = require("express-validator");
+const inv_operations = require('../../models/inv_operations');
 const {Inventory, Worker, Operations, inv_operations: InvOperations, worker_operations: WorkerOperations} = db;
 
 exports.createOperation = async (req, res, next) => {
@@ -123,36 +124,38 @@ exports.updateOperation = async (req, res, next) => {
     const {name, desc, items, workers} = req.body
     const operation = await Operations.findOne({where: {id : id }})
     if(operation) {
-        try {
-            const result = await db.sequelize
-            .transaction(async (t) => {
-                let operations = await Operations.update({name: name, desc: desc}, {transaction: t});
+            const result = await db.sequelize.transaction(async (t) => {
+                let operation = await Operations.update({name: name, desc: desc}, {where: {id : id }}, {transaction: t});
+                               
                 if(items) {
-                    items.map((item) => {
-                        item.inv_id = item.id;
-                        item.operation_id = operations.id;
-                        item.req_avail = item.required_qty;
-                        return item;
-                    })
-                    const invOperationBulk = await InvOperations.bulkCreate(items, {transaction: t})
-                    logger.info(`Inserted ${invOperationBulk.length} items to InvOperations`);
-                }
-                if(workers) {
-                    workers.map((worker) => {
-                        worker.worker_id = worker.id;
-                        worker.operation_id = operations.id;
-                        worker.avail_per_day = worker.required_hrs;
-                        // worker.est_cost = worker.est_cost; //Implicit
-                        return worker;
+                    const inventory = []
+                    items.map(async (item) => {
+                        let updateInv = await InvOperations.update({req_avail: item.required_qty}, {where: {operation_id : id, inv_id: item.id }}, {transaction: t});
+                        inventory.push(updateInv);
+                        logger.info(`Updated ${inventory.length} inventory field of Operations`);
                     });
-                    const workerOperationBulk = await WorkerOperations.bulkCreate(workers, {transaction: t})
-                    logger.info(`Inserted ${workerOperationBulk.length} items to WorkerOperations`);
                 }
-                return res.status(200).json({message: 'Updated Operations', data: req.body});
+
+                if(workers) {
+                    const workersAvailable = []
+                    workers.map(async (worker) => {
+                        let updateWorker = await WorkerOperations.update({avail_per_day: worker.required_hrs}, {where: {operation_id : id, worker_id: worker.id }}, {transaction: t});
+                        workersAvailable.push(updateWorker);
+                    });
+                    logger.info(`Updated ${workersAvailable.length} worker field of Operations`);     
+                }
+                return operation;
             })
-        } catch (error) {
+        .catch ((error) => {
             logger.error(error)
-            return null;
+            return null
+        });
+        if (result) {
+            res.status(200).json({message: "Operation updated!", data: req.body});
+        } else {
+            const err = new Error("Please try back Later");
+            err.statusCode = 500;
+            next(err);
         }
     } else {
         return res.status(400).json({message: 'Operation Doesnot Exists'})
