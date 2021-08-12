@@ -5,7 +5,7 @@ const fetchInventoryByClause = async (whereClause) => {
     return (
         (await Inventory.findOne({
             where: whereClause,
-            attributes: ["itemName", "itemDesc", "availability","cost","createdAt","updatedAt"],
+            attributes: ["id", "itemName", "itemDesc", "availability","cost","createdAt","updatedAt"],
             include: [
                 {
                     model: InvOperations,
@@ -26,7 +26,7 @@ const getAllInventories = (obj, whereClause, success, failure) => {
     const {limit, offset} = obj;
     Inventory.findAndCountAll({
         where: whereClause,
-        attributes: ["itemName", "itemDesc", "availability","cost","createdAt","updatedAt"],
+        attributes: ["id", "itemName", "itemDesc", "availability","cost","createdAt","updatedAt"],
         include: [
             {
                 model: InvOperations,

@@ -57,7 +57,7 @@ const fetchQuoteByClause = async (whereClause) => {
                                 {
                                     model: Workers,
                                     as: "Workers",
-                                    attributes: ["id", "cost_per_hr", "total_avail_per_week", "avail_per_day", "email"]
+                                    attributes: ["id", "name", "cost_per_hr", "total_avail_per_week", "avail_per_day", "email"]
                                 }
                             ]
                         }

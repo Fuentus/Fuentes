@@ -3,12 +3,16 @@ const router = express.Router();
 
 const inventoryController = require("../../controllers/admin/InventoryController");
 
+const {
+    validateReq,
+    inventoryCreateValidator,
+  } = require("../../validators/inventory-validator");
 
-router.post('/', inventoryController.createInventory);
+router.post('/', [inventoryCreateValidator], inventoryController.createInventory);
 
 router.get('/', inventoryController.findAllInventory);
 
-router.get('/:id', inventoryController.findInventoryById)
+router.get('/:id', [validateReq], inventoryController.findInventoryById)
 
 router.put('/:id', inventoryController.updateInventory)
 

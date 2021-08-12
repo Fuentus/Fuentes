@@ -1,11 +1,13 @@
 const { validationResult } = require('express-validator');
-const db = require('../models/');
-const printLog = require('../util/log_utils');
+const db = require('../../models/');
+const logger = require('../../util/log_utils');
 const Projects = db.Projects;
+const { Project } = db;
+
 
 
 exports.getProject = (req, res, next) => {
-    printLog(`Projects : Inside getProject`);
+    logger.debug(`Projects : Inside getProjectOperation`);
     const getPagination = (page, size) => {
         const limit = size ? +size : 3;
         const offset = page ? page * limit : 0;
@@ -29,11 +31,11 @@ exports.getProject = (req, res, next) => {
             message: err.message || "Error occurred while retrieving",
           });
         });
-    printLog(`Projects : Exit getProject`);
+      logger.debug(`Projects : Exit getProjectOperation`);
 }
 
 exports.getOneProject = (req, res, next) => {
-    printLog(`Projects : Inside getOneProject`);
+   logger.debug(`Projects : Inside getOneProject`);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422)
@@ -47,6 +49,40 @@ exports.getOneProject = (req, res, next) => {
         console.log(err)
         res.status(404).send(err)
     })
-    printLog(`Projects : Exit getOneProject`);
+    logger.debug(`Projects : Exit getOneProject`);
 }
 
+
+exports.deleteProjectById = async (req, res, next) => {
+  logger.debug(`Projects : Inside deleteProjectById`);
+  const {id} = req.params;
+    const result = await db.sequelize.transaction(async (t) => {
+        return await Projects.destroy(
+            {where: {id: id}, force: true},
+            {transaction: t}
+        );
+    });
+    const obj = {};
+    obj.message = "Project Deleted Successfully";
+    obj.updatedRecord = result;
+    res.status(200).send(obj);
+  logger.debug(`Projects : Exit deleteProjectById`);
+};
+
+exports.updateProjectById = async (req, res, next) => {
+  logger.debug(`Projects : Inside updateProjectById`);
+  const {id} = req.params;
+  let {name, desc, startDate, endDate} = req.body;
+  const project = await Projects.findOne({where: {id : id }})
+    if(project) {
+        try {
+         
+        } catch (err) {
+            logger.error(err);
+            next(err);
+        }
+    } else {
+        return res.status(400).json({message: 'Project Doesnot Exists'})
+    }
+  logger.debug(`Projects : Inside updateProjectById`);
+};

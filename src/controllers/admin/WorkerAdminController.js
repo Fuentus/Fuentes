@@ -1,10 +1,10 @@
 const db = require('../../models');
-const {Workers, Professions} = db;
+const {Workers, Professions, ProjectWorkers} = db;
 
 const logger = require("../../util/log_utils");
 const {validationResult} = require("express-validator");
 const bcrypt = require("bcryptjs");
-const {Op} = require("sequelize");
+const {Op, where} = require("sequelize");
 const {getPagination, getPagingData} = require("../service/PaginationService");
 const {getAllWorkers} = require("../service/WorkerService");
 
@@ -95,18 +95,53 @@ exports.getWorkersById = (req, res) => {
 exports.deleteWorkersById = async (req, res) => {
     //TODO dont delete any workers who are associated to any projects
     logger.debug(`Workers : Inside deleteWorkersById`);
-    const {id} = req.params
-    const workers = Workers.destroy({where: {id: id}})
-        .then((workers) => {
-            res.sendStatus(200)
-        }).catch((err) => {
-            console.log(err)
-        })
+    const {id} = req.params;
+    const workerInProject = ProjectWorkers.findOne({where : {worker_id : id}})
+    // if (workerInProject) {
+    //     res.status(200).send('Worker Cant Be Deleted Because Worker is assosiated with some Projects')
+    // }
+    const result = await db.sequelize.transaction(async (t) => {
+        return await Workers.destroy(
+            {where: {id: id}, force: true},
+            {transaction: t}
+        );
+    });
+
+    const obj = {};
+    obj.message = "Worker Deleted Successfully";
+    obj.updatedRecord = result;
+    res.status(200).send(obj);
     logger.debug(`Workers : Exit deleteWorkersById`);
 }
 
 exports.updateWorkersbyId = async (req, res) => {
-    printLog(`Workers : Inside updateWorkersbyId`);
-
-    printLog(`Workers : Exit updateWorkersbyId`);
+    logger.debug(`Workers : Inside updateWorkersbyId`);
+    const {id} = req.params;
+    const {name, phone, address, email, avail_per_day, cost_per_hr, total_avail_per_week, professionId} = req.body
+    const profession = await Professions.findByPk(professionId)
+    const password = "FUENTUS@123";
+    const pas = await bcrypt.hash(password, 12);
+    const worker = await Workers.findOne({where: {id : id }})
+    if(worker) {
+        try {
+            Workers.update({
+                            name: name,
+                            phone: phone,
+                            address: address,
+                            email: email,
+                            avail_per_day: avail_per_day,
+                            cost_per_hr: cost_per_hr,
+                            total_avail_per_week: total_avail_per_week,
+                            password: pas
+                        },
+                            {where: {id : id }})
+                        res.status(200).json({message: 'Updated Worker', data: req.body})
+        } catch (err) {
+            logger.error(err);
+            next(err);
+        }   
+    } else {
+        return res.status(400).json({message: 'Worker Doesnot Exists'})
+    }
+    logger.debug(`Workers : Exit updateWorkersbyId`);
 }

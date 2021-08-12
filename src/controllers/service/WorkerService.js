@@ -6,7 +6,7 @@ const fetchWorkersByClause = async (whereClause) => {
     return (
         (await Workers.findOne({
             where: whereClause,
-            attributes: ["name", "phone", "address", "email",
+            attributes: ["id", "name", "phone", "address", "email",
                 "avail_per_day", "cost_per_hr", "total_avail_per_week", "createdAt", "updatedAt"],
         })) || {}
     );
@@ -16,7 +16,7 @@ const getAllWorkers = (obj, whereClause, success, failure) => {
     const {limit, offset} = obj;
     Workers.findAndCountAll({
         where: whereClause,
-        attributes: ["name", "phone", "address", "email",
+        attributes: ["id", "name", "phone", "address", "email",
             "avail_per_day", "cost_per_hr", "total_avail_per_week", "createdAt", "updatedAt"],
         order: [["updatedAt", "DESC"]],
         limit,
