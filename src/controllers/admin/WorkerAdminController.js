@@ -95,22 +95,21 @@ exports.getWorkersById = (req, res) => {
 exports.deleteWorkersById = async (req, res) => {
     //TODO dont delete any workers who are associated to any projects
     logger.debug(`Workers : Inside deleteWorkersById`);
-    const {id} = req.params;
-    const workerInProject = ProjectWorkers.findOne({where : {worker_id : id}})
+    // const {id} = req.params;
+    // const workerInProject = await ProjectWorkers.find({where : {worker_id : id}})
     // if (workerInProject) {
-    //     res.status(200).send('Worker Cant Be Deleted Because Worker is assosiated with some Projects')
+    //     return res.status(400).send('Worker Cant Be Deleted Because Worker is assosiated with some Projects')
     // }
-    const result = await db.sequelize.transaction(async (t) => {
-        return await Workers.destroy(
-            {where: {id: id}, force: true},
-            {transaction: t}
-        );
-    });
-
-    const obj = {};
-    obj.message = "Worker Deleted Successfully";
-    obj.updatedRecord = result;
-    res.status(200).send(obj);
+    //     const result = await db.sequelize.transaction(async (t) => {
+    //         return await Workers.destroy(
+    //             {where: {id: id}, force: true},
+    //             {transaction: t}
+    //         );
+    //     });
+    //     const obj = {};
+    //     obj.message = "Worker Deleted Successfully";
+    //     obj.updatedRecord = result;
+    //     res.status(200).send(obj);
     logger.debug(`Workers : Exit deleteWorkersById`);
 }
 

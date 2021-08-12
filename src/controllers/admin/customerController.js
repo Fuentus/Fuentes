@@ -60,6 +60,7 @@ exports.deleteCustomersById = async (req, res) => {
 
 exports.updateCustomerById = async (req, res) => {
     logger.debug(`Customers : Inside updateCustomerById`);
+    //donot delete customers with projects
     const {id} = req.params;
     const {name, email} = req.body;
     const customer = await Users.findOne({where: {id : id }})

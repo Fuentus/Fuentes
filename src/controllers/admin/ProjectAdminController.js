@@ -2,7 +2,7 @@ const { validationResult } = require('express-validator');
 const db = require('../../models/');
 const logger = require('../../util/log_utils');
 const Projects = db.Projects;
-const { Project } = db;
+const { project_workers: ProjectWorkers } = db;
 
 
 
@@ -71,18 +71,55 @@ exports.deleteProjectById = async (req, res, next) => {
 
 exports.updateProjectById = async (req, res, next) => {
   logger.debug(`Projects : Inside updateProjectById`);
-  const {id} = req.params;
-  let {name, desc, startDate, endDate} = req.body;
-  const project = await Projects.findOne({where: {id : id }})
-    if(project) {
-        try {
-         
-        } catch (err) {
-            logger.error(err);
-            next(err);
-        }
-    } else {
-        return res.status(400).json({message: 'Project Doesnot Exists'})
-    }
+  // const {id} = req.params;
+  // let {name, desc, startDate, endDate, workers} = req.body;
+  // const project = await Projects.findOne({where: {id : id }})
+  //   if(project) {
+  //         const result = await db.sequelize.transaction(async (t) => {
+  //         let project = await Projects.update({
+  //           name: name,
+  //           desc: desc,
+  //           startDate: startDate,
+  //           endDate: endDate
+  //         }, {where: {id : id }}, {transaction: t});
+          
+  //         if(workers) {
+  //             const workersAvailable = []
+              
+  //             workers.map(async (worker) => {
+  //                 const assignedWorker = await ProjectWorkers.findOne({where: {worker_id: worker.id}})
+  //                 if (assignedWorker) {
+  //                   let updateWorker = await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {worker_id: worker.id }}, {transaction: t});
+  //                   workersAvailable.push(updateWorker);
+  //                 } else {
+  //                   let createWorker = await ProjectWorkers.create({
+  //                     total_hrs: worker.required_hrs,
+  //                     project_id: id,
+  //                     worker_id: worker.worker_id,
+  //                     operation_id: worker.operation_id,
+  //                   }, {transaction: t});
+  //                   workersAvailable.push(createWorker);
+  //                 }
+                  
+  //             });
+  //             logger.info(`Updated ${workersAvailable.length} worker field of Operations`);     
+  //         }
+  //         return project;
+  //     })
+  //     .catch ((error) => {
+  //         logger.error(error)
+  //         return null
+  //     });
+  //     if (result) {
+  //         res.status(200).json({message: "Project updated!", data: req.body});
+  //     } else {
+  //         const err = new Error("Please try back Later");
+  //         err.statusCode = 500;
+  //         next(err);
+  //     }
+  //   } else {
+  //     return res.status(400).json({message: 'Project Doesnot Exists'})
+  //   }
   logger.debug(`Projects : Inside updateProjectById`);
 };
+
