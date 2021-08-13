@@ -90,17 +90,22 @@ exports.findInventoryById = async (req, res, next) => {
 exports.deleteInventory = async (req, res, next) => {
     logger.info(`Inventory : Inside deleteInventory`);
     const {id} = req.params;
-    const result = await db.sequelize.transaction(async (t) => {
-        return await Inventory.destroy(
-            {where: {id: id}, force: true},
-            {transaction: t}
-        );
-    });
-
-    const obj = {};
-    obj.message = "Inventory Deleted Successfully";
-    obj.updatedRecord = result;
-    res.status(200).send(obj);
+    const included = await InvOperations.findOne({where: {inv_id: id}})
+    if (included) {
+        res.status(400).send(`Inventory cannot be deleted as it is used in Operation ${included.dataValues.operation_id}`)
+    } else {
+        const result = await db.sequelize.transaction(async (t) => {
+            return await Inventory.destroy(
+                {where: {id: id}, force: true},
+                {transaction: t}
+            );
+        });
+    
+        const obj = {};
+        obj.message = "Inventory Deleted Successfully";
+        obj.updatedRecord = result;
+        res.status(200).send(obj);
+    }
     logger.info(`Inventory : Exit deleteInventory`);
 }
 

@@ -2,7 +2,7 @@ const db = require('../../models');
 const logger = require('../../util/log_utils');
 const { getAllCustomers } = require('../service/CustomerService');
 const { getPagination, getPagingData } = require("../service/PaginationService");
-const { Users } = db;
+const { Users, Quotes } = db;
 
 
 const findAllCustomers = (req, res, whereClause) => {
@@ -47,6 +47,10 @@ exports.deleteCustomersById = async (req, res) => {
     logger.debug(`Customers : Inside deleteCustomersById`);
     const {id} = req.params;
     const result = await db.sequelize.transaction(async (t) => {
+        await Quotes.destroy(
+            {where: {UserId: id}, force: true},
+            {transaction: t}
+        )
         return await Users.destroy({
             where: {id: id, role: "USER"}
         })
@@ -60,7 +64,6 @@ exports.deleteCustomersById = async (req, res) => {
 
 exports.updateCustomerById = async (req, res) => {
     logger.debug(`Customers : Inside updateCustomerById`);
-    //donot delete customers with projects
     const {id} = req.params;
     const {name, email} = req.body;
     const customer = await Users.findOne({where: {id : id }})

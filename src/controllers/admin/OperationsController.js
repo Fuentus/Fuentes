@@ -5,7 +5,7 @@ const {getPagination, getPagingData} = require("../service/PaginationService");
 const {getAllOperations, fetchOperationsByClause} = require("../service/OperationService");
 const {validationResult} = require("express-validator");
 const inv_operations = require('../../models/inv_operations');
-const {Inventory, Worker, Operations, inv_operations: InvOperations, worker_operations: WorkerOperations} = db;
+const {Inventory, Worker, Operations, inv_operations: InvOperations, worker_operations: WorkerOperations, quote_operations: QuoteOperation} = db;
 
 exports.createOperation = async (req, res, next) => {
     logger.debug(`Operations : Inside createOperation`);
@@ -97,25 +97,30 @@ exports.deleteOperation = async (req, res, next) => {
     logger.debug(`Operations : Inside deleteOperation`);
     //TODO Check in Project Operations Exists if not delete it else through error
     const {id} = req.params;
-    const result = await db.sequelize.transaction(async (t) => {
-        await Inventory.destroy(
-            {where: {id: id}, force: true},
-            {transaction: t}
-        );
-        await Worker.destroy(
-            {where: {id: id}, force: true},
-            {transaction: t}
-        );
-        return await Operations.destroy(
-            {where: {id: id}, force: true},
-            {transaction: t}
-        );
-    });
-    const obj = {};
-    obj.message = "Operations Deleted Successfully";
-    obj.updatedRecord = result;
-    res.status(200).send(obj);
-    logger.debug(`Operations : Exit deleteOperation`);
+    let included = await QuoteOperation.findOne({where: {operation_id: id}})
+    if (included) {
+        res.status(400).send(`Operation cannot be deleted as Operation is assigned to Quote ${included.dataValues.quote_id}`)
+    } else {
+        const result = await db.sequelize.transaction(async (t) => {
+            await InvOperations.destroy(
+                {where: {operation_id: id}, force: true},
+                {transaction: t}
+            );
+            await WorkerOperations.destroy(
+                {where: {operation_id: id}, force: true},
+                {transaction: t}
+            );
+            return await Operations.destroy(
+                {where: {id: id}, force: true},
+                {transaction: t}
+            );
+        });
+        const obj = {};
+        obj.message = "Operations Deleted Successfully";
+        obj.updatedRecord = result;
+        res.status(200).send(obj);
+        logger.debug(`Operations : Exit deleteOperation`);
+    }
 }
 
 exports.updateOperation = async (req, res, next) => {
