@@ -55,9 +55,9 @@ exports.login = (req, res, next) => {
             }
             const token = jwt.sign({email: user.email, userId: user.id,}, JWT_SECRET, {expiresIn: "24h"});
             if (user.role === "ADMIN") {
-                res.status(200).json({token: token, userId: user.id, admin: true})
+                res.status(200).json({token: token, userName: user.name, userId: user.id, admin: true})
             } else {
-                res.status(200).json({token: token, userId: user.id});
+                res.status(200).json({token: token, userName: user.name, userId: user.id});
             }
         })
         .catch((err) => {
