@@ -104,7 +104,6 @@ exports.deleteWorkersById = async (req, res) => {
     let includedInQuote = await QuoteOperationWorkers.findOne({where: {worker_id: id}})
     let includedInProject = await ProjectWorkers.findOne({where: {worker_id: id}})
     if (includedInQuote) {
-        console.log(includedInQuote)
         res.status(400).send(`Worker cannot be deleted as worker is assigned in Quote ${includedInQuote.dataValues.quote_operation_id}`)
     } else if (includedInProject) {
         res.status(400).send(`Worker cannot be deleted as worker is assigned in Project ${includedInProject.dataValues.project_id}`)

@@ -29,6 +29,11 @@ module.exports = function (sequelize, Sequelize) {
             },
             endDate: {
                 type: DATE
+            },
+            inspection: {
+                type: ENUM,
+                values: ["Fair", "Std"],
+                allowNull: true
             }
         },
         {
@@ -38,7 +43,7 @@ module.exports = function (sequelize, Sequelize) {
         }
     );
     Quotes.associate = function (models) {
-        const {Users, Measures, Uploads,quote_operations:QuoteOperations} = models;
+        const {Users, Measures, Uploads,quote_operations:QuoteOperations, Inspections} = models;
         Quotes.belongsTo(Users, {
             foreignKey: {
                 allowNull: false,
@@ -56,6 +61,11 @@ module.exports = function (sequelize, Sequelize) {
             foreignKey: "quote_id",
             as: "QuoteOperation",
         });
+        // Quotes.belongsTo(Inspections, {
+        //     foreignKey: {
+        //         allowNull: false,
+        //     },
+        // });
     };
     return Quotes;
 };

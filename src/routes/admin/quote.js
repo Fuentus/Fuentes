@@ -30,4 +30,8 @@ router.put("/tagQuotes",
 router.put("/convertToProject/:quoteId",
     quoteController.convertToProject);
 
+router.post("/assignQuoteInspection/:id",
+    quoteController.assignQuoteInspection);
+
+
 module.exports = router;
