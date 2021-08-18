@@ -10,6 +10,6 @@ router.get('/:id', projectController.getOneProject)
 
 router.put('/:id', projectController.updateProjectById)
 
-router.post("/:id/changeStatus", projectController.changeProjectStatus);
+router.post("/changeStatus/:id", projectController.changeProjectStatus);
 
 module.exports = router

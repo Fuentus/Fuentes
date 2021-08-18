@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const db = require('../../models/');
 const logger = require('../../util/log_utils');
-const ProjectStatus = require('../service/ProjectStatus');
+const {ProjectStatus} = require('../service/ProjectStatus');
 const Projects = db.Projects;
 const { project_workers: ProjectWorkers, Quotes } = db;
 
@@ -127,33 +127,29 @@ exports.updateProjectById = async (req, res, next) => {
 
 exports.changeProjectStatus = async (req, res, next) => {
   logger.info(`Projects : Inside changeProjectStatus`);
-  let {status} = req.body;
-  const {id} = req.params;
-  // const project = await Projects.findOne({id: id})
-  // const boolean = ProjectStatus.checkProjectStatusCanBeUpdated(project.status, status);
-  // if (!boolean) {
-  //     return res.status(422).send({msg: `Please Choose Correct Status`});
-  // }
-  if (status === 'CLOSED') {
+  let { status } = req.body;
+  const { id } = req.params;
+  const project = await Projects.findOne({where : {id :id}})
+  if (project) {
+    const boolean = ProjectStatus.checkProjectStatusCanBeUpdated(project.status, status);
+    if (!boolean) {
+        return res.status(422).send({msg: `Please Choose Correct Status`});
+    }
+    const qid = project.QuoteId;
     Projects.update({status: status}, {where: {id: id}})
     .then((result) => {
+        Quotes.update({status: 'CLOSED'}, {where: {id: qid}})
         const obj = {};
         obj.message = "Status Updated Successfully";
         obj.updatedRecord = result.length;
         res.status(200).send(obj);
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      res.status(422).send({msg: `Input Valid Project`});
+    next(err)
+    });
   } else {
-    return res.status(422).send({msg: `Input Valid Status`});
+    return res.status(422).send({msg: `Input Valid Project`});
   }
-  // Quotes.update({status: status}, {where: {ProjectId: id}})
-  //       .then((result) => {
-  //           const obj = {};
-  //           obj.message = "Update Successfully";
-  //           obj.updatedRecord = result.length;
-  //           res.status(200).send(obj);
-  //       })
-  //       .catch((err) => next(err));
   logger.info(`Projects : Exit changeProjectStatus`);
 };
-

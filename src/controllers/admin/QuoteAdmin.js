@@ -193,7 +193,8 @@ exports.convertToProject = async (req, res, next) => {
                 name,
                 desc,
                 start_date: startDate,
-                end_date: endDate
+                end_date: endDate,
+                QuoteId: quoteId
             }, {transaction: t});
 
             for (let i = 0; i < qOperations.length; i++) {
