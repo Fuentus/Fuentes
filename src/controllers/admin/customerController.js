@@ -2,7 +2,7 @@ const db = require('../../models');
 const logger = require('../../util/log_utils');
 const { getAllCustomers } = require('../service/CustomerService');
 const { getPagination, getPagingData } = require("../service/PaginationService");
-const { Users } = db;
+const { Users, Quotes } = db;
 
 
 const findAllCustomers = (req, res, whereClause) => {
@@ -43,18 +43,42 @@ exports.getCustomersById = (req, res) => {
     logger.debug(`Customers : Exit getCustomersById`);
 }
 
+// exports.deleteCustomersById = async (req, res) => {
+//     logger.debug(`Customers : Inside deleteCustomersById`);
+//     const {id} = req.params;
+//     const result = await db.sequelize.transaction(async (t) => {
+//         await Quotes.destroy(
+//             {where: {UserId: id}, force: true},
+//             {transaction: t}
+//         )
+//         return await Users.destroy({
+//             where: {id: id, role: "USER"}
+//         })
+//     });
+//     const obj = {};
+//     obj.message = "User Deleted Successfully";
+//     obj.updatedRecord = result;
+//     res.status(200).send(obj);
+//     logger.debug(`Customers : Exit deleteCustomersById`);
+// }
+
 exports.deleteCustomersById = async (req, res) => {
     logger.debug(`Customers : Inside deleteCustomersById`);
     const {id} = req.params;
-    const result = await db.sequelize.transaction(async (t) => {
-        return await Users.destroy({
-            where: {id: id, role: "USER"}
-        })
-    });
-    const obj = {};
-    obj.message = "User Deleted Successfully";
-    obj.updatedRecord = result;
-    res.status(200).send(obj);
+    const quote = await Quotes.findOne({where: {UserId : id }});
+    if(quote) {
+        res.status(400).send(`Customer cannot be deleted as Some Quote belongs to customer`)
+    } else {
+        const result = await db.sequelize.transaction(async (t) => {
+            return await Users.destroy({
+                where: {id: id, role: "USER"}
+            })
+        });
+        const obj = {};
+        obj.message = "User Deleted Successfully";
+        obj.updatedRecord = result;
+        res.status(200).send(obj);
+    }  
     logger.debug(`Customers : Exit deleteCustomersById`);
 }
 

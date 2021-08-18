@@ -1,5 +1,7 @@
+const {ProjectStatus} = require("../controllers/service/ProjectStatus");
+
 module.exports = function (sequelize, DataTypes) {
-    const {INTEGER, TEXT, STRING, DATE} = DataTypes;
+    const {INTEGER, TEXT, STRING, DATE, ENUM} = DataTypes;
     const Projects = sequelize.define(
         "Projects",
         {
@@ -16,6 +18,12 @@ module.exports = function (sequelize, DataTypes) {
             },
             desc: {
                 type: TEXT,
+            },
+            status: {
+                type: ENUM,
+                values: ProjectStatus.getAllProjectStatus(),
+                defaultValue: ProjectStatus.defaultValue(),
+                notNull: true,
             },
             start_date: {
                 type: DATE,

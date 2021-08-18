@@ -21,7 +21,7 @@ exports.findAllQuotesForAdmin = (req, res) => {
     logger.debug(`Quotes : Inside findAllQuotesForAdmin`);
     let {updatedAt} = req.query;
     updatedAt = updatedAt ? updatedAt : 0;
-    const whereClause = {updatedAt: {[Op.gt]: updatedAt}};
+    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, status: {[Op.ne]: "CLOSED"}};
     const {page, size} = req.query;
     const obj = getPagination(page, size);
     const failure = (err) => {
@@ -193,7 +193,8 @@ exports.convertToProject = async (req, res, next) => {
                 name,
                 desc,
                 start_date: startDate,
-                end_date: endDate
+                end_date: endDate,
+                QuoteId: quoteId
             }, {transaction: t});
 
             for (let i = 0; i < qOperations.length; i++) {
@@ -235,3 +236,23 @@ exports.convertToProject = async (req, res, next) => {
     }
     logger.debug(`Quotes : Exit convertToProject`);
 }
+
+
+
+exports.assignQuoteInspection = async (req, res, next) => {
+    logger.info(`Quotes : Inside assignQuoteInspection`);
+    const {id} = req.params;
+    const {inspection} = req.body;
+    Quotes.update({inspection: inspection}, {where: {id: id}})
+        .then((result) => {
+            const obj = {};
+            obj.message = "Inspection Added Successfully";
+            obj.updatedRecord = result.length;
+            res.status(200).send(obj);
+        })
+        .catch((err) => {
+            res.status(400).send("Please Input Valid Inspection")
+            next(err)
+        });
+    logger.info(`Quotes : Exit assignQuoteInspection`);
+};

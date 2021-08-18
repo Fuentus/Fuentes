@@ -16,14 +16,13 @@ const fetchOperationsByClause = async (whereClause) => {
                             model: Inventory,
                             as: "Inventories",
                             attributes: ["id","itemName"]
-                        },
+                        }],
+                    },
                         {
                             model: WorkerOperations,
                             as: "OperationWorkers",
                             attributes: ['tag_workers_operations_id']
                         }
-                    ],
-                }
             ],
         })) || {}
     );

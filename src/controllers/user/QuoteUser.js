@@ -12,7 +12,7 @@ exports.findAllQuotesForUser = (req, res) => {
     logger.debug(`Quotes : Inside findAllQuotes`);
     let {updatedAt} = req.query;
     updatedAt = updatedAt ? updatedAt : 0;
-    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, userId: {[Op.eq]: req.user.id}};
+    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, userId: {[Op.eq]: req.user.id}, status: {[Op.ne]: "CLOSED"}};
     const {page, size} = req.query;
     const obj = getPagination(page, size);
     const failure = (err) => {

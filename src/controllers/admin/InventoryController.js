@@ -90,51 +90,52 @@ exports.findInventoryById = async (req, res, next) => {
 exports.deleteInventory = async (req, res, next) => {
     logger.info(`Inventory : Inside deleteInventory`);
     const {id} = req.params;
-    const result = await db.sequelize.transaction(async (t) => {
-        return await Inventory.destroy(
-            {where: {id: id}, force: true},
-            {transaction: t}
-        );
-    });
-
-    const obj = {};
-    obj.message = "Inventory Deleted Successfully";
-    obj.updatedRecord = result;
-    res.status(200).send(obj);
+    const included = await InvOperations.findOne({where: {inv_id: id}})
+    if (included) {
+        res.status(400).send(`Inventory cannot be deleted as it is used in Operation ${included.dataValues.operation_id}`)
+    } else {
+        const result = await db.sequelize.transaction(async (t) => {
+            return await Inventory.destroy(
+                {where: {id: id}, force: true},
+                {transaction: t}
+            );
+        });
+    
+        const obj = {};
+        obj.message = "Inventory Deleted Successfully";
+        obj.updatedRecord = result;
+        res.status(200).send(obj);
+    }
     logger.info(`Inventory : Exit deleteInventory`);
 }
 
 exports.updateInventory = async (req, res, next) => {
     logger.info(`Inventory : Inside updateInventory`);
     const {id} = req.params;
-    const {itemName, itemDesc, availability, cost, supplier_email, operations} = req.body
+    const {itemName, itemDesc, availability, cost, supplier_email} = req.body
     const inventory = await Inventory.findOne({where: {id : id }})
     if(inventory) {
-        try {
-            const result = await db.sequelize
-            .transaction(async (t) => {
+        
+            const result = await db.sequelize.transaction(async (t) => {
             const inventory = await Inventory.update({
                 itemName: itemName,
                 itemDesc: itemDesc,
                 availability: availability,
                 cost: cost,
                 supplierInfo: supplier_email
-            }, {transaction: t});
-            if (operations) {
-                operations.map((item) => {
-                    item.inv_id = inventory.id;
-                    item.operation_id = item.id;
-                    item.req_avail = 0;
-                    return item;
-                })
-                const invOperationBulk = await InvOperations.bulkCreate(operations, {transaction: t})
-                logger.info(`Inserted ${invOperationBulk.length} items to InvOperations`);
-            }
-            return res.status(200).json({message: 'Updated Inventory', data: result});
+            },{where: {id: id}}, {transaction: t});
+            return inventory;
             })
-        } catch (error) {
+         .catch ((error) => {
             logger.error(error)
-            return null;
+            return null
+        });
+        if (result) {
+            res.status(200).json({message: "Inventory updated!", data: req.body});
+        } else {
+            const err = new Error("Please try back Later");
+            err.statusCode = 500;
+            next(err);
         }
     } else {
         return res.status(400).json({message: 'Inventory Doesnot Exists'})
