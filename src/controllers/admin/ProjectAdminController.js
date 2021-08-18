@@ -146,7 +146,7 @@ exports.changeProjectStatus = async (req, res, next) => {
     })
     .catch((err) => {
       res.status(422).send({msg: `Input Valid Project`});
-    next(err)
+      next(err)
     });
   } else {
     return res.status(422).send({msg: `Input Valid Project`});
