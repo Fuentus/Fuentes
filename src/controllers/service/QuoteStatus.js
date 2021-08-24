@@ -24,6 +24,7 @@ class QuoteStatus {
         }
         return this.quoteStatus;
     }
+
     static customerStatus = () => {
         const res = [];
         res.push(QUOTE_STATUS.QUOTE_NEW.status);
@@ -73,7 +74,14 @@ const QUOTE_STATUS = {
     CLOSED: new QuoteStatus("CLOSED", 7)
 };
 
+class QuoteTax  {
+    static taxPercentage = () => {
+        let tax = 5;
+        return tax;
+    }
+}
 
 module.exports = {
-    QuoteStatus: QuoteStatus
+    QuoteStatus: QuoteStatus,
+    QuoteTax: QuoteTax
 };

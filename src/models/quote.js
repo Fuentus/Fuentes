@@ -1,4 +1,4 @@
-const {QuoteStatus} = require("../controllers/service/QuoteStatus");
+const {QuoteStatus, QuoteTax} = require("../controllers/service/QuoteStatus");
 module.exports = function (sequelize, Sequelize) {
     const {INTEGER, TEXT, STRING, ENUM, DATE} = Sequelize;
     const Quotes = sequelize.define(
@@ -30,11 +30,20 @@ module.exports = function (sequelize, Sequelize) {
             endDate: {
                 type: DATE
             },
-            inspection: {
-                type: ENUM,
-                values: ["Fair", "Std"],
+            tax: {
+                type: STRING,
+                value: QuoteTax.taxPercentage(),
+                allowNull: true,
+            },
+            total : {
+                type:INTEGER,
                 allowNull: true
             }
+            // inspection: {
+            //     type: ENUM,
+            //     values: ["Fair", "Std"],
+            //     allowNull: true
+            // }
         },
         {
             schema: "tbl",
@@ -43,10 +52,22 @@ module.exports = function (sequelize, Sequelize) {
         }
     );
     Quotes.associate = function (models) {
-        const {Users, Measures, Uploads,quote_operations:QuoteOperations, Inspections} = models;
+        const {Users, Measures, Inspections, Uploads, quote_operations:QuoteOperations} = models;
         Quotes.belongsTo(Users, {
             foreignKey: {
                 allowNull: false,
+            },
+        });
+        // Quotes.belongsTo(Tax, {
+        //     foreignKey: {
+        //         allowNull: false,
+        //         defaultValue: 1
+        //     },
+        // });
+        Quotes.belongsTo(Inspections, {
+            foreignKey: {
+                allowNull: false,
+                defaultValue: 1
             },
         });
         Quotes.hasMany(Measures, {
@@ -60,12 +81,7 @@ module.exports = function (sequelize, Sequelize) {
         Quotes.hasMany(QuoteOperations, {
             foreignKey: "quote_id",
             as: "QuoteOperation",
-        });
-        // Quotes.belongsTo(Inspections, {
-        //     foreignKey: {
-        //         allowNull: false,
-        //     },
-        // });
+        }); 
     };
     return Quotes;
 };

@@ -6,6 +6,8 @@ const {
     Quotes,
     Inventory,
     Projects,
+    Tax,
+    Inspections,
     quote_operations: QuoteOperations,
     quote_operation_inv: QuoteOperationInv,
     quote_operation_workers: QuoteOperationWorker,
@@ -14,7 +16,7 @@ const {
 
 const logger = require("../../util/log_utils");
 const {fetchQuoteByClause, getAllQuotes} = require("../service/QuoteService")
-const {QuoteStatus} = require("../service/QuoteStatus");
+const {QuoteStatus, QuoteTax} = require("../service/QuoteStatus");
 const {getPagination, getPagingData} = require("../service/PaginationService")
 
 exports.findAllQuotesForAdmin = (req, res) => {
@@ -238,12 +240,11 @@ exports.convertToProject = async (req, res, next) => {
 }
 
 
-
 exports.assignQuoteInspection = async (req, res, next) => {
     logger.info(`Quotes : Inside assignQuoteInspection`);
     const {id} = req.params;
-    const {inspection} = req.body;
-    Quotes.update({inspection: inspection}, {where: {id: id}})
+    const { inspectionId } = req.body;
+    Quotes.update({InspectionId: inspectionId}, {where: {id: id}})
         .then((result) => {
             const obj = {};
             obj.message = "Inspection Added Successfully";
@@ -256,3 +257,52 @@ exports.assignQuoteInspection = async (req, res, next) => {
         });
     logger.info(`Quotes : Exit assignQuoteInspection`);
 };
+
+exports.addTaxValue = async (req, res, next) => {
+    logger.info(`Quotes : Inside addTaxValue`);
+    const {id} = req.params;
+    const tax = QuoteTax.taxPercentage();
+    Quotes.update({tax: tax}, {where: {id: id}})
+        .then((result) => {
+            const obj = {};
+            obj.message = "Tax Updated Successfully";
+            obj.updatedRecord = result.length;
+            res.status(200).send(obj);
+        })
+        .catch((err) => {
+            res.status(400).send("Please Input Valid Tax Id")
+            next(err)
+        });
+    logger.info(`Quotes : Exit addTaxValue`);
+}
+
+exports.addTotalValue = async (req, res, next) => {
+    logger.info(`Quotes : Inside addTotalValue`);
+    const {id} = req.params;
+    let {total} = req.body;
+    // const inspection = await Quotes.findOne({where: {id: id, InspectionId: {[Op.ne]: 1}}})
+    // if (inspection) {
+    //     const inspectionId = inspection.dataValues.InspectionId
+    //     const ins = await Inspections.findOne({where: {id: inspectionId}})
+    //     const inspectionCost = ins.cost;
+    //     total = total + inspectionCost;
+    // }
+    // const taxValue = QuoteTax.taxPercentage()
+    // const tax = await Quotes.findOne({where: {id: id, tax: {[Op.eq]: taxValue}}})
+    // if (tax) {
+    //     taxPrice = (total/100) * taxValue;
+    //     total = total + taxPrice;
+    // }
+    Quotes.update({total: total}, {where: {id: id}})
+        .then((result) => {
+            const obj = {};
+            obj.message = "Total Amount Added";
+            obj.updatedRecord = result.length;
+            res.status(200).send(obj);
+        })
+        .catch((err) => {
+            res.status(400).send(err)
+            next(err)
+        });
+    logger.info(`Quotes : Exit addTotalValue`);
+}

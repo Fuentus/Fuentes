@@ -33,5 +33,11 @@ router.put("/convertToProject/:quoteId",
 router.post("/assignQuoteInspection/:id",
     quoteController.assignQuoteInspection);
 
+router.post("/addTaxValue/:id",
+    quoteController.addTaxValue);
+
+router.post("/addTotalValue/:id",
+    quoteController.addTotalValue);
+
 
 module.exports = router;

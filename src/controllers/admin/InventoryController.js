@@ -115,7 +115,6 @@ exports.updateInventory = async (req, res, next) => {
     const {itemName, itemDesc, availability, cost, supplier_email} = req.body
     const inventory = await Inventory.findOne({where: {id : id }})
     if(inventory) {
-        
             const result = await db.sequelize.transaction(async (t) => {
             const inventory = await Inventory.update({
                 itemName: itemName,

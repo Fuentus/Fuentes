@@ -135,17 +135,29 @@ exports.updateOperation = async (req, res, next) => {
                 if(items) {
                     const inventory = []
                     items.map(async (item) => {
-                        let updateInv = await InvOperations.update({req_avail: item.required_qty}, {where: {operation_id : id, inv_id: item.id }}, {transaction: t});
-                        inventory.push(updateInv);
-                        logger.info(`Updated ${inventory.length} inventory field of Operations`);
-                    });
+                                    const inv = await InvOperations.findOne({where: {operation_id : id, inv_id: item.id }})
+                                    if (!inv) {
+                                        let addInv = await InvOperations.create({req_avail: item.required_qty, operation_id : id, inv_id: item.id });
+                                        inventory.push(addInv);
+                                    } else {
+                                        let updateInv = await InvOperations.update({req_avail: item.required_qty}, {where: {operation_id : id, inv_id: item.id }}, {transaction: t});
+                                        inventory.push(updateInv);
+                                    }      
+                    })  
+                    logger.info(`Updated ${inventory.length} inventory field of Operations`);
                 }
-
                 if(workers) {
                     const workersAvailable = []
                     workers.map(async (worker) => {
-                        let updateWorker = await WorkerOperations.update({avail_per_day: worker.required_hrs}, {where: {operation_id : id, worker_id: worker.id }}, {transaction: t});
-                        workersAvailable.push(updateWorker);
+                        const workerOpr = await WorkerOperations.findOne({where: {operation_id: id, worker_id: worker.id}})
+                        if (!workerOpr) {
+                            let createWorker = await WorkerOperations.create({avail_per_day: worker.required_hrs, operation_id : id, worker_id: worker.id, est_cost: worker.est_cost});
+                            workersAvailable.push(createWorker);
+                        } else {
+                            let updateWorker = await WorkerOperations.update({avail_per_day: worker.required_hrs}, {where: {operation_id : id, worker_id: worker.id }}, {transaction: t});
+                            workersAvailable.push(updateWorker);
+                        }
+                        
                     });
                     logger.info(`Updated ${workersAvailable.length} worker field of Operations`);     
                 }

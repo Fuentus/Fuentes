@@ -101,8 +101,15 @@ exports.updateProjectById = async (req, res, next) => {
                   //   }, {transaction: t});
                   //   workersAvailable.push(createWorker);
                   // }
-                  let updateWorker = await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {worker_id: worker.id }}, {transaction: t});
-                  workersAvailable.push(updateWorker);
+
+                  const projectWorker = await ProjectWorkers.findOne({where: {project_id: id, worker_id: worker.id}})
+                  if (!projectWorker) {
+                    let createWorker = await ProjectWorkers.create({total_hrs: worker.required_hrs, project_id :id, operation_id: worker.operation_id, worker_id: worker.id});
+                    workersAvailable.push(createWorker);
+                  } else {
+                    let updateWorker = await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id }}, {transaction: t});
+                    workersAvailable.push(updateWorker);
+                  }
               });
               logger.info(`Updated ${workersAvailable.length} worker field of Operations`);     
           }
@@ -153,3 +160,5 @@ exports.changeProjectStatus = async (req, res, next) => {
   }
   logger.info(`Projects : Exit changeProjectStatus`);
 };
+
+
