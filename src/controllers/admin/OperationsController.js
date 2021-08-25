@@ -144,7 +144,32 @@ exports.updateOperation = async (req, res, next) => {
                                         inventory.push(updateInv);
                                     }      
                     })  
-                    logger.info(`Updated ${inventory.length} inventory field of Operations`);
+
+
+
+                    // const inv = await InvOperations.findOne({where: {operation_id : id, inv_id: item.id }})
+                    //                 const inventories = await InvOperations.findAndCountAll({where: {operation_id : id}})
+                    //                 for(let i = 0; i < inventories.count; i++) {
+                    //                     let invId = inventories.rows[i].dataValues.inv_id;
+                    //                     if(invId !== item.id) {
+                    //                         let delInv = await InvOperations.destroy({where: {operation_id : id, inv_id: invId}});
+                    //                         inventory.push(delInv);
+                    //                     }
+                    //                 }
+
+                    //                 // inventories.rows.map((inventory) => {
+                    //                 //     console.log("test")
+                    //                 // })
+
+                    //                 if (!inv) {
+                    //                     let addInv = await InvOperations.create({req_avail: item.required_qty, operation_id : id, inv_id: item.id });
+                    //                     inventory.push(addInv);
+                    //                 } 
+                    //                 else {
+                    //                     let updateInv = await InvOperations.update({req_avail: item.required_qty}, {where: {operation_id : id, inv_id: item.id }}, {transaction: t});
+                    //                     inventory.push(updateInv);
+                    //                 }  
+                    // logger.info(`Updated ${inventory.length} inventory field of Operations`);
                 }
                 if(workers) {
                     const workersAvailable = []
