@@ -142,7 +142,8 @@ exports.updateOperation = async (req, res, next) => {
                                     } else {
                                         let updateInv = await InvOperations.update({req_avail: item.required_qty}, {where: {operation_id : id, inv_id: item.id }}, {transaction: t});
                                         inventory.push(updateInv);
-                                    }      
+                                    }     
+                                     
                     })  
 
 
