@@ -11,4 +11,6 @@ router.put('/:id', inspectionController.updateInspection)
 
 router.post('/', inspectionController.createInspection);
 
+router.delete('/:id', inspectionController.deleteInspection);
+
 module.exports = router

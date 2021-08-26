@@ -133,59 +133,47 @@ exports.updateOperation = async (req, res, next) => {
                 let operation = await Operations.update({name: name, desc: desc}, {where: {id : id }}, {transaction: t});
                                
                 if(items) {
-                    const inventory = []
+                    const inventories = await InvOperations.findAndCountAll({where: {operation_id : id}})
+                    const inventoryDbId = inventories.rows.map((inventory) => {
+                        return inventory.dataValues.inv_id
+                    })
+                    
+                    const invArray = [];
                     items.map(async (item) => {
-                                    const inv = await InvOperations.findOne({where: {operation_id : id, inv_id: item.id }})
-                                    if (!inv) {
-                                        let addInv = await InvOperations.create({req_avail: item.required_qty, operation_id : id, inv_id: item.id });
-                                        inventory.push(addInv);
-                                    } else {
-                                        let updateInv = await InvOperations.update({req_avail: item.required_qty}, {where: {operation_id : id, inv_id: item.id }}, {transaction: t});
-                                        inventory.push(updateInv);
-                                    }     
-                                     
-                    })  
-
-
-
-                    // const inv = await InvOperations.findOne({where: {operation_id : id, inv_id: item.id }})
-                    //                 const inventories = await InvOperations.findAndCountAll({where: {operation_id : id}})
-                    //                 for(let i = 0; i < inventories.count; i++) {
-                    //                     let invId = inventories.rows[i].dataValues.inv_id;
-                    //                     if(invId !== item.id) {
-                    //                         let delInv = await InvOperations.destroy({where: {operation_id : id, inv_id: invId}});
-                    //                         inventory.push(delInv);
-                    //                     }
-                    //                 }
-
-                    //                 // inventories.rows.map((inventory) => {
-                    //                 //     console.log("test")
-                    //                 // })
-
-                    //                 if (!inv) {
-                    //                     let addInv = await InvOperations.create({req_avail: item.required_qty, operation_id : id, inv_id: item.id });
-                    //                     inventory.push(addInv);
-                    //                 } 
-                    //                 else {
-                    //                     let updateInv = await InvOperations.update({req_avail: item.required_qty}, {where: {operation_id : id, inv_id: item.id }}, {transaction: t});
-                    //                     inventory.push(updateInv);
-                    //                 }  
-                    // logger.info(`Updated ${inventory.length} inventory field of Operations`);
-                }
-                if(workers) {
-                    const workersAvailable = []
-                    workers.map(async (worker) => {
-                        const workerOpr = await WorkerOperations.findOne({where: {operation_id: id, worker_id: worker.id}})
-                        if (!workerOpr) {
-                            let createWorker = await WorkerOperations.create({avail_per_day: worker.required_hrs, operation_id : id, worker_id: worker.id, est_cost: worker.est_cost});
-                            workersAvailable.push(createWorker);
+                        if (inventoryDbId.includes(item.id)) {
+                            invArray.push(item.id)
+                            await InvOperations.update({req_avail: item.required_qty}, {where: {operation_id : id, inv_id: item.id }}, {transaction: t});
                         } else {
-                            let updateWorker = await WorkerOperations.update({avail_per_day: worker.required_hrs}, {where: {operation_id : id, worker_id: worker.id }}, {transaction: t});
-                            workersAvailable.push(updateWorker);
+                            await InvOperations.create({req_avail: item.required_qty, operation_id : id, inv_id: item.id });
                         }
-                        
-                    });
-                    logger.info(`Updated ${workersAvailable.length} worker field of Operations`);     
+                    })
+                    const delId = inventoryDbId.filter(x => !invArray.includes(x)) 
+                    //inventoryDbId - invArray;
+                    for (let i = 0; i < delId.length; i++) {
+                        await InvOperations.destroy({where: {inv_id: delId[i], operation_id : id}})
+                    }
+                }
+
+                if(workers) {
+                    const allWorkers = await WorkerOperations.findAndCountAll({where: {operation_id : id}})
+                    const workerDbId = allWorkers.rows.map((w) => {
+                        return w.dataValues.worker_id
+                    })
+
+                    const workerArray = [];
+                    workers.map(async (worker) => {
+                        if (workerDbId.includes(worker.id)) {
+                            workerArray.push(worker.id)
+                            await WorkerOperations.update({avail_per_day: worker.required_hrs, est_cost: worker.est_cost}, {where: {operation_id : id, worker_id: worker.id }}, {transaction: t});
+                        } else {
+                            await WorkerOperations.create({avail_per_day: worker.required_hrs, operation_id : id, worker_id: worker.id, est_cost: worker.est_cost});
+                        }
+                    })
+
+                    const delWorkerId = workerDbId.filter(x => !workerArray.includes(x)) 
+                    for (let i = 0; i < delWorkerId.length; i++) {
+                        await WorkerOperations.destroy({where: {worker_id: delWorkerId[i], operation_id : id}})
+                    }  
                 }
                 return operation;
             })

@@ -13,7 +13,7 @@ const fetchQuoteByClause = async (whereClause) => {
     return (
         (await Quotes.findOne({
             where: whereClause,
-            attributes: ["id", "title", "desc", "startDate", "endDate", "status", "createdAt", "updatedAt"],
+            attributes: ["id", "title", "desc", "startDate", "endDate", "status", "createdAt", "updatedAt", "InspectionId"],
             include: [
                 {
                     model: Users,
@@ -35,7 +35,7 @@ const fetchQuoteByClause = async (whereClause) => {
                         {
                             model: Operations,
                             as: "Operations",
-                            attributes: ["id","name"]
+                            attributes: ["id","name", "desc"]
                         },
                         {
                             model: QuoteOperationInv,
@@ -72,7 +72,7 @@ const getAllQuotes = (obj, whereClause, success, failure) => {
     const {limit, offset} = obj;
     Quotes.findAndCountAll({
         where: whereClause,
-        attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt"],
+        attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt", "InspectionId"],
         include: [
             {
                 model: Users,

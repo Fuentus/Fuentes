@@ -83,35 +83,27 @@ exports.updateProjectById = async (req, res, next) => {
             startDate: startDate,
             endDate: endDate
           }, {where: {id : id }}, {transaction: t});
-          
-          if(workers) {
-              const workersAvailable = []
-              
-              workers.map(async (worker) => {
-                  // const assignedWorker = await ProjectWorkers.findOne({where: {worker_id: worker.id}})
-                  // if (assignedWorker) {
-                  //   let updateWorker = await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {worker_id: worker.id }}, {transaction: t});
-                  //   workersAvailable.push(updateWorker);
-                  // } else {
-                  //   let createWorker = await ProjectWorkers.create({
-                  //     total_hrs: worker.required_hrs,
-                  //     project_id: id,
-                  //     worker_id: worker.worker_id,
-                  //     operation_id: worker.operation_id,
-                  //   }, {transaction: t});
-                  //   workersAvailable.push(createWorker);
-                  // }
 
-                  const projectWorker = await ProjectWorkers.findOne({where: {project_id: id, worker_id: worker.id}})
-                  if (!projectWorker) {
-                    let createWorker = await ProjectWorkers.create({total_hrs: worker.required_hrs, project_id :id, operation_id: worker.operation_id, worker_id: worker.id});
-                    workersAvailable.push(createWorker);
-                  } else {
-                    let updateWorker = await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id }}, {transaction: t});
-                    workersAvailable.push(updateWorker);
-                  }
-              });
-              logger.info(`Updated ${workersAvailable.length} worker field of Operations`);     
+          if(workers) {
+            const allWorkers = await ProjectWorkers.findAndCountAll({where: {project_id : id}})
+            const workerDbId = allWorkers.rows.map((w) => {
+                return w.dataValues.worker_id
+            })
+            
+            const workerArray = [];
+            workers.map(async (worker) => {
+                if (workerDbId.includes(worker.id)) {
+                    workerArray.push(worker.id)
+                    await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id, worker_id: worker.id}}, {transaction: t});
+                } else {
+                    await ProjectWorkers.create({total_hrs: worker.required_hrs, project_id :id, operation_id: worker.operation_id, worker_id: worker.id});
+                }
+            })
+
+            const delWorkerId = workerDbId.filter(x => !workerArray.includes(x)) 
+            for (let i = 0; i < delWorkerId.length; i++) {
+                await ProjectWorkers.destroy({where: {project_id : id, worker_id: delWorkerId[i]}})
+            }  
           }
           return project;
       })

@@ -14,6 +14,10 @@ module.exports = function (sequelize, DataTypes) {
                 type: STRING,
                 notNull: true,
             },
+            desc: {
+                type: STRING,
+                notNull: true,
+            },
             cost: {
                 type: INTEGER,
                 notNull: true
