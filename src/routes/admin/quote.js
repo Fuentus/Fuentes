@@ -27,6 +27,12 @@ router.post(
 router.put("/tagQuotes",
     quoteController.tagQuoteAndOperations);
 
+router.put("/tagQuotes/:id",
+    quoteController.editTagQuoteAndOperations);
+
+router.delete("/tagQuotes/:id",
+    quoteController.removeTagQuoteAndOperations);
+
 router.put("/convertToProject/:quoteId",
     quoteController.convertToProject);
 

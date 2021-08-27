@@ -65,13 +65,15 @@ exports.createQuote = async (req, res, next) => {
                 }
             }
             if (uploads) {
-                await quote.createUpload(
-                    {
-                        fileName: uploads.fileName,
-                        filePath: uploads.filePath,
-                    },
-                    {transaction: t}
-                );
+                for (let i = 0; i < uploads.length; i++) {
+                    await quote.createUpload(
+                        {
+                            fileName: uploads[i].fileName,
+                            filePath: uploads[i].filePath,
+                        },
+                        {transaction: t}
+                    );
+                }
             }
             return quote;
         })

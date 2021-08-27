@@ -52,7 +52,7 @@ module.exports = function (sequelize, Sequelize) {
         }
     );
     Quotes.associate = function (models) {
-        const {Users, Measures, Inspections, Uploads, quote_operations:QuoteOperations} = models;
+        const {Users, Measures, Uploads, quote_operations:QuoteOperations} = models;
         Quotes.belongsTo(Users, {
             foreignKey: {
                 allowNull: false,
@@ -64,12 +64,12 @@ module.exports = function (sequelize, Sequelize) {
         //         defaultValue: 1
         //     },
         // });
-        Quotes.belongsTo(Inspections, {
-            foreignKey: {
-                allowNull: false,
-                defaultValue: 1
-            },
-        });
+        // Quotes.belongsTo(Inspections, {
+        //     foreignKey: {
+        //         allowNull: false,
+        //         defaultValue: 1
+        //     },
+        // });
         Quotes.hasMany(Measures, {
             onDelete: "cascade",
             onUpdate: "cascade",

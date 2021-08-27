@@ -1,3 +1,4 @@
+
 module.exports = function (sequelize, DataTypes) {
     const {INTEGER, STRING} = DataTypes;
     const Inspections = sequelize.define(
@@ -29,8 +30,8 @@ module.exports = function (sequelize, DataTypes) {
     );
 
     Inspections.associate = function (models) {
-        const {Quotes} = models;
-        Inspections.hasMany(Quotes);
+        const {quote_operations : QuoteOperations} = models;
+        Inspections.hasMany(QuoteOperations);
     };
 
     return Inspections;

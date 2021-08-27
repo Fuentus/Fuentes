@@ -1,6 +1,6 @@
 const logger = require("../../util/log_utils");
 const db = require("../../models");
-const {Inspections, Quotes} = db;
+const {Inspections, quote_operations: QuoteOperations} = db;
 // const {QuoteStatus} = require("../service/QuoteStatus");
 exports.fetchAllInspectionData = async (req, res, next) => {
     logger.info(`Inspections : Inside fetchAllInspectionData`);
@@ -66,9 +66,9 @@ exports.updateInspection = async (req, res, next) => {
 exports.deleteInspection = async (req, res, next) => {
     logger.info(`Inspections : Inside deleteInspection`);
     const {id} = req.params;
-    const inQuotes = await Quotes.findOne({where: {InspectionId : id }})
+    const inQuotes = await QuoteOperations.findOne({where: {inspection_id : id }})
     if (inQuotes) {
-        res.status(400).send("Inspection Can't Be deleted as it is assigned to Quotes")
+        res.status(400).send("Inspection Can't Be deleted as it is assigned to Quote Operations")
     } else {
         const result = await db.sequelize.transaction(async (t) => {
             return await Inspections.destroy(

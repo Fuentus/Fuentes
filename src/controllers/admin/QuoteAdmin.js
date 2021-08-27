@@ -173,6 +173,37 @@ exports.tagQuoteAndOperations = async (req, res, next) => {
     logger.info(`Quotes : Exit changeStatus of Quote`);
 }
 
+exports.editTagQuoteAndOperations = async (req, res, next) => {
+    logger.info(`Quotes : Inside editTagQuoteAndOperations of Quote`);
+    const { id } = req.params
+    const quoteOpr = await QuoteOperations.findOne({where: {quote_id: id}})
+    if (quoteOpr) {
+        res.status(200).send(quoteOpr)
+    } else {
+        res.status(400).send("No quote")
+    }
+    logger.info(`Quotes : Exit editTagQuoteAndOperations of Quote`);
+}
+
+exports.removeTagQuoteAndOperations = async (req, res, next) => {
+    logger.info(`Quotes : Inside removeTagQuoteAndOperations of Quote`);
+    const { id } = req.params
+    const quoteOpr = await QuoteOperations.findOne({where: {quote_id: id}})
+    if (quoteOpr) {
+        const qId = quoteOpr.dataValues.quote_id
+        const inProject = await Projects.findOne({where: {QuoteId : qId}})
+        if (inProject) {
+            res.status(400).send("Cant be deleted because operation is already tagged to quote") 
+        } else {
+            await QuoteOperations.destroy({where: {quote_id : id}})
+            res.status(200).send("successfully deleted")
+        }
+    } else {
+        res.status(400).send("No quote")
+    }
+    logger.info(`Quotes : Exit removeTagQuoteAndOperations of Quote`);
+}
+
 exports.convertToProject = async (req, res, next) => {
     logger.debug(`Quotes : Enter convertToProject`);
     const {quoteId} = req.params;
@@ -244,7 +275,10 @@ exports.assignQuoteInspection = async (req, res, next) => {
     logger.info(`Quotes : Inside assignQuoteInspection`);
     const {id} = req.params;
     const { inspectionId } = req.body;
-    Quotes.update({InspectionId: inspectionId}, {where: {id: id}})
+
+    const isQuote = await QuoteOperations.findOne({where: {quote_id: id}})
+    if (isQuote) {
+        QuoteOperations.update({inspection_id: inspectionId}, {where: {quote_id: id}})
         .then((result) => {
             const obj = {};
             obj.message = "Inspection Added Successfully";
@@ -255,6 +289,28 @@ exports.assignQuoteInspection = async (req, res, next) => {
             res.status(400).send("Please Input Valid Inspection")
             next(err)
         });
+    } else {
+        res.status(200).send("Please Input Valid Quote Id");
+    }
+
+    // const result = await db.sequelize.transaction(async (t) => {
+    //     if (isQuote) {
+    //         QuoteOperations.update({inspection_id: inspectionId}, {where: {quote_id: id}}, {transaction: t})
+    //     }
+    //     }).catch(function (err) {
+    //     logger.error(err)
+    //     res.status(400).send("Please Input Valid Inspection")
+    //     return null;
+    // });
+    // if (result) {
+    //     res.status(201).json({message: "Inspection Added Successfully"});
+    // } else {
+    //     const err = new Error("Please try back Later");
+    //     err.statusCode = 500;
+    //     next(err);
+    // }
+
+
     logger.info(`Quotes : Exit assignQuoteInspection`);
 };
 
