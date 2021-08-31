@@ -38,6 +38,10 @@ module.exports = function (sequelize, Sequelize) {
             total : {
                 type:INTEGER,
                 allowNull: true
+            },
+            submittedPO: {
+                type: STRING,
+                allowNull: true
             }
             // inspection: {
             //     type: ENUM,

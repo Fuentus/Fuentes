@@ -175,13 +175,85 @@ exports.tagQuoteAndOperations = async (req, res, next) => {
 
 exports.editTagQuoteAndOperations = async (req, res, next) => {
     logger.info(`Quotes : Inside editTagQuoteAndOperations of Quote`);
-    const { id } = req.params
-    const quoteOpr = await QuoteOperations.findOne({where: {quote_id: id}})
-    if (quoteOpr) {
-        res.status(200).send(quoteOpr)
-    } else {
-        res.status(400).send("No quote")
-    }
+    // const { id } = req.params;
+    // const { operations } = req.body;
+    // const taggedQuote = await QuoteOperations.findAndCountAll({where: {tag_quote_operations_id: id}})
+
+    
+    // const isOperation = await QuoteOperations.findOne({where: {tag_quote_operations_id: id}})
+    // if(isOperation) {
+    //         const result = await db.sequelize.transaction(async (t) => {
+    //             let operation = await QuoteOperations.update({operation_total_hrs: operations.operation_total_hrs, operation_cost: operations.operation_cost}, {where: {tag_quote_operations_id: id}}, {transaction: t});
+               
+                
+    //             const tools = operations.map((opr) => {
+    //                 return opr.tools
+    //             })
+
+    //             for (let i = 0; i <= tools.length; i++) {
+    //                console.log(tools[0][i].invId)
+    //             }
+            
+    //             if(tools) {
+    //                 const inventories = await QuoteOperationInv.findAndCountAll({where: {quote_operation_id: id}})
+    //                 const inventoryDbId = inventories.rows.map((inventory) => {
+    //                     return inventory.dataValues.inv_id
+    //                 })
+                    
+    //                 const invArray = [];
+    //                 inventoryArray.map(async (item) => {
+    //                     if (inventoryDbId.includes(item.id)) {
+    //                         invArray.push(item.id)
+    //                         await QuoteOperationInv.update({req_avail: item.required_qty}, {where: {quote_operation_id: id, inv_id: item.id }}, {transaction: t});
+    //                     } else {
+    //                         await QuoteOperationInv.create({req_avail: item.required_qty, quote_operation_id: id, inv_id: item.id });
+    //                     }
+    //                 })
+    //                 const delId = inventoryDbId.filter(x => !invArray.includes(x)) 
+    //                 //inventoryDbId - invArray;
+    //                 for (let i = 0; i < delId.length; i++) {
+    //                     await QuoteOperationInv.destroy({where: {inv_id: delId[i], quote_operation_id: id}})
+    //                 }
+    //             }
+
+    //             if(operations.workers) {
+    //                 const allWorkers = await QuoteOperationWorker.findAndCountAll({where: {quote_operation_id : id}})
+    //                 const workerDbId = allWorkers.rows.map((w) => {
+    //                     return w.dataValues.worker_id
+    //                 })
+
+    //                 const workerArray = [];
+    //                 operations.workers.map(async (worker) => {
+    //                     if (workerDbId.includes(worker.id)) {
+    //                         workerArray.push(worker.id)
+    //                         await QuoteOperationWorker.update({est_cost: worker.est_cost}, {where: {quote_operation_id : id, worker_id: worker.id }}, {transaction: t});
+    //                     } else {
+    //                         await QuoteOperationWorker.create({avail_per_day: worker.required_hrs, quote_operation_id : id, worker_id: worker.id, est_cost: worker.est_cost});
+    //                     }
+    //                 })
+
+    //                 const delWorkerId = workerDbId.filter(x => !workerArray.includes(x)) 
+    //                 for (let i = 0; i < delWorkerId.length; i++) {
+    //                     await QuoteOperationWorker.destroy({where: {worker_id: delWorkerId[i], quote_operation_id : id}})
+    //                 }  
+    //             }
+    //             return operation;
+    //         })
+    //     .catch ((error) => {
+    //         logger.error(error)
+    //         return null
+    //     });
+    //     if (result) {
+    //         res.status(200).json({message: "Tag Quote Operation updated!", data: req.body});
+    //     } else {
+    //         const err = new Error("Please try back Later");
+    //         err.statusCode = 500;
+    //         next(err);
+    //     }
+    // } else {
+    //     return res.status(400).json({message: 'Tag Operation Doesnot Exists'})
+    // }
+
     logger.info(`Quotes : Exit editTagQuoteAndOperations of Quote`);
 }
 
@@ -275,7 +347,6 @@ exports.assignQuoteInspection = async (req, res, next) => {
     logger.info(`Quotes : Inside assignQuoteInspection`);
     const {id} = req.params;
     const { inspectionId } = req.body;
-
     const isQuote = await QuoteOperations.findOne({where: {quote_id: id}})
     if (isQuote) {
         QuoteOperations.update({inspection_id: inspectionId}, {where: {quote_id: id}})
@@ -332,6 +403,24 @@ exports.addTaxValue = async (req, res, next) => {
     logger.info(`Quotes : Exit addTaxValue`);
 }
 
+
+exports.submitPOUrl = async (req, res, next) => {
+    logger.info(`Quotes : Inside submitPOUrl`);
+    const {id} = req.params;
+    const {submit_PO} = req.body;
+    Quotes.update({submittedPO: submit_PO}, {where: {id: id}})
+        .then((result) => {
+            const obj = {};
+            obj.message = "PO Link Updated Successfully";
+            obj.updatedRecord = result.length;
+            res.status(200).send(obj);
+        })
+        .catch((err) => {
+            next(err)
+        });
+    logger.info(`Quotes : Exit submitPOUrl`);
+}
+
 exports.addTotalValue = async (req, res, next) => {
     logger.info(`Quotes : Inside addTotalValue`);
     const {id} = req.params;
@@ -362,3 +451,21 @@ exports.addTotalValue = async (req, res, next) => {
         });
     logger.info(`Quotes : Exit addTotalValue`);
 }
+
+
+//edit Tag Operation Logic
+
+/*if (operation === DB.operation) {
+    update operation,
+        > inv,
+        > update worker
+} else {
+    add operation,
+        > inv,
+        > worker
+}
+
+if (DB.operation !== operation) {
+    delete db entry
+}
+*/

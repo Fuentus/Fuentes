@@ -45,5 +45,8 @@ router.post("/addTaxValue/:id",
 router.post("/addTotalValue/:id",
     quoteController.addTotalValue);
 
+router.post("/submitPOUrl/:id",
+    quoteController.submitPOUrl);
+
 
 module.exports = router;
