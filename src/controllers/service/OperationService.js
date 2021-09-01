@@ -15,7 +15,7 @@ const fetchOperationsByClause = async (whereClause) => {
                         {
                             model: Inventory,
                             as: "Inventories",
-                            attributes: ["id","itemName"]
+                            attributes: ["id","itemName", "availability"]
                         }],
                     },
                         {
@@ -41,7 +41,7 @@ const getAllOperations = (obj, whereClause, success, failure) => {
                 include: [{
                     model: Inventory,
                     as: "Inventories",
-                    attributes: ["id","itemName"]
+                    attributes: ["id","itemName", "availability"]
                 }],
             },
             {

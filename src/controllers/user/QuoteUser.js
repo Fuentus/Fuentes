@@ -3,7 +3,7 @@ const {Op} = require("sequelize");
 const {validationResult} = require("express-validator");
 
 const logger = require("../../util/log_utils");
-const {fetchQuoteByClause, getAllQuotes} = require("../service/QuoteService")
+const {getAllQuotesUser, fetchQuoteByClauseUser, fetchQuoteByClause} = require("../service/QuoteService")
 const {getPagination, getPagingData} = require("../service/PaginationService")
 
 const {Quotes, Measures, Uploads} = db;
@@ -25,7 +25,7 @@ exports.findAllQuotesForUser = (req, res) => {
         const response = getPagingData(data, page, obj.limit);
         res.send(response);
     };
-    getAllQuotes(obj, whereClause, success, failure);
+    getAllQuotesUser(obj, whereClause, success, failure);
     logger.debug(`Quotes : Exit findAllQuotes`);
 };
 
@@ -103,7 +103,7 @@ exports.findQuoteById = async (req, res, next) => {
         id: id,
         userId: {[Op.eq]: req.user.id}
     };
-    const quote = await fetchQuoteByClause(whereClause);
+    const quote = await fetchQuoteByClauseUser(whereClause);
     res.status(200).send(quote);
     logger.debug(`Quotes : Exit findQuoteById`);
 };
@@ -173,7 +173,7 @@ exports.editQuoteById = async (req, res, next) => {
         if (!req.admin) {
             whereClause["userId"] = {[Op.eq]: req.user.id};
         }
-        const q = await fetchQuoteByClause(whereClause);
+        const q = await fetchQuoteByClauseUser(whereClause);
         res.status(201).send(q);
     }
     logger.debug(`Quotes : Exit editQuoteById`);
@@ -202,10 +202,28 @@ exports.searchResultsForUser = async (req, res, next) => {
             res.send(response);
         };
 
-        getAllQuotes(obj, whereClause, success, failure);
+        getAllQuotesUser(obj, whereClause, success, failure);
     } catch (err) {
         console.log(err);
         next(err);
     }
     logger.debug(`Quotes : Exit searchResults`);
 };
+
+
+exports.submitPOUrl = async (req, res, next) => {
+    logger.info(`Quotes : Inside submitPOUrl`);
+    const {id} = req.params;
+    const {submit_PO} = req.body;
+    Quotes.update({submittedPO: submit_PO}, {where: {id: id, userId: req.user.id}})
+        .then((result) => {
+            const obj = {};
+            obj.message = "PO Link Updated Successfully";
+            obj.updatedRecord = result.length;
+            res.status(200).send(obj);
+        })
+        .catch((err) => {
+            next(err)
+        });
+    logger.info(`Quotes : Exit submitPOUrl`);
+}

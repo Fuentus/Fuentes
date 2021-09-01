@@ -173,12 +173,118 @@ exports.tagQuoteAndOperations = async (req, res, next) => {
     logger.info(`Quotes : Exit changeStatus of Quote`);
 }
 
+
+
+
+/*edit Tag Operation Logic
+
+if (operation === DB.operation) {
+    update operation,
+        > inv,
+        > update worker
+} else {
+    add operation,
+        > inv,
+        > worker
+}
+
+if (DB.operation !== operation) {
+    delete db entry
+}
+*/
+
+
 exports.editTagQuoteAndOperations = async (req, res, next) => {
     logger.info(`Quotes : Inside editTagQuoteAndOperations of Quote`);
     // const { id } = req.params;
-    // const { operations } = req.body;
-    // const taggedQuote = await QuoteOperations.findAndCountAll({where: {tag_quote_operations_id: id}})
+    // const { operations, status } = req.body;
+    // const quote = await Quotes.findByPk(id);
+    // if (status) {
+    //     const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
+    //     if (!boolean) {
+    //         return res.status(422).send({msg: `Please Choose Correct Status`});
+    //     }
+    // }
 
+    // const taggedQuote = await QuoteOperations.findAndCountAll({where: {quote_id: id}})
+
+    // const taggedOperations = [];
+    // taggedQuote.rows.map((tag) => {
+    //     taggedOperations.push(tag.dataValues.operation_id)
+    // })
+
+    
+    // const newOperations = [];
+    // operations.map(operation => {
+    //     newOperations.push(operation.operationId);
+    // })
+    // console.log(taggedOperations);
+    // console.log(newOperations)
+
+    // const includesOpr = taggedOperations.filter(x => !newOperations.includes(x)) 
+
+   
+    // console.log(includesOpr)
+
+
+
+    // if (includesOpr.length > 0) {
+    //     const result = await db.sequelize.transaction(async (t) => {
+    //         if (operations) {
+    //             console.log(operations)
+    //             operations.map((operation) => {
+    //                 operation.operation_id = operation.operationId;
+    //                 operation.quote_id = quoteId;
+    //             });
+    //             const quoteOperationBulk = await QuoteOperations.bulkCreate(operations, {transaction: t})
+    //             logger.info(`Inserted ${quoteOperationBulk.length} items to QuoteOperations`);
+    //             const invArr = [], workArr = [];
+    //             for (let i = 0; i < quoteOperationBulk.length; i++) {
+    //                 const qBulk = quoteOperationBulk[i];
+    //                 const operation = operations[i];
+    //                 const {tools: inventoryArr} = operation;
+    //                 inventoryArr.map(s => {
+    //                     const {invId, reqQty} = s;
+    //                     s.quote_operation_id = qBulk.tag_quote_operations_id
+    //                     s.inv_id = invId;
+    //                     s.req_quantity = reqQty;
+    //                     return s;
+    //                 });
+    //                 invArr.push(inventoryArr);
+    //                 const {workers: workerArr} = operation;
+    //                 workerArr.map(s => {
+    //                     const {workerId, totalHrs} = s;
+    //                     s.quote_operation_id = qBulk.tag_quote_operations_id;
+    //                     s.worker_id = workerId;
+    //                     s.total_hrs_req = totalHrs;
+    //                     return s;
+    //                 })
+    //                 workArr.push(workerArr);
+    //             }
+    //             const quoteInvOperationArr = invArr.flat(1);
+    //             const quoteInvOperationBulk = await QuoteOperationInv.bulkCreate(quoteInvOperationArr, {transaction: t})
+    //             logger.info(`Inserted ${quoteInvOperationBulk.length} items to QuoteOperationInv`);
+    //             const quoteWorkerOperationArr = workArr.flat(1);
+    //             const quoteWorkerOperationBulk = await QuoteOperationWorker.bulkCreate(quoteWorkerOperationArr, {transaction: t})
+    //             logger.info(`Inserted ${quoteWorkerOperationBulk.length} items to QuoteOperationWorker`);
+    //             if (status) {
+    //                 return await Quotes.update({status: status}, {where: {id: quoteId}, transaction: t});
+    //             }
+    //             return operations;
+    //         }
+    //     }).catch(function (err) {
+    //         logger.error(err)
+    //         return null;
+    //     });
+    //     if (result) {
+    //         res.status(201).json({message: "Quote and Operations are Tagged Successfully"});
+    //     } else {
+    //         const err = new Error("Please try back Later");
+    //         err.statusCode = 500;
+    //         next(err);
+    //     }
+  
+    // }
     
     // const isOperation = await QuoteOperations.findOne({where: {tag_quote_operations_id: id}})
     // if(isOperation) {
@@ -404,23 +510,6 @@ exports.addTaxValue = async (req, res, next) => {
 }
 
 
-exports.submitPOUrl = async (req, res, next) => {
-    logger.info(`Quotes : Inside submitPOUrl`);
-    const {id} = req.params;
-    const {submit_PO} = req.body;
-    Quotes.update({submittedPO: submit_PO}, {where: {id: id}})
-        .then((result) => {
-            const obj = {};
-            obj.message = "PO Link Updated Successfully";
-            obj.updatedRecord = result.length;
-            res.status(200).send(obj);
-        })
-        .catch((err) => {
-            next(err)
-        });
-    logger.info(`Quotes : Exit submitPOUrl`);
-}
-
 exports.addTotalValue = async (req, res, next) => {
     logger.info(`Quotes : Inside addTotalValue`);
     const {id} = req.params;
@@ -453,19 +542,3 @@ exports.addTotalValue = async (req, res, next) => {
 }
 
 
-//edit Tag Operation Logic
-
-/*if (operation === DB.operation) {
-    update operation,
-        > inv,
-        > update worker
-} else {
-    add operation,
-        > inv,
-        > worker
-}
-
-if (DB.operation !== operation) {
-    delete db entry
-}
-*/

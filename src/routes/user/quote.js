@@ -61,4 +61,10 @@ router.post(
   quoteController.searchResultsForUser
 );
 
+router.post(
+  "/submitPOUrl/:id",
+  [isAuth, loadUser],
+  quoteController.submitPOUrl);
+
+
 module.exports = router;
