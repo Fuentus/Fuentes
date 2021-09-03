@@ -4,7 +4,8 @@ const {validationResult} = require("express-validator");
 
 const logger = require("../../util/log_utils");
 const {getAllQuotesUser, fetchQuoteByClauseUser, fetchQuoteByClause} = require("../service/QuoteService")
-const {getPagination, getPagingData} = require("../service/PaginationService")
+const {getPagination, getPagingData} = require("../service/PaginationService");
+const {QuoteStatus} = require("../service/QuoteStatus");
 
 const {Quotes, Measures, Uploads} = db;
 
@@ -103,8 +104,13 @@ exports.findQuoteById = async (req, res, next) => {
         id: id,
         userId: {[Op.eq]: req.user.id}
     };
+
     const quote = await fetchQuoteByClauseUser(whereClause);
     res.status(200).send(quote);
+    // console.log(quote)
+
+    
+
     logger.debug(`Quotes : Exit findQuoteById`);
 };
 
@@ -215,15 +221,27 @@ exports.submitPOUrl = async (req, res, next) => {
     logger.info(`Quotes : Inside submitPOUrl`);
     const {id} = req.params;
     const {submit_PO} = req.body;
-    Quotes.update({submittedPO: submit_PO}, {where: {id: id, userId: req.user.id}})
-        .then((result) => {
-            const obj = {};
-            obj.message = "PO Link Updated Successfully";
-            obj.updatedRecord = result.length;
-            res.status(200).send(obj);
-        })
-        .catch((err) => {
-            next(err)
-        });
+    const status = "QUOTE_PO_SUBMIT";
+    const quote = await fetchQuoteByClauseUser({id: id, userId: req.user.id})
+    try {
+        const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
+        if (!boolean) {
+            return res.status(422).send({msg: `Please Choose Correct Status`});
+        }
+        Quotes.update({submittedPO: submit_PO, status: status}, {where: {id: id, userId: req.user.id}})
+            .then((result) => {
+                const obj = {};
+                obj.message = "PO Link & Status Updated Successfully";
+                obj.updatedRecord = result.length;
+                res.status(200).send(obj);
+            })
+            .catch((err) => {
+                next(err)
+            }); 
+    } catch (err) {
+        next(err);
+        return res.status(422).send({msg: `Invalid Quote`});
+    }
+    
     logger.info(`Quotes : Exit submitPOUrl`);
 }

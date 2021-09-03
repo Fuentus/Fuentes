@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 const db = require('../../models/');
 const logger = require('../../util/log_utils');
+const { fetchProjectByClause } = require('../service/ProjectService');
 const {ProjectStatus} = require('../service/ProjectStatus');
 const Projects = db.Projects;
 const { project_workers: ProjectWorkers, Quotes } = db;
@@ -43,13 +44,25 @@ exports.getOneProject = (req, res, next) => {
             .json({message: "Validation failed", data: errors.array()});
     }
     const { id } = req.params
-    const project = Projects.findOne({where : {id : id}})
-    .then((project) => {
-        res.status(200).send(project)
+    const whereClause = {id: id};
+    fetchProjectByClause(whereClause).then((project) => {
+      // let Prr = []
+      // const Pro = project.dataValues
+      // Prr.push(Pro)
+      
+      // const Workers = project.ProjectWorkers.map((pjtworker) => {
+      //   return pjtworker.dataValues.Workers
+      // })
+      // Prr.push(Workers)
+
+      // const i = Prr.flat()
+      res.status(200).send(project)
+
+      
     }).catch((err) => {
-        console.log(err)
-        res.status(404).send(err)
-    })
+        logger.error(err);
+        next(err);
+    });
     logger.debug(`Projects : Exit getOneProject`);
 }
 
@@ -80,8 +93,8 @@ exports.updateProjectById = async (req, res, next) => {
           let project = await Projects.update({
             name: name,
             desc: desc,
-            startDate: startDate,
-            endDate: endDate
+            start_date: startDate,
+            end_date: endDate
           }, {where: {id : id }}, {transaction: t});
 
           if(workers) {

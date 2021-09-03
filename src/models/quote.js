@@ -16,7 +16,7 @@ module.exports = function (sequelize, Sequelize) {
                 notNull: true,
             },
             desc: {
-                type: STRING,
+                type: TEXT,
             },
             status: {
                 type: ENUM,

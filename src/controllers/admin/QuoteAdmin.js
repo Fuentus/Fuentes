@@ -196,8 +196,7 @@ if (DB.operation !== operation) {
 
 exports.editTagQuoteAndOperations = async (req, res, next) => {
     logger.info(`Quotes : Inside editTagQuoteAndOperations of Quote`);
-    // const { id } = req.params;
-    // const { operations, status } = req.body;
+    const { operations, status } = req.body;
     // const quote = await Quotes.findByPk(id);
     // if (status) {
     //     const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
@@ -205,14 +204,14 @@ exports.editTagQuoteAndOperations = async (req, res, next) => {
     //         return res.status(422).send({msg: `Please Choose Correct Status`});
     //     }
     // }
-
-    // const taggedQuote = await QuoteOperations.findAndCountAll({where: {quote_id: id}})
+    // const taggedQuote = await findQuoteByIdForAdmin(req, res, next);
+    
 
     // const taggedOperations = [];
     // taggedQuote.rows.map((tag) => {
     //     taggedOperations.push(tag.dataValues.operation_id)
     // })
-
+    
     
     // const newOperations = [];
     // operations.map(operation => {
@@ -405,8 +404,27 @@ exports.convertToProject = async (req, res, next) => {
                 desc,
                 start_date: startDate,
                 end_date: endDate,
-                QuoteId: quoteId
+                QuoteId: quoteId,
             }, {transaction: t});
+
+
+            /* hrs_left and hrs_commited logic
+            
+            let sDate = new Date(startDate)
+            let eDate = new Date(endDate)   
+            let cDate = new Date()
+            
+            let hrs_committed = Math.floor((Date.parse(eDate) - Date.parse(sDate)) / 86400000);
+            console.log(`Hours Commited ${hrs_committed}`)
+
+           
+            if (cDate < sDate) {
+                let hrs_left = Math.floor((Date.parse(eDate) - Date.parse(sDate)) / 86400000);
+                console.log(`Hours Left ${hrs_left * 8}`)
+            } else {
+                let hrs_left = Math.floor((Date.parse(eDate) - Date.parse(cDate)) / 86400000);
+                console.log(`Hours Left ${hrs_left * 8}`)
+            }*/  
 
             for (let i = 0; i < qOperations.length; i++) {
                 let workerArr = [];

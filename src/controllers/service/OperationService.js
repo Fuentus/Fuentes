@@ -10,19 +10,14 @@ const fetchOperationsByClause = async (whereClause) => {
                 {
                     model: InvOperations,
                     as: "OperationInventories",
-                    attributes: ["tag_inv_operations_id"],
+                    attributes: ["tag_inv_operations_id", "req_avail"],
                     include: [
                         {
                             model: Inventory,
                             as: "Inventories",
-                            attributes: ["id","itemName", "availability"]
+                            attributes: ["id","itemName"]
                         }],
-                    },
-                        {
-                            model: WorkerOperations,
-                            as: "OperationWorkers",
-                            attributes: ['tag_workers_operations_id']
-                        }
+                    }
             ],
         })) || {}
     );
@@ -37,17 +32,12 @@ const getAllOperations = (obj, whereClause, success, failure) => {
             {
                 model: InvOperations,
                 as: "OperationInventories",
-                attributes: ["tag_inv_operations_id"],
+                attributes: ["tag_inv_operations_id", "req_avail"],
                 include: [{
                     model: Inventory,
                     as: "Inventories",
-                    attributes: ["id","itemName", "availability"]
+                    attributes: ["id","itemName"]
                 }],
-            },
-            {
-                model: WorkerOperations,
-                as: "OperationWorkers",
-                attributes: ['tag_workers_operations_id']
             }
         ],
         order: [["updatedAt", "DESC"]],

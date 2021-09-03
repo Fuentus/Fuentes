@@ -6,7 +6,7 @@ const {Users} = db;
         return (
             (await Users.findOne({
                 where: whereClause,
-                attributes: ["id", "name", "email", "status", "createdAt", "updatedAt"],
+                attributes: ["id", "name", "email", "status", "createdAt", "updatedAt", "phone", "address"],
             })) || {}
         );
     };

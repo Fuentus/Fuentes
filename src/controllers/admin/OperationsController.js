@@ -15,7 +15,7 @@ exports.createOperation = async (req, res, next) => {
         return res.status(422)
             .json({message: "Validation failed", data: errors.array()});
     }
-    const {name, desc, items, workers} = req.body
+    const {name, desc, items} = req.body
     const result = await db.sequelize
         .transaction(async (t) => {
             let operations = await Operations.create({name: name, desc: desc}, {transaction: t});
@@ -29,17 +29,17 @@ exports.createOperation = async (req, res, next) => {
                 const invOperationBulk = await InvOperations.bulkCreate(items, {transaction: t})
                 logger.info(`Inserted ${invOperationBulk.length} items to InvOperations`);
             }
-            if(workers) {
-                workers.map((worker) => {
-                    worker.worker_id = worker.id;
-                    worker.operation_id = operations.id;
-                    worker.avail_per_day = worker.required_hrs;
-                    // worker.est_cost = worker.est_cost; //Implicit
-                    return worker;
-                });
-                const workerOperationBulk = await WorkerOperations.bulkCreate(workers, {transaction: t})
-                logger.info(`Inserted ${workerOperationBulk.length} items to WorkerOperations`);
-            }
+            // if(workers) {
+            //     workers.map((worker) => {
+            //         worker.worker_id = worker.id;
+            //         worker.operation_id = operations.id;
+            //         worker.avail_per_day = worker.required_hrs;
+            //         // worker.est_cost = worker.est_cost; //Implicit
+            //         return worker;
+            //     });
+            //     const workerOperationBulk = await WorkerOperations.bulkCreate(workers, {transaction: t})
+            //     logger.info(`Inserted ${workerOperationBulk.length} items to WorkerOperations`);
+            // }
             return operations;
         })
         .catch(function (err) {
@@ -126,7 +126,7 @@ exports.deleteOperation = async (req, res, next) => {
 exports.updateOperation = async (req, res, next) => {
     logger.info(`Operations : Inside updateOperation`);
     const {id} = req.params;
-    const {name, desc, items, workers} = req.body
+    const {name, desc, items} = req.body
     const operation = await Operations.findOne({where: {id : id }})
     if(operation) {
             const result = await db.sequelize.transaction(async (t) => {
@@ -154,27 +154,27 @@ exports.updateOperation = async (req, res, next) => {
                     }
                 }
 
-                if(workers) {
-                    const allWorkers = await WorkerOperations.findAndCountAll({where: {operation_id : id}})
-                    const workerDbId = allWorkers.rows.map((w) => {
-                        return w.dataValues.worker_id
-                    })
+                // if(workers) {
+                //     const allWorkers = await WorkerOperations.findAndCountAll({where: {operation_id : id}})
+                //     const workerDbId = allWorkers.rows.map((w) => {
+                //         return w.dataValues.worker_id
+                //     })
 
-                    const workerArray = [];
-                    workers.map(async (worker) => {
-                        if (workerDbId.includes(worker.id)) {
-                            workerArray.push(worker.id)
-                            await WorkerOperations.update({avail_per_day: worker.required_hrs, est_cost: worker.est_cost}, {where: {operation_id : id, worker_id: worker.id }}, {transaction: t});
-                        } else {
-                            await WorkerOperations.create({avail_per_day: worker.required_hrs, operation_id : id, worker_id: worker.id, est_cost: worker.est_cost});
-                        }
-                    })
+                //     const workerArray = [];
+                //     workers.map(async (worker) => {
+                //         if (workerDbId.includes(worker.id)) {
+                //             workerArray.push(worker.id)
+                //             await WorkerOperations.update({avail_per_day: worker.required_hrs, est_cost: worker.est_cost}, {where: {operation_id : id, worker_id: worker.id }}, {transaction: t});
+                //         } else {
+                //             await WorkerOperations.create({avail_per_day: worker.required_hrs, operation_id : id, worker_id: worker.id, est_cost: worker.est_cost});
+                //         }
+                //     })
 
-                    const delWorkerId = workerDbId.filter(x => !workerArray.includes(x)) 
-                    for (let i = 0; i < delWorkerId.length; i++) {
-                        await WorkerOperations.destroy({where: {worker_id: delWorkerId[i], operation_id : id}})
-                    }  
-                }
+                //     const delWorkerId = workerDbId.filter(x => !workerArray.includes(x)) 
+                //     for (let i = 0; i < delWorkerId.length; i++) {
+                //         await WorkerOperations.destroy({where: {worker_id: delWorkerId[i], operation_id : id}})
+                //     }  
+                // }
                 return operation;
             })
         .catch ((error) => {

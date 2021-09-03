@@ -41,8 +41,12 @@ module.exports = function (sequelize, DataTypes) {
         }
     );
     Projects.associate = function (models) {
-        const {Quotes} = models;
+        const {Quotes, project_workers: ProjectWorkers} = models;
         Projects.belongsTo(Quotes);
+        Projects.hasMany(ProjectWorkers, {
+            foreignKey: "project_id",
+            as: "ProjectWorkers",
+        });
     };
     return Projects;
 };

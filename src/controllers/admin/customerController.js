@@ -28,9 +28,12 @@ exports.getAllCustomers = (req, res) => {
     logger.debug(`Customers : Exit getAllCustomers`);
 }
 
-exports.getCustomersById = (req, res) => {
+exports.getCustomersById = async (req, res) => {
     logger.debug(`Customers : Inside getCustomersById`);
     const {id} = req.params
+
+    // var noOfRequest = await Quotes.count({where: {UserId: id}})
+
     Users.findOne({
         where: {id: id, role: "USER"},
         attributes: {exclude: ['password', 'firstTime']}
@@ -85,12 +88,12 @@ exports.deleteCustomersById = async (req, res) => {
 exports.updateCustomerById = async (req, res) => {
     logger.debug(`Customers : Inside updateCustomerById`);
     const {id} = req.params;
-    const {name, email} = req.body;
+    const {name, email, phone, address} = req.body;
     const customer = await Users.findOne({where: {id : id }})
     if(customer) {
         try {
             Users.update( 
-                {name: name, email: email},
+                {name: name, email: email, phone: phone, address: address},
                 {where: {id : id }}
            )
            res.status(200).json({message: 'Updated Customer', data: req.body})
