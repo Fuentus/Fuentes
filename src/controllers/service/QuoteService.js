@@ -99,12 +99,12 @@ const fetchQuoteByClauseUser = async (whereClause) => {
     return (
         (await Quotes.findOne({
             where: whereClause,
-            attributes: ["id", "title", "desc", "startDate", "endDate", "status", "createdAt", "updatedAt", "total"],
+            attributes: ["id", "title", "desc", "tax", "startDate", "endDate", "status", "createdAt", "updatedAt", "total"],
             include: [
-                {
-                    model: Users,
-                    attributes: ["name", "email"],
-                },
+                // {
+                //     model: Users,
+                //     attributes: ["name", "email"],
+                // },
                 {
                     model: Uploads,
                     attributes: ["fileDocument", "fileName", "filePath"],
@@ -113,42 +113,42 @@ const fetchQuoteByClauseUser = async (whereClause) => {
                     model: Measures,
                     attributes: ["name", "unit", "qty"],
                 },
-                {
-                    model: QuoteOperations,
-                    as: "QuoteOperation",
-                    attributes: ["tag_quote_operations_id", "operation_total_hrs", "operation_cost", "inspection_id"],
-                    include: [
-                        {
-                            model: Operations,
-                            as: "Operations",
-                            attributes: ["id","name", "desc"]
-                        },
-                        {
-                            model: QuoteOperationInv,
-                            as: "QuoteOperationInv",
-                            attributes: ["tag_inv_operations_id","quote_operation_id", "req_quantity"],
-                            include: [
-                                {
-                                    model: Inventory,
-                                    as: "Inventories",
-                                    attributes: ["id", "itemName", "itemDesc", "availability", "cost"]
-                                }
-                            ]
-                        },
-                        {
-                            model: QuoteOperationWorkers,
-                            as: "QuoteOperationWorker",
-                            attributes: ["tag_worker_operations_id","quote_operation_id", "total_hrs_req"],
-                            include: [
-                                {
-                                    model: Workers,
-                                    as: "Workers",
-                                    attributes: ["id", "name", "cost_per_hr", "total_avail_per_week", "avail_per_day", "email"]
-                                }
-                            ]
-                        }
-                    ]
-                }
+                // {
+                //     model: QuoteOperations,
+                //     as: "QuoteOperation",
+                //     attributes: ["tag_quote_operations_id", "operation_total_hrs", "operation_cost", "inspection_id"],
+                //     include: [
+                //         {
+                //             model: Operations,
+                //             as: "Operations",
+                //             attributes: ["id","name", "desc"]
+                //         },
+                //         {
+                //             model: QuoteOperationInv,
+                //             as: "QuoteOperationInv",
+                //             attributes: ["tag_inv_operations_id","quote_operation_id", "req_quantity"],
+                //             include: [
+                //                 {
+                //                     model: Inventory,
+                //                     as: "Inventories",
+                //                     attributes: ["id", "itemName", "itemDesc", "availability", "cost"]
+                //                 }
+                //             ]
+                //         },
+                //         {
+                //             model: QuoteOperationWorkers,
+                //             as: "QuoteOperationWorker",
+                //             attributes: ["tag_worker_operations_id","quote_operation_id", "total_hrs_req"],
+                //             include: [
+                //                 {
+                //                     model: Workers,
+                //                     as: "Workers",
+                //                     attributes: ["id", "name", "cost_per_hr", "total_avail_per_week", "avail_per_day", "email"]
+                //                 }
+                //             ]
+                //         }
+                //     ]
+                // }
             ],
         })) || {}
     );
@@ -158,12 +158,12 @@ const getAllQuotesUser = (obj, whereClause, success, failure) => {
     const {limit, offset} = obj;
     Quotes.findAndCountAll({
         where: whereClause,
-        attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt", "total"],
+        attributes: ["id", "title", "desc", "status", "createdAt", "updatedAt"],
         include: [
-            {
-                model: Users,
-                attributes: ["name", "email"],
-            },
+            // {
+            //     model: Users,
+            //     attributes: ["name", "email"],
+            // },
             {
                 model: Uploads,
                 attributes: ["fileName", "filePath"],

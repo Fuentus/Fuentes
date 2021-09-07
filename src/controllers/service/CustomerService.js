@@ -15,8 +15,8 @@ const {Users} = db;
         const {limit, offset} = obj;
         Users.findAndCountAll({
             where: whereClause,
-            attributes: ["id", "name", "email", "role", "status", "createdAt", "updatedAt"],
-            order: [["updatedAt", "DESC"]],
+            attributes: ["id", "name", "email", "phone", "address"],
+            order: [["name", "DESC"]],
             limit,
             offset,
         })

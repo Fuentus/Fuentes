@@ -5,7 +5,7 @@ const fetchOperationsByClause = async (whereClause) => {
     return (
         (await Operations.findOne({
             where: whereClause,
-            attributes: ["id", "name", "desc","createdAt","updatedAt"],
+            attributes: ["id", "name", "desc"],
             include: [
                 {
                     model: InvOperations,
@@ -15,7 +15,7 @@ const fetchOperationsByClause = async (whereClause) => {
                         {
                             model: Inventory,
                             as: "Inventories",
-                            attributes: ["id","itemName"]
+                            attributes: ["id","itemName", "availability"]
                         }],
                     }
             ],
@@ -27,19 +27,19 @@ const getAllOperations = (obj, whereClause, success, failure) => {
     const {limit, offset} = obj;
     Operations.findAndCountAll({
         where: whereClause,
-        attributes: ["id", "name", "desc", "updatedAt"],
-        include: [
-            {
-                model: InvOperations,
-                as: "OperationInventories",
-                attributes: ["tag_inv_operations_id", "req_avail"],
-                include: [{
-                    model: Inventory,
-                    as: "Inventories",
-                    attributes: ["id","itemName"]
-                }],
-            }
-        ],
+        attributes: ["id", "name", "desc", "createdAt", "updatedAt"],
+        // include: [
+        //     {
+        //         model: InvOperations,
+        //         as: "OperationInventories",
+        //         attributes: ["tag_inv_operations_id", "req_avail"],
+        //         include: [{
+        //             model: Inventory,
+        //             as: "Inventories",
+        //             attributes: ["id","itemName"]
+        //         }],
+        //     }
+        // ],
         order: [["updatedAt", "DESC"]],
         limit,
         offset,

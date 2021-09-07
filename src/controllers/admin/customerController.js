@@ -14,7 +14,23 @@ const findAllCustomers = (req, res, whereClause) => {
             message: err.message || "Error occurred while retrieving",
         });
     };
-    const success = (data) => {
+
+    // const noOfRequest = data.rows.map(async (user) => {
+    //     const re = await Quotes.count({where: {UserId: user.dataValues.id}})
+    //     .then((result) => {
+    //        const noOfReq = result
+    //        let noOfRequest = { noOfReq }
+    //        let arr = {}
+    //        arr = Object.assign( {}, user.dataValues, noOfRequest);
+    //        return arr
+    //     }).catch((err) => {
+    //         console.log(err)
+    //     })
+    //     return re;
+    // })
+
+
+    const success =  (data) => {
         const response = getPagingData(data, page, obj.limit);
         res.send(response);
     };
@@ -28,17 +44,19 @@ exports.getAllCustomers = (req, res) => {
     logger.debug(`Customers : Exit getAllCustomers`);
 }
 
-exports.getCustomersById = async (req, res) => {
+exports.getCustomersById = async(req, res) => {
     logger.debug(`Customers : Inside getCustomersById`);
     const {id} = req.params
 
-    // var noOfRequest = await Quotes.count({where: {UserId: id}})
-
-    Users.findOne({
+    await Users.findOne({
         where: {id: id, role: "USER"},
         attributes: {exclude: ['password', 'firstTime']}
     })
         .then((users) => {
+            // var noOfRequest = await Quotes.count({where: {UserId: id}})
+            // let noOfReq = { noOfRequest }
+            // let arr = Object.assign( {}, users.dataValues, noOfReq)
+            // res.send(arr).status(200)
             res.send(users).status(200)
         }).catch((err) => {
         console.log(err)
