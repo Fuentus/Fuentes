@@ -23,7 +23,7 @@ exports.findAllQuotesForAdmin = (req, res) => {
     logger.debug(`Quotes : Inside findAllQuotesForAdmin`);
     let {updatedAt} = req.query;
     updatedAt = updatedAt ? updatedAt : 0;
-    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, status: {[Op.ne]: "CLOSED"}};
+    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, status: {[Op.notIn]: ["CLOSED", "PROJECT_IN_PROGRESS"]}};
     const {page, size} = req.query;
     const obj = getPagination(page, size);
     const failure = (err) => {
@@ -194,173 +194,165 @@ if (DB.operation !== operation) {
 */
 
 
-exports.editTagQuoteAndOperations = async (req, res, next) => {
-    logger.info(`Quotes : Inside editTagQuoteAndOperations of Quote`);
-    const { operations, status } = req.body;
-    // const quote = await Quotes.findByPk(id);
-    // if (status) {
-    //     const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
-    //     if (!boolean) {
-    //         return res.status(422).send({msg: `Please Choose Correct Status`});
-    //     }
-    // }
-    // const taggedQuote = await findQuoteByIdForAdmin(req, res, next);
+// exports.editTagQuoteAndOperations = async (req, res, next) => {
+//     logger.info(`Quotes : Inside editTagQuoteAndOperations of Quote`);
+//     const { operations, status } = req.body;
+//     const {id} = req.params
+//     const whereClause = {id: id}
+//     //let OprIdDb = []
+//     // fetchQuoteByClause(whereClause)
+//     // .then((quote) => {
+//     //     const opre = quote.QuoteOperation.map((opr) => {
+//     //         return opr.Operations.dataValues.id
+//     //     })
+//     //     res.status(200).send(opre)
+//     //     console.log(opre)
+//     //     return opre
+//     // }).catch((err) => {
+//     //     logger.error(err);
+//     //     next(err);
+//     // });
+//     let OprIdDb = [48, 31]
+//     // const quote = await fetchQuoteByClause(whereClause)
+//     // if (quote) {
+//     //     const opre = await quote.QuoteOperation.map((opr) => {
+//     //         return opr.Operations.dataValues.id
+//     //     })
+
+//     //     OprIdDb.push(opre);
+//     //     console.log("opre")
+//     //     console.log(opre)
+//     //     return opre
+//     // }
+
+
+
+
+//     console.log("OprIdDb")
+//     console.log(OprIdDb)
+//     const OprIdReq = []
+//     if (operations) {
+//         operations.map((operation) => {
+//            OprIdReq.push(operation.operationId)
+//         })
+//     }
+//     console.log("OprIdReq");
+//     console.log(OprIdReq);
     
 
-    // const taggedOperations = [];
-    // taggedQuote.rows.map((tag) => {
-    //     taggedOperations.push(tag.dataValues.operation_id)
-    // })
+//     // let update = OprIdReq.filter(x => OprIdDb.includes(x))
+//     // for(let i = 0; i < update.length ; i++) {
+//     //     console.log("update[i]")
+//     //     console.log(update[i])
+       
+//     // }
+
+//     let add = OprIdReq.filter(x => !OprIdDb.includes(x))
+//     console.log(add)
+//     if (add) {
+//         for(let i = 0; i < add.length ; i++) {
+//             logger.info(`Quotes : Inside changeStatus of Quote`);
+//             const {quoteId, operations, status} = req.body;
+//             const quote = await Quotes.findByPk(quoteId);
+//             if (status) {
+//                 const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
+//                 if (!boolean) {
+//                     return res.status(422).send({msg: `Please Choose Correct Status`});
+//                 }
+//             }
     
+//             console.log(operations.map((op) => op.operationId))
+//             const result = await db.sequelize.transaction(async (t) => {
+//                 if (operations) {
+//                     operations.map((operation) => {
+//                         if (add.includes(operation.operationId)) {
+//                             operation.operation_id = operation.operationId;
+//                             operation.quote_id = quoteId;
+//                         } 
+//                     });
+//                     const quoteOperationBulk = await QuoteOperations.bulkCreate(operations, {transaction: t})
+//                     logger.info(`Inserted ${quoteOperationBulk.length} items to QuoteOperations`);
+//                     const invArr = [], workArr = [];
+//                     for (let i = 0; i < quoteOperationBulk.length; i++) {
+//                         const qBulk = quoteOperationBulk[i];
+//                         const operation = operations[i];
+//                         const {tools: inventoryArr} = operation;
+//                         inventoryArr.map(s => {
+//                             const {invId, reqQty} = s;
+//                             s.quote_operation_id = qBulk.tag_quote_operations_id
+//                             s.inv_id = invId;
+//                             s.req_quantity = reqQty;
+//                             return s;
+//                         });
+//                         invArr.push(inventoryArr);
+//                         const {workers: workerArr} = operation;
+//                         workerArr.map(s => {
+//                             const {workerId, totalHrs} = s;
+//                             s.quote_operation_id = qBulk.tag_quote_operations_id;
+//                             s.worker_id = workerId;
+//                             s.total_hrs_req = totalHrs;
+//                             return s;
+//                         })
+//                         workArr.push(workerArr);
+//                     }
+//                     const quoteInvOperationArr = invArr.flat(1);
+//                     const quoteInvOperationBulk = await QuoteOperationInv.bulkCreate(quoteInvOperationArr, {transaction: t})
+//                     logger.info(`Inserted ${quoteInvOperationBulk.length} items to QuoteOperationInv`);
+//                     const quoteWorkerOperationArr = workArr.flat(1);
+//                     const quoteWorkerOperationBulk = await QuoteOperationWorker.bulkCreate(quoteWorkerOperationArr, {transaction: t})
+//                     logger.info(`Inserted ${quoteWorkerOperationBulk.length} items to QuoteOperationWorker`);
+//                     if (status) {
+//                         return await Quotes.update({status: status}, {where: {id: quoteId}, transaction: t});
+//                     }
+//                     return operations;
+//                 }
+//             }).catch(function (err) {
+//                 logger.error(err)
+//                 return null;
+//             });
+//             if (result) {
+//                 res.status(201).json({message: "Quote and Operations are Tagged Successfully"});
+//             } else {
+//                 const err = new Error("Please try back Later");
+//                 err.statusCode = 500;
+//                 next(err);
+//             }
+//             logger.info(`Quotes : Exit changeStatus of Quote`);
+//         }
+//     } else {
+//         for(let i = 0; i < update.length ; i++) {
+//             console.log('no item')
+//         }
+//     }
     
-    // const newOperations = [];
-    // operations.map(operation => {
-    //     newOperations.push(operation.operationId);
-    // })
-    // console.log(taggedOperations);
-    // console.log(newOperations)
 
-    // const includesOpr = taggedOperations.filter(x => !newOperations.includes(x)) 
+//     // let notInc = OprIdDb.filter(x => !OprIdReq.includes(x))
+//     // console.log(notInc)
+//     // for(let i = 0; i < notInc.length; i++) {
+//     //     const id = notInc[i]
+//     //     const quoteOpr = await QuoteOperations.findOne({where: {operation_id: id}})
+//     //     if (quoteOpr) {
+//     //         const qId = quoteOpr.dataValues.quote_id
+//     //         const inProject = await Projects.findOne({where: {QuoteId : qId}})
+//     //         if (inProject) {
+//     //             res.status(400).send("Cant be deleted because operation is already tagged to quote") 
+//     //         } else {
+//     //             await QuoteOperations.destroy({where: {operation_id : id}})
+//     //             res.status(200).send("successfully deleted")
+//     //         }
+//     //     } else {
+//     //         res.status(400).send("No quote")
+//     //     }
+//     // }
 
-   
-    // console.log(includesOpr)
+//     // if(diff.length === 0){
+//     //     // QuoteOperations.destroy({where: {quote_id : id, operation_id: 17}})
+//     //     // res.status(200).send("successfully deleted")
+//     // }
+//     // const includesOpr = taggedOperations.filter(x => !newOperations.includes(x)) 
 
-
-
-    // if (includesOpr.length > 0) {
-    //     const result = await db.sequelize.transaction(async (t) => {
-    //         if (operations) {
-    //             console.log(operations)
-    //             operations.map((operation) => {
-    //                 operation.operation_id = operation.operationId;
-    //                 operation.quote_id = quoteId;
-    //             });
-    //             const quoteOperationBulk = await QuoteOperations.bulkCreate(operations, {transaction: t})
-    //             logger.info(`Inserted ${quoteOperationBulk.length} items to QuoteOperations`);
-    //             const invArr = [], workArr = [];
-    //             for (let i = 0; i < quoteOperationBulk.length; i++) {
-    //                 const qBulk = quoteOperationBulk[i];
-    //                 const operation = operations[i];
-    //                 const {tools: inventoryArr} = operation;
-    //                 inventoryArr.map(s => {
-    //                     const {invId, reqQty} = s;
-    //                     s.quote_operation_id = qBulk.tag_quote_operations_id
-    //                     s.inv_id = invId;
-    //                     s.req_quantity = reqQty;
-    //                     return s;
-    //                 });
-    //                 invArr.push(inventoryArr);
-    //                 const {workers: workerArr} = operation;
-    //                 workerArr.map(s => {
-    //                     const {workerId, totalHrs} = s;
-    //                     s.quote_operation_id = qBulk.tag_quote_operations_id;
-    //                     s.worker_id = workerId;
-    //                     s.total_hrs_req = totalHrs;
-    //                     return s;
-    //                 })
-    //                 workArr.push(workerArr);
-    //             }
-    //             const quoteInvOperationArr = invArr.flat(1);
-    //             const quoteInvOperationBulk = await QuoteOperationInv.bulkCreate(quoteInvOperationArr, {transaction: t})
-    //             logger.info(`Inserted ${quoteInvOperationBulk.length} items to QuoteOperationInv`);
-    //             const quoteWorkerOperationArr = workArr.flat(1);
-    //             const quoteWorkerOperationBulk = await QuoteOperationWorker.bulkCreate(quoteWorkerOperationArr, {transaction: t})
-    //             logger.info(`Inserted ${quoteWorkerOperationBulk.length} items to QuoteOperationWorker`);
-    //             if (status) {
-    //                 return await Quotes.update({status: status}, {where: {id: quoteId}, transaction: t});
-    //             }
-    //             return operations;
-    //         }
-    //     }).catch(function (err) {
-    //         logger.error(err)
-    //         return null;
-    //     });
-    //     if (result) {
-    //         res.status(201).json({message: "Quote and Operations are Tagged Successfully"});
-    //     } else {
-    //         const err = new Error("Please try back Later");
-    //         err.statusCode = 500;
-    //         next(err);
-    //     }
-  
-    // }
-    
-    // const isOperation = await QuoteOperations.findOne({where: {tag_quote_operations_id: id}})
-    // if(isOperation) {
-    //         const result = await db.sequelize.transaction(async (t) => {
-    //             let operation = await QuoteOperations.update({operation_total_hrs: operations.operation_total_hrs, operation_cost: operations.operation_cost}, {where: {tag_quote_operations_id: id}}, {transaction: t});
-               
-                
-    //             const tools = operations.map((opr) => {
-    //                 return opr.tools
-    //             })
-
-    //             for (let i = 0; i <= tools.length; i++) {
-    //                console.log(tools[0][i].invId)
-    //             }
-            
-    //             if(tools) {
-    //                 const inventories = await QuoteOperationInv.findAndCountAll({where: {quote_operation_id: id}})
-    //                 const inventoryDbId = inventories.rows.map((inventory) => {
-    //                     return inventory.dataValues.inv_id
-    //                 })
-                    
-    //                 const invArray = [];
-    //                 inventoryArray.map(async (item) => {
-    //                     if (inventoryDbId.includes(item.id)) {
-    //                         invArray.push(item.id)
-    //                         await QuoteOperationInv.update({req_avail: item.required_qty}, {where: {quote_operation_id: id, inv_id: item.id }}, {transaction: t});
-    //                     } else {
-    //                         await QuoteOperationInv.create({req_avail: item.required_qty, quote_operation_id: id, inv_id: item.id });
-    //                     }
-    //                 })
-    //                 const delId = inventoryDbId.filter(x => !invArray.includes(x)) 
-    //                 //inventoryDbId - invArray;
-    //                 for (let i = 0; i < delId.length; i++) {
-    //                     await QuoteOperationInv.destroy({where: {inv_id: delId[i], quote_operation_id: id}})
-    //                 }
-    //             }
-
-    //             if(operations.workers) {
-    //                 const allWorkers = await QuoteOperationWorker.findAndCountAll({where: {quote_operation_id : id}})
-    //                 const workerDbId = allWorkers.rows.map((w) => {
-    //                     return w.dataValues.worker_id
-    //                 })
-
-    //                 const workerArray = [];
-    //                 operations.workers.map(async (worker) => {
-    //                     if (workerDbId.includes(worker.id)) {
-    //                         workerArray.push(worker.id)
-    //                         await QuoteOperationWorker.update({est_cost: worker.est_cost}, {where: {quote_operation_id : id, worker_id: worker.id }}, {transaction: t});
-    //                     } else {
-    //                         await QuoteOperationWorker.create({avail_per_day: worker.required_hrs, quote_operation_id : id, worker_id: worker.id, est_cost: worker.est_cost});
-    //                     }
-    //                 })
-
-    //                 const delWorkerId = workerDbId.filter(x => !workerArray.includes(x)) 
-    //                 for (let i = 0; i < delWorkerId.length; i++) {
-    //                     await QuoteOperationWorker.destroy({where: {worker_id: delWorkerId[i], quote_operation_id : id}})
-    //                 }  
-    //             }
-    //             return operation;
-    //         })
-    //     .catch ((error) => {
-    //         logger.error(error)
-    //         return null
-    //     });
-    //     if (result) {
-    //         res.status(200).json({message: "Tag Quote Operation updated!", data: req.body});
-    //     } else {
-    //         const err = new Error("Please try back Later");
-    //         err.statusCode = 500;
-    //         next(err);
-    //     }
-    // } else {
-    //     return res.status(400).json({message: 'Tag Operation Doesnot Exists'})
-    // }
-
-    logger.info(`Quotes : Exit editTagQuoteAndOperations of Quote`);
-}
+//     logger.info(`Quotes : Exit editTagQuoteAndOperations of Quote`);
+// }
 
 exports.removeTagQuoteAndOperations = async (req, res, next) => {
     logger.info(`Quotes : Inside removeTagQuoteAndOperations of Quote`);
@@ -557,6 +549,141 @@ exports.addTotalValue = async (req, res, next) => {
             next(err)
         });
     logger.info(`Quotes : Exit addTotalValue`);
+}
+
+
+
+
+exports.editTagQuoteAndOperations = async (req, res, next) => {
+    logger.info(`Quotes : Inside editTagQuoteAndOperations of Quote`);
+    const {id} = req.params
+    const whereClause = {id: id}
+    const {quoteId, operations, status} = req.body;
+    const quote = await Quotes.findByPk(quoteId);
+    if (status) {
+        const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
+        if (!boolean) {
+            return res.status(422).send({msg: `Please Choose Correct Status`});
+    }}
+        
+    if (operations) {
+        const quotes = await findQuoteByIdForAdmin(req, res, next)
+        const operationsIds = quotes.QuoteOperation.map((qOp) => qOp.Operations.id)
+
+        const operationReqId = operations.map((operation) => operation.operationId)
+
+
+    
+
+
+
+
+
+        let OprIdDb = [];
+        let OprIdReq = []
+
+
+
+        const opr = await QuoteOperations.findAndCountAll({where: {quote_id : quoteId}})
+        opr.rows.map((q) => OprIdDb.push(q.dataValues.operation_id))
+
+
+
+        if (operations) {
+            operations.map((operation) => OprIdReq.push(operation.operationId))
+        }
+
+        console.log(`Operation in DataBase ${OprIdDb}`)
+        console.log(`Operation in Req ${OprIdReq}`)
+
+
+        let oprNotInDb =  OprIdReq.filter(x => !OprIdDb.includes(x))
+        if (oprNotInDb) {
+            for(let i = 0; i < oprNotInDb.length; i++) {
+                const result = await db.sequelize.transaction(async (t) => {
+                    if (operations) {
+                        operations.map((operation) => {
+                            if (oprNotInDb.includes(operation.operationId)) {
+                                operation.operation_id = operation.operationId;
+                                operation.quote_id = quoteId;
+                            } 
+                        });
+                        const quoteOperationBulk = await QuoteOperations.bulkCreate(operations, {transaction: t})
+                        logger.info(`Inserted ${quoteOperationBulk.length} items to QuoteOperations`);
+                        const invArr = [], workArr = [];
+                        for (let i = 0; i < quoteOperationBulk.length; i++) {
+                            const qBulk = quoteOperationBulk[i];
+                            const operation = operations[i];
+                            const {tools: inventoryArr} = operation;
+                            inventoryArr.map(s => {
+                                const {invId, reqQty} = s;
+                                s.quote_operation_id = qBulk.tag_quote_operations_id
+                                s.inv_id = invId;
+                                s.req_quantity = reqQty;
+                                return s;
+                            });
+                            invArr.push(inventoryArr);
+                            const {workers: workerArr} = operation;
+                            workerArr.map(s => {
+                                const {workerId, totalHrs} = s;
+                                s.quote_operation_id = qBulk.tag_quote_operations_id;
+                                s.worker_id = workerId;
+                                s.total_hrs_req = totalHrs;
+                                return s;
+                            })
+                            workArr.push(workerArr);
+                        }
+                        const quoteInvOperationArr = invArr.flat(1);
+                        const quoteInvOperationBulk = await QuoteOperationInv.bulkCreate(quoteInvOperationArr, {transaction: t})
+                        logger.info(`Inserted ${quoteInvOperationBulk.length} items to QuoteOperationInv`);
+                        const quoteWorkerOperationArr = workArr.flat(1);
+                        const quoteWorkerOperationBulk = await QuoteOperationWorker.bulkCreate(quoteWorkerOperationArr, {transaction: t})
+                        logger.info(`Inserted ${quoteWorkerOperationBulk.length} items to QuoteOperationWorker`);
+                        if (status) {
+                            return await Quotes.update({status: status}, {where: {id: quoteId}, transaction: t});
+                        }
+                        return operations;
+                    }
+                }).catch(function (err) {
+                    logger.error(err)
+                    return null;
+                });
+                if (result) {
+                    res.status(201).json({message: "Quote and Operations are Tagged Successfully"});
+                } else {
+                    const err = new Error("Please try back Later");
+                    err.statusCode = 500;
+                    next(err);
+                }
+                logger.info(`Quotes : Exit changeStatus of Quote`);
+            }
+        } else {
+            //update
+        }
+
+        let notInc = OprIdDb.filter(x => !OprIdReq.includes(x))
+        for(let i = 0; i < notInc.length; i++) {
+        const id = notInc[i]
+        const quoteOpr = await QuoteOperations.findOne({where: {operation_id: id}})
+        if (quoteOpr) {
+            const qId = quoteOpr.dataValues.quote_id
+            const inProject = await Projects.findOne({where: {QuoteId : qId}})
+            if (inProject) {
+                res.status(400).send("Cant be deleted because operation is already tagged to quote") 
+            } else {
+                await QuoteOperations.destroy({where: {operation_id : id}})
+                res.status(200).send("successfully deleted")
+            }
+        } else {
+            res.status(400).send("No quote")
+        }
+    }
+        
+    }
+
+    
+
+    logger.info(`Quotes : Exit editTagQuoteAndOperations of Quote`);
 }
 
 

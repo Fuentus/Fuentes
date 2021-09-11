@@ -27,19 +27,21 @@ const getAllOperations = (obj, whereClause, success, failure) => {
     const {limit, offset} = obj;
     Operations.findAndCountAll({
         where: whereClause,
-        attributes: ["id", "name", "desc", "createdAt", "updatedAt"],
-        // include: [
-        //     {
-        //         model: InvOperations,
-        //         as: "OperationInventories",
-        //         attributes: ["tag_inv_operations_id", "req_avail"],
-        //         include: [{
-        //             model: Inventory,
-        //             as: "Inventories",
-        //             attributes: ["id","itemName"]
-        //         }],
-        //     }
-        // ],
+        attributes: { 
+                include: ["id", "name", "desc", "createdAt", "updatedAt"]
+                    },
+        include: [
+            {
+                model: InvOperations,
+                as: "OperationInventories",
+                attributes: ["tag_inv_operations_id"],
+                include: [{
+                    model: Inventory,
+                    as: "Inventories",
+                    attributes: ["itemName"]
+                }],
+            },
+        ],
         order: [["updatedAt", "DESC"]],
         limit,
         offset,

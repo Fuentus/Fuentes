@@ -69,7 +69,10 @@ exports.findAllOperations = (req, res) => {
             message: err.message || "Error occurred while retrieving",
         });
     };
-    const success = (data) => {
+    const success = async(data) => {
+        data.rows.map((operation) => {
+           operation.dataValues.toolsRequired = operation.dataValues.OperationInventories.map((inv) => inv.dataValues.Inventories.dataValues.itemName)
+        })
         const response = getPagingData(data, page, obj.limit);
         res.send(response);
     };

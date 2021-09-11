@@ -1,5 +1,5 @@
 const db = require("../../models");
-const {Op} = require("sequelize");
+const {Op, where} = require("sequelize");
 const {validationResult} = require("express-validator");
 
 const logger = require("../../util/log_utils");
@@ -7,13 +7,13 @@ const {getAllQuotesUser, fetchQuoteByClauseUser, fetchQuoteByClause} = require("
 const {getPagination, getPagingData} = require("../service/PaginationService");
 const {QuoteStatus} = require("../service/QuoteStatus");
 
-const {Quotes, Measures, Uploads} = db;
+const {Quotes, Measures, Uploads, Inspections} = db;
 
 exports.findAllQuotesForUser = (req, res) => {
     logger.debug(`Quotes : Inside findAllQuotes`);
     let {updatedAt} = req.query;
     updatedAt = updatedAt ? updatedAt : 0;
-    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, userId: {[Op.eq]: req.user.id}, status: {[Op.ne]: "CLOSED"}};
+    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, userId: {[Op.eq]: req.user.id}, status: {[Op.notIn]: ["CLOSED", "PROJECT_IN_PROGRESS"]}};
     const {page, size} = req.query;
     const obj = getPagination(page, size);
     const failure = (err) => {
@@ -23,6 +23,9 @@ exports.findAllQuotesForUser = (req, res) => {
         });
     };
     const success = (data) => {
+        data.rows.map((user) => {
+            user.dataValues.Uploads = user.dataValues.Uploads.length
+        })
         const response = getPagingData(data, page, obj.limit);
         res.send(response);
     };
@@ -107,10 +110,6 @@ exports.findQuoteById = async (req, res, next) => {
 
     const quote = await fetchQuoteByClauseUser(whereClause);
     res.status(200).send(quote);
-    // console.log(quote)
-
-    
-
     logger.debug(`Quotes : Exit findQuoteById`);
 };
 

@@ -4,7 +4,7 @@ const logger = require('../../util/log_utils');
 const { fetchProjectByClause } = require('../service/ProjectService');
 const {ProjectStatus} = require('../service/ProjectStatus');
 const Projects = db.Projects;
-const { project_workers: ProjectWorkers, Quotes } = db;
+const { project_workers: ProjectWorkers, Quotes, project_workers_log: ProjectWorkersDate } = db;
 
 
 
@@ -105,7 +105,7 @@ exports.updateProjectById = async (req, res, next) => {
             
             const workerArray = [];
             workers.map(async (worker) => {
-                if (workerDbId.includes(worker.id)) {
+            if (workerDbId.includes(worker.id)) {
                     workerArray.push(worker.id)
                     await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id, worker_id: worker.id}}, {transaction: t});
                 } else {
@@ -139,7 +139,7 @@ exports.updateProjectById = async (req, res, next) => {
 
 exports.changeProjectStatus = async (req, res, next) => {
   logger.info(`Projects : Inside changeProjectStatus`);
-  let { status } = req.body;
+  let status  =  'CLOSED';
   const { id } = req.params;
   const project = await Projects.findOne({where : {id :id}})
   if (project) {

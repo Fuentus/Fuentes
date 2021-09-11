@@ -78,12 +78,17 @@ const deleteQuotePrivilege = (req,res,next)=>{
     }
 }
 const editQuotePrivilege = (req, res, next) => {
-    for (let a in QuoteStatus.customerStatus()) {
+    let found = false;
+    for (let a of QuoteStatus.customerStatus()) {
         if (a === req.quoteStatus) {
-            next()
-        } else {
-            res.status(401).send({message: "Quote Status cant be deleted"});
-        }
+            found = true;
+            break;
+        } 
+    }
+    if (found) {
+        next()
+    } else {
+        res.status(401).send({message: "Quote Status cant be updated"});
     }
 }
 module.exports = {
