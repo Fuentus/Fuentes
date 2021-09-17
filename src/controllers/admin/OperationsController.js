@@ -180,17 +180,17 @@ exports.updateOperation = async (req, res, next) => {
                 // }
                 return operation;
             })
-        .catch ((error) => {
-            logger.error(error)
-            return null
-        });
-        if (result) {
-            res.status(200).json({message: "Operation updated!", data: req.body});
-        } else {
-            const err = new Error("Please try back Later");
-            err.statusCode = 500;
-            next(err);
-        }
+            .catch ((error) => {
+                logger.error(error)
+                return null
+            });
+            if (result) {
+                res.status(200).json({message: "Operation updated!", data: req.body});
+            } else {
+                const err = new Error("Please try back Later");
+                err.statusCode = 500;
+                next(err);
+            }
     } else {
         return res.status(400).json({message: 'Operation Doesnot Exists'})
     }

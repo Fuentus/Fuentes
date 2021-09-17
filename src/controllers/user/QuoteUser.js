@@ -7,7 +7,7 @@ const {getAllQuotesUser, fetchQuoteByClauseUser, fetchQuoteByClause} = require("
 const {getPagination, getPagingData} = require("../service/PaginationService");
 const {QuoteStatus} = require("../service/QuoteStatus");
 
-const {Quotes, Measures, Uploads, Inspections} = db;
+const {Quotes, Measures, Uploads, Inspections, quote_rejected_logs: QuoteRejected} = db;
 
 exports.findAllQuotesForUser = (req, res) => {
     logger.debug(`Quotes : Inside findAllQuotes`);
@@ -244,3 +244,46 @@ exports.submitPOUrl = async (req, res, next) => {
     
     logger.info(`Quotes : Exit submitPOUrl`);
 }
+
+exports.changeStatusForUser = async (req, res, next) => {
+    logger.info(`Quotes : Inside changeStatus of Quote`);
+    let {status, reason} = req.body;
+    const {id} = req.params;
+    const userId = req.user.id;
+    const quote = await fetchQuoteByClause({id: id, UserId: userId})
+    const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
+    if (!boolean) {
+        return res.status(422).send({msg: `Please Choose Correct Status`});
+    }
+    if (status === 'QUOTE_REJECTED') {
+        Quotes.update({status: "WIP"}, {where: {id: id}})
+            .then((result) => {
+                QuoteRejected.create({reason: reason, QuoteId: id})
+                const obj = {};
+                obj.message = "Quote Rejected";
+                obj.updatedRecord = result.length;
+                res.status(200).send(obj);
+            }).catch((err) => {
+                next(err)
+            })
+    } else {
+        const cStatus = QuoteStatus.customerStatus()
+        const include = cStatus.includes(status)
+        if (include) {
+                Quotes.update({status: status}, {where: {id: id}})
+                .then((result) => {
+                    const obj = {};
+                    obj.message = "Update Successfully";
+                    obj.updatedRecord = result.length;
+                    res.status(200).send(obj);
+                }).catch((err) => {
+                    next(err)
+                })
+        } else {
+            res.status(400).json({ message: 'NO PRIVILAGE'});
+        }
+    }
+    
+    
+    logger.info(`Quotes : Exit changeStatus of Quote`);
+};

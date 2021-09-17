@@ -33,6 +33,12 @@ router.post(
 //   quoteController.changeStatus
 // );
 
+router.post(
+  "/:id/changeStatus",
+  [isAuth, loadUser, validateReq],
+  quoteController.changeStatusForUser
+);
+
 //get single quote
 router.get(
   "/:id",

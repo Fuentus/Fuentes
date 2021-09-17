@@ -177,9 +177,58 @@ const getAllQuotesUser = (obj, whereClause, success, failure) => {
         });
 };
 
+
+const fetchQuoteByClauseOperations = async (whereClause) => {
+    return (
+        (await Quotes.findOne({
+            where: whereClause,
+            attributes: ["id"],
+            include: [
+                {
+                    model: QuoteOperations,
+                    as: "QuoteOperation",
+                    attributes: ["tag_quote_operations_id", "operation_total_hrs", "operation_cost", "inspection_id"],
+                    include: [
+                        {
+                            model: Operations,
+                            as: "Operations",
+                            attributes: ["id","name", "desc"]
+                        },
+                        {
+                            model: QuoteOperationInv,
+                            as: "QuoteOperationInv",
+                            attributes: ["tag_inv_operations_id","quote_operation_id", "req_quantity"],
+                            include: [
+                                {
+                                    model: Inventory,
+                                    as: "Inventories",
+                                    attributes: ["id", "itemName", "itemDesc", "availability", "cost"]
+                                }
+                            ]
+                        },
+                        {
+                            model: QuoteOperationWorkers,
+                            as: "QuoteOperationWorker",
+                            attributes: ["tag_worker_operations_id","quote_operation_id", "total_hrs_req"],
+                            include: [
+                                {
+                                    model: Workers,
+                                    as: "Workers",
+                                    attributes: ["id", "name", "cost_per_hr", "total_avail_per_week", "avail_per_day", "email"]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+        })) || {}
+    );
+};
+
 module.exports = {
     fetchQuoteByClause: fetchQuoteByClause,
     getAllQuotes: getAllQuotes,
     fetchQuoteByClauseUser: fetchQuoteByClauseUser,
-    getAllQuotesUser: getAllQuotesUser
+    getAllQuotesUser: getAllQuotesUser,
+    fetchQuoteByClauseOperations: fetchQuoteByClauseOperations
 };

@@ -87,6 +87,8 @@ exports.updateProjectById = async (req, res, next) => {
   logger.debug(`Projects : Inside updateProjectById`);
   const {id} = req.params;
   let {name, desc, startDate, endDate, workers} = req.body;
+  let message = 'Updated';
+  let _self = this;
   const project = await Projects.findOne({where: {id : id }})
     if(project) {
           const result = await db.sequelize.transaction(async (t) => {
@@ -102,14 +104,31 @@ exports.updateProjectById = async (req, res, next) => {
             const workerDbId = allWorkers.rows.map((w) => {
                 return w.dataValues.worker_id
             })
-            
+           
             const workerArray = [];
             workers.map(async (worker) => {
             if (workerDbId.includes(worker.id)) {
                     workerArray.push(worker.id)
                     await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id, worker_id: worker.id}}, {transaction: t});
-                } else {
-                    await ProjectWorkers.create({total_hrs: worker.required_hrs, project_id :id, operation_id: worker.operation_id, worker_id: worker.id});
+            } else {
+
+                    let workerInProject = await ProjectWorkers.findAndCountAll({where: {worker_id: worker.id}})
+                    workerInProject = workerInProject.rows.map((pjtWkr) => pjtWkr.dataValues.project_id)
+                    console.log(workerInProject)
+
+                    for (let i = 0; i < workerInProject.length; i++) {
+                      let project = await Projects.findOne({where: {id: workerInProject[i]}})
+                      let startDate = project.start_date;
+                      let endDate = project.end_date;
+                      let currentDate = new Date();
+
+                      if (currentDate > startDate && currentDate < endDate) {
+                        _self.message = 'Worker is already assigned to some Projects at Present Time'
+                        
+                      } else {
+                        await ProjectWorkers.create({total_hrs: worker.required_hrs, project_id : id, operation_id: worker.operation_id, worker_id: worker.id});
+                      }
+                    }
                 }
             })
 
@@ -125,7 +144,9 @@ exports.updateProjectById = async (req, res, next) => {
           return null
       });
       if (result) {
-          res.status(200).json({message: "Project updated!", data: req.body});
+        console.log("message")
+        console.log( _self.message)
+          res.status(200).json({message:  _self.message, data: req.body});
       } else {
           const err = new Error("Please try back Later");
           err.statusCode = 500;
