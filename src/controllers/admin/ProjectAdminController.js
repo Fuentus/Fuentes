@@ -106,31 +106,43 @@ exports.updateProjectById = async (req, res, next) => {
             })
            
             const workerArray = [];
-            workers.map(async (worker) => {
-            if (workerDbId.includes(worker.id)) {
-                    workerArray.push(worker.id)
-                    await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id, worker_id: worker.id}}, {transaction: t});
-            } else {
+            // workers.map(async (worker) => {
+            
+            // })
 
-                    let workerInProject = await ProjectWorkers.findAndCountAll({where: {worker_id: worker.id}})
-                    workerInProject = workerInProject.rows.map((pjtWkr) => pjtWkr.dataValues.project_id)
-                    console.log(workerInProject)
+            for( let i = 0; i< workers.length; i++) {
+              let worker = workers[i]
 
+              
+
+              if (workerDbId.includes(worker.id)) {
+                workerArray.push(worker.id)
+                await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id, worker_id: worker.id}}, {transaction: t});
+              } else {
+                  let workerInProject = await ProjectWorkers.findAndCountAll({where: {worker_id: worker.id}}, {transaction: t})
+                  workerInProject = workerInProject.rows.map((pjtWkr) => pjtWkr.dataValues.project_id)
+
+                  if (workerInProject.length > 0) {
                     for (let i = 0; i < workerInProject.length; i++) {
                       let project = await Projects.findOne({where: {id: workerInProject[i]}})
                       let startDate = project.start_date;
                       let endDate = project.end_date;
                       let currentDate = new Date();
-
+  
                       if (currentDate > startDate && currentDate < endDate) {
                         _self.message = 'Worker is already assigned to some Projects at Present Time'
-                        
+                        break;
                       } else {
                         await ProjectWorkers.create({total_hrs: worker.required_hrs, project_id : id, operation_id: worker.operation_id, worker_id: worker.id});
+                        _self.message = 'Worker added to Project'
                       }
                     }
-                }
-            })
+                  } else {
+                    await ProjectWorkers.create({total_hrs: worker.required_hrs, project_id : id, operation_id: worker.operation_id, worker_id: worker.id});
+                    _self.message = 'Worker added to Project'
+                  }
+              }
+            }
 
             const delWorkerId = workerDbId.filter(x => !workerArray.includes(x)) 
             for (let i = 0; i < delWorkerId.length; i++) {
@@ -146,7 +158,7 @@ exports.updateProjectById = async (req, res, next) => {
       if (result) {
         console.log("message")
         console.log( _self.message)
-          res.status(200).json({message:  _self.message, data: req.body});
+          res.status(200).json({message: _self.message});
       } else {
           const err = new Error("Please try back Later");
           err.statusCode = 500;
@@ -186,5 +198,4 @@ exports.changeProjectStatus = async (req, res, next) => {
   }
   logger.info(`Projects : Exit changeProjectStatus`);
 };
-
 

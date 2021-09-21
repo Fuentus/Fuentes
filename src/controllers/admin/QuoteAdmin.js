@@ -17,7 +17,8 @@ const {
 const logger = require("../../util/log_utils");
 const {fetchQuoteByClause, getAllQuotes, fetchQuoteByClauseOperations} = require("../service/QuoteService")
 const {QuoteStatus, QuoteTax} = require("../service/QuoteStatus");
-const {getPagination, getPagingData} = require("../service/PaginationService")
+const {getPagination, getPagingData} = require("../service/PaginationService");
+const { sequelize } = require("../../models");
 
 exports.findAllQuotesForAdmin = (req, res) => {
     logger.debug(`Quotes : Inside findAllQuotesForAdmin`);
@@ -379,7 +380,6 @@ exports.addTotalValue = async (req, res, next) => {
 
 
 
-
 exports.editTagQuoteAndOperations = async (req, res, next) => {
     logger.info(`Quotes : Inside editTagQuoteAndOperations of Quote`);
     const {id} = req.params
@@ -391,232 +391,131 @@ exports.editTagQuoteAndOperations = async (req, res, next) => {
         if (!boolean) {
             return res.status(422).send({msg: `Please Choose Correct Status`});
     }}
+    const result = await db.sequelize
+        .transaction(async (t) => {
+            if (operations) {
         
-    if (operations) {
-        const quotes = await fetchQuoteByClauseOperations(whereClause)
-
-        let operationsIds = quotes.QuoteOperation.map((qOp) => qOp.Operations.id)
-
-        const operationReqId = operations.map((operation) => operation.operationId)
-        console.log('operationsIds')
-        console.log(operationsIds)
-        console.log(operationReqId)
-
-        let oprInDb =  operationReqId.filter(x => operationsIds.includes(x))
-        //let oprNotInDb =  operationReqId - oprInDb;
-        let oprNotInDb =  operationReqId.filter(x => !operationsIds.includes(x))
-
-
-
-        if (oprInDb) {
-            for(let i = 0; i < oprInDb.length; i++) {
-                console.log('operations')
-                console.log(operations.map((o) => o.tools))
-
-                let opTotalHours = operations.map((o) => o.operation_total_hrs) //verfy
-                let opCost = operations.map((o) => o.operation_cost)
-
-                let tagInvId = await QuoteOperations.findOne({where: {operation_id : oprInDb[i], quote_id: quoteId}})
-                tagInvId = tagInvId.dataValues.tag_quote_operations_id;
-            
-//add transcations
-                QuoteOperations.update({operation_total_hrs: opTotalHours[i], operation_cost: opCost[i]}, {where: {tag_quote_operations_id: tagInvId}})
-                let items = operations.map((o) => o.tools)
-                items = [].concat.apply([], items);
-
-                let workers = operations.map((o) => o.workers)
-                workers = [].concat.apply([], workers);
-              
-                if(items) {
-                    console.log('inv')
-                    const inventories = await QuoteOperationInv.findAndCountAll({where: {quote_operation_id: tagInvId}})
-                    const inventoryDbId = inventories.rows.map((inventory) => {
-                        return inventory.dataValues.inv_id
-                    })
-
-                    console.log(inventoryDbId)
+                const quotes = await fetchQuoteByClauseOperations(whereClause)
+                let operationsIds = quotes.QuoteOperation.map((qOp) => qOp.Operations.id)
+                const operationReqId = operations.map((operation) => operation.operationId)
+                let oprInDb =  operationReqId.filter(x => operationsIds.includes(x))
+        
+                for (j=0; j < operations.length; j++) {
+                    Map[operations[j].operations] = operations[j]
+                        let oprId = operations[j].operationId;
+                        let oprHrs =operations[j].operation_total_hrs;
+                        let oprCost = operations[j].operation_cost;
+                        let tools = operations[j].tools;
+                        let workers = operations[j].workers;
+                    if (oprInDb.includes(operations[j].operationId)) {
+        
+                        let tagInvId = await QuoteOperations.findOne({where: {operation_id : oprId, quote_id: quoteId}}, {transaction: t})
+                        tagInvId = tagInvId.dataValues.tag_quote_operations_id;
+        
+                        QuoteOperations.update({operation_total_hrs: oprHrs, operation_cost: oprCost}, {where: {tag_quote_operations_id: tagInvId}}, {transaction: t})
+        
+                        if (tools) {
+                            const inventories = await QuoteOperationInv.findAndCountAll({where: {quote_operation_id: tagInvId}}, {transaction: t})
+                            const inventoryDbId = inventories.rows.map(inventory => inventory.dataValues.inv_id)
                     
-                    const invArray = [];
-                    console.log('items')
-                    console.log(items)
-                    items.map(async (item) => {
-                        console.log('item')
-                        console.log(item)
-                        if (inventoryDbId.includes(item.invId)) {
-                            invArray.push(item.invId)
-                            await QuoteOperationInv.update({req_quantity: item.reqQty}, {where: {inv_id: item.invId, quote_operation_id: tagInvId}});
-                        } else {
-                            await QuoteOperationInv.create({req_quantity: item.reqQty, inv_id: item.invId, quote_operation_id: tagInvId});
+                            const invArray = [];
+                            tools.map(async (item) => {
+                                if (inventoryDbId.includes(item.invId)) {
+                                    invArray.push(item.invId)
+                                    await QuoteOperationInv.update({req_quantity: item.reqQty}, {where: {inv_id: item.invId, quote_operation_id: tagInvId}}, {transaction: t});
+                                    logger.info("Updated Existing Quote Operation Inventory");
+                                } else {
+                                    await QuoteOperationInv.create({req_quantity: item.reqQty, inv_id: item.invId, quote_operation_id: tagInvId}, {transaction: t});
+                                    logger.info("Created New Item for Existing Quote Operation");
+                                }
+                            })
+                            const delId = inventoryDbId.filter(x => !invArray.includes(x))
+                            for (let i = 0; i < delId.length; i++) {
+                                await QuoteOperationInv.destroy({where: {inv_id: delId[i], quote_operation_id: tagInvId}}, {transaction: t})
+                                logger.info("Deleted Old DataBase Entry of Existing Quote Operation");
+                            }
                         }
-                    })
-                    const delId = inventoryDbId.filter(x => !invArray.includes(x))
-                    for (let i = 0; i < delId.length; i++) {
-                        await QuoteOperationInv.destroy({where: {inv_id: delId[i], quote_operation_id: tagInvId}})
+                          if(workers) {
+                            const allWorkers = await QuoteOperationWorker.findAndCountAll({where: {quote_operation_id: tagInvId}}, {transaction: t})
+                            const workerDbId = allWorkers.rows.map(w => w.dataValues.worker_id)
+        
+                            const workerArray = [];
+                            workers.map(async (worker) => {
+                                if (workerDbId.includes(worker.workerId)) {
+                                    workerArray.push(worker.workerId)
+                                    await QuoteOperationWorker.update({total_hrs_req: worker.totalHrs}, {where: {quote_operation_id: tagInvId, worker_id: worker.workerId }}, {transaction: t});
+                                    logger.info("Updated Existing Quote Operation Worker");
+                                } else {
+                                    await QuoteOperationWorker.create({total_hrs_req: worker.totalHrs, quote_operation_id: tagInvId, worker_id: worker.workerId});
+                                    logger.info("Created New Worker for Existing Quote Operation");
+                                }
+                            })
+        
+                            const delWorkerId = workerDbId.filter(x => !workerArray.includes(x)) 
+                            for (let i = 0; i < delWorkerId.length; i++) {
+                                await QuoteOperationWorker.destroy({where: {worker_id: delWorkerId[i], quote_operation_id: tagInvId}},{transaction: t})
+                                logger.info("Deleted Old DataBase Worker Entry of Existing Quote Operation");
+                            }  
+                        }
+        
+                    } else {
+        
+                        const newQuoteOpr = await QuoteOperations.create({operation_total_hrs: oprHrs, operation_cost: oprCost, operation_id : oprId, quote_id: quoteId }, {transaction: t})
+                        logger.info("Created New Quote Operation");
+                        const tagId = newQuoteOpr.dataValues.tag_quote_operations_id
+        
+                        if(tools) {
+                            const toolRes = tools.map((item) => {
+                                    return { 
+                                        req_quantity: item.reqQty, 
+                                        inv_id: item.invId, 
+                                        quote_operation_id: tagId 
+                                    }
+                            })
+                            await QuoteOperationInv.bulkCreate(toolRes, { transaction: t })
+                            logger.info("Created New Quote Operation Inv");
+                        }
+                        if(workers) {
+                            const workerRes = workers.map((worker) => {
+                                return {
+                                    total_hrs_req: worker.totalHrs,
+                                    quote_operation_id: tagId,
+                                    worker_id: worker.workerId
+                                }
+                            })
+                            await QuoteOperationWorker.bulkCreate(workerRes, { transaction: t})
+                            logger.info("Created New Quote Operation Worker");
+                        }
                     }
                 }
-                 if(workers) {
-                    const allWorkers = await QuoteOperationWorker.findAndCountAll({where: {quote_operation_id: tagInvId}})
-                    const workerDbId = allWorkers.rows.map((w) => {
-                        return w.dataValues.worker_id
-                    })
-
-                    console.log('workerDbId') 
-                    console.log(workerDbId)
-
-                    const workerArray = [];
-                    workers.map(async (worker) => {
-                        if (workerDbId.includes(worker.id)) {
-                            workerArray.push(worker.id)
-                            await QuoteOperationWorker.update({total_hrs_req: worker.totalHrs}, {where: {quote_operation_id: tagInvId, worker_id: worker.workerId }}, {transaction: t});
-                        } else {
-                            await QuoteOperationWorker.create({total_hrs_req: worker.totalHrs, quote_operation_id: tagInvId, worker_id: worker.workerId});
-                        }
-                    })
-
-                    const delWorkerId = workerDbId.filter(x => !workerArray.includes(x)) 
-                    for (let i = 0; i < delWorkerId.length; i++) {
-                        await QuoteOperationWorker.destroy({where: {worker_id: delWorkerId[i], quote_operation_id: tagInvId}})
-                    }  
-                }
-            }
-        } else {
-            const result = await db.sequelize.transaction(async (t) => {
-                for(let i = 0; i < oprNotInDb.length; i++) {
-                    console.log("operations")
-                    console.log(operations)
-                    const oprId = operations.map((o) => o.operationId)
-                    const oprTotalHrs = operations.map((o) => o.operation_total_hrs)
-                    const oprCost = operations.map((o) => o.operation_cost)
-                    const quoteOperationBulk = await QuoteOperations.create({operation_total_hrs:oprTotalHrs[i], operation_cost: oprCost[i], operation_id : oprId[i], quote_id: quoteId }, {transaction: t})
-                    logger.info(`Inserted ${quoteOperationBulk.length} items to QuoteOperations`);
-
-                    const tagId = quoteOperationBulk.dataValues.tag_quote_operations_id
-
-                    let items = operations.map((o) => o.tools)
-                    items = [].concat.apply([], items);
-                    console.log(items)
-
-                    let workers = operations.map((o) => o.workers)
-                    workers = [].concat.apply([], workers);
-                    console.log(workers)
-                
-                if(items) {
-                    items.map(async (item) => {
-                        await QuoteOperationInv.create({req_quantity: item.reqQty, inv_id: item.invId, quote_operation_id: tagId});
-                    })
-                    
-                }
-                if(workers) {
-                    workers.map(async (worker) => {
-                        await QuoteOperationWorker.create({total_hrs_req: worker.totalHrs, quote_operation_id: tagId, worker_id: worker.workerId});
-                    })
-                   
-                }
-                return operations;
-            }
-                   
-            }).catch(function (err) {
-                logger.error(err)
-                return null;
-            });
-            if (result) {
-                res.status(201).json({message: "Quote and Operations are Tagged Successfully"});
-            } else {
-                const err = new Error("Please try back Later");
-                err.statusCode = 500;
-                next(err);
-            }
-        }
-
         
-        let notInc = operationsIds.filter(x => !operationReqId.includes(x))
-        console.log('notInc')
-        console.log(notInc)
-        for(let i = 0; i < notInc.length; i++) {
-            const id = notInc[i]
-            const quoteOpr = await QuoteOperations.findOne({where: {operation_id: id}})
-            if (quoteOpr) {
-                await QuoteOperations.destroy({where: {operation_id : id}})
-                res.status(200).send("successfully deleted")
-            } else {
-                res.status(400).send("No quote")
-            }
-        }
+                let notInc = operationsIds.filter(x => !operationReqId.includes(x))
+                if (notInc.length > 0) {
+                    for(let i = 0; i < notInc.length; i++) {
+                        const quoteOpr = await QuoteOperations.findOne({where: {operation_id: notInc[i], quote_id: quoteId}}, {transaction: t})
+                        if (quoteOpr) {
+                            await QuoteOperations.destroy({where: {operation_id : notInc[i], quote_id: quoteId}}, {transaction: t})
+                        }
+                    }
+                    logger.info("Unused DB entry Deleted");
+                    //return { status: 200, message: "Unused DB entry Deleted" }
+                } else {
+                    logger.info("No Unused DB entry");
+                    //return { status: 400, message: "No Unused DB entry" }
+                }
+                
+                return { status: 201, message: "Successfully Tagged"}
+              }
+        }).catch(function (err) {
+        logger.error(err)
+        return null;
+    });
+    if (result) {
+        res.status(201).json({message: "Tagged Quote and Operations Edited Successfully"});
+    } else {
+        const err = new Error("Please try back Later");
+        err.statusCode = 500;
+        next(err);
+    }
     }
     logger.info(`Quotes : Exit editTagQuoteAndOperations of Quote`);
-}
-
-
-
-// exports.editTagQuoteAndOperations = async (req, res, next) => {
-//     logger.info(`Quotes : Inside editTagQuoteAndOperations of Quote`);
-//     const {id} = req.params
-//     const whereClause = {id: id}
-//     const {quoteId, operations, status} = req.body;
-//     const quote = await Quotes.findByPk(quoteId);
-//     if (status) {
-//         const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
-//         if (!boolean) {
-//             return res.status(422).send({msg: `Please Choose Correct Status`});
-//     }} 
-//     if (operations) {
-//         const quotes = await fetchQuoteByClauseOperations(whereClause)
-
-//         let operationsIds = quotes.QuoteOperation.map((qOp) => qOp.Operations.id)
-//         const operationReqId = operations.map((operation) => operation.operationId)
-
-//         let oprInDb =  operationReqId.filter(x => !operationsIds.includes(x))
-//         console.log(oprInDb)
-//         // console.log(operations)
-
-//         if (oprInDb) {
-//             const result = await db.sequelize.transaction(async (t) => {
-//                 for(let i = 0; i < oprInDb.length; i++) {
-//                     console.log("operations")
-//                     console.log(operations)
-//                     const oprId = operations.map((o) => o.operationId)
-//                     const oprTotalHrs = operations.map((o) => o.operation_total_hrs)
-//                     const oprCost = operations.map((o) => o.operation_cost)
-//                     const quoteOperationBulk = await QuoteOperations.create({operation_total_hrs:oprTotalHrs[i], operation_cost: oprCost[i], operation_id : oprId[i], quote_id: quoteId }, {transaction: t})
-//                     logger.info(`Inserted ${quoteOperationBulk.length} items to QuoteOperations`);
-
-//                     const tagId = quoteOperationBulk.dataValues.tag_quote_operations_id
-
-//                     let items = operations.map((o) => o.tools)
-//                     items = [].concat.apply([], items);
-//                     console.log(items)
-
-//                     let workers = operations.map((o) => o.workers)
-//                     workers = [].concat.apply([], workers);
-//                     console.log(workers)
-                
-//                 if(items) {
-//                     items.map(async (item) => {
-//                         await QuoteOperationInv.create({req_quantity: item.reqQty, inv_id: item.invId, quote_operation_id: tagId});
-//                     })
-                    
-//                 }
-//                 if(workers) {
-//                     workers.map(async (worker) => {
-//                         await QuoteOperationWorker.create({total_hrs_req: worker.totalHrs, quote_operation_id: tagId, worker_id: worker.workerId});
-//                     })
-                   
-//                 }
-//                 return operations;
-//             }
-                   
-//             }).catch(function (err) {
-//                 logger.error(err)
-//                 return null;
-//             });
-//             if (result) {
-//                 res.status(201).json({message: "Quote and Operations are Tagged Successfully"});
-//             } else {
-//                 const err = new Error("Please try back Later");
-//                 err.statusCode = 500;
-//                 next(err);
-//             }
-//         }
-//     }
-//     logger.info(`Quotes : Exit editTagQuoteAndOperations of Quote`);
-// }
