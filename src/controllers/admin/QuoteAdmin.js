@@ -6,8 +6,6 @@ const {
     Quotes,
     Inventory,
     Projects,
-    Tax,
-    Inspections,
     quote_operations: QuoteOperations,
     quote_operation_inv: QuoteOperationInv,
     quote_operation_workers: QuoteOperationWorker,
@@ -82,7 +80,7 @@ exports.changeStatusForAdmin = async (req, res, next) => {
             next(err)
         })
 } else {
-    res.status(400).json({ message: 'NO PRIVILAGE'}); //already i  cstner quueue
+    res.status(400).json({ message: 'ALREADY IN CUSTOMER QUEUE'});
 }
     logger.info(`Quotes : Exit changeStatus of Quote`);
 };
@@ -225,25 +223,6 @@ exports.convertToProject = async (req, res, next) => {
                 end_date: endDate,
                 QuoteId: quoteId,
             }, {transaction: t});
-
-
-            /* hrs_left and hrs_commited logic
-            
-            let sDate = new Date(startDate)
-            let eDate = new Date(endDate)   
-            let cDate = new Date()
-            
-            let hrs_committed = Math.floor((Date.parse(eDate) - Date.parse(sDate)) / 86400000);
-            console.log(`Hours Commited ${hrs_committed}`)
-
-           
-            if (cDate < sDate) {
-                let hrs_left = Math.floor((Date.parse(eDate) - Date.parse(sDate)) / 86400000);
-                console.log(`Hours Left ${hrs_left * 8}`)
-            } else {
-                let hrs_left = Math.floor((Date.parse(eDate) - Date.parse(cDate)) / 86400000);
-                console.log(`Hours Left ${hrs_left * 8}`)
-            }*/  
 
             for (let i = 0; i < qOperations.length; i++) {
                 let workerArr = [];

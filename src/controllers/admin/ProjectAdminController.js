@@ -4,7 +4,7 @@ const logger = require('../../util/log_utils');
 const { fetchProjectByClause } = require('../service/ProjectService');
 const {ProjectStatus} = require('../service/ProjectStatus');
 const Projects = db.Projects;
-const { project_workers: ProjectWorkers, Quotes, project_workers_log: ProjectWorkersDate } = db;
+const { project_workers: ProjectWorkers, Quotes, project_closed_logs: ProjectClosedLogs, project_workers_log: ProjectWorkersDate } = db;
 
 
 
@@ -72,7 +72,7 @@ exports.getOneProject = (req, res, next) => {
 //   const {id} = req.params;
 //     const result = await db.sequelize.transaction(async (t) => {
 //         return await Projects.destroy(
-//             {where: {id: id}, force: true},
+//             {where: {id: id}},
 //             {transaction: t}
 //         );
 //     });
@@ -174,6 +174,7 @@ exports.changeProjectStatus = async (req, res, next) => {
   logger.info(`Projects : Inside changeProjectStatus`);
   let status  =  'CLOSED';
   const { id } = req.params;
+  const { note } = req.body;
   const project = await Projects.findOne({where : {id :id}})
   if (project) {
     const boolean = ProjectStatus.checkProjectStatusCanBeUpdated(project.status, status);
@@ -184,6 +185,7 @@ exports.changeProjectStatus = async (req, res, next) => {
     Projects.update({status: status}, {where: {id: id}})
     .then((result) => {
         Quotes.update({status: 'CLOSED'}, {where: {id: qid}})
+        ProjectClosedLogs.create({ note: note ? note: 'COMPLETED', ProjectId: id})
         const obj = {};
         obj.message = "Status Updated Successfully";
         obj.updatedRecord = result.length;
