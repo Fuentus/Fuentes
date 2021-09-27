@@ -45,15 +45,15 @@ exports.login = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     Users.findOne({where: {email: email}})
-        .then((user) => {
+        .then(async (user) => {
             if (!user) {
                 const error = new Error("A user with this email could not be found.");
                 error.statusCode = 401;
                 throw error;
             }
-            const isEqual = bcrypt.compare(password, user.password);
+            const isEqual = await bcrypt.compare(password, user.password);
             if (!isEqual) {
-                const error = new Error("A user with this email could not be found.");
+                const error = new Error("Password is Incorrect.");
                 error.statusCode = 401;
                 throw error;
             }
@@ -76,15 +76,15 @@ exports.workerLogin = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     Workers.findOne({where: {email: email}})
-        .then((user) => {
+        .then(async (user) => {
             if (!user) {
                 const error = new Error("Worker with this email could not be found");
                 error.statusCode = 401;
                 throw error;
             }
-            const isEqual = bcrypt.compare(password, user.password);
+            const isEqual = await bcrypt.compare(password, user.password);
             if (!isEqual) {
-                const error = new Error("Worker with this email could not be found.");
+                const error = new Error("Password is Incorrect.");
                 error.statusCode = 401;
                 throw error;
             }
