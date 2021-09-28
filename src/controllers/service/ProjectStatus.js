@@ -43,7 +43,7 @@ class ProjectStatus {
 }
 
 const PROJECT_STATUS = {
-    PROJECT_NEW: new ProjectStatus("NEW", 1),
+    PROJECT_NEW: new ProjectStatus("PROJECT_IN_PROGRESS", 1),
     CLOSED: new ProjectStatus("CLOSED", 2),
 }
 

@@ -9,7 +9,8 @@ const {
     quote_operations: QuoteOperations,
     quote_operation_inv: QuoteOperationInv,
     quote_operation_workers: QuoteOperationWorker,
-    project_workers: ProjectWorkers
+    project_workers: ProjectWorkers,
+    quote_admin_rejected_logs: QuoteAdminRejected
 } = db;
 
 const logger = require("../../util/log_utils");
@@ -60,28 +61,41 @@ exports.findQuoteByIdForAdmin = async (req, res, next) => {
 
 exports.changeStatusForAdmin = async (req, res, next) => {
     logger.info(`Quotes : Inside changeStatus of Quote`);
-    let {status} = req.body;
+    let {status, reason} = req.body;
     const {id} = req.params;
     const quote = await fetchQuoteByClause({id: id})
     const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
     if (!boolean) {
         return res.status(422).send({msg: `Please Choose Correct Status`});
     }
-    const cStatus = QuoteStatus.customerStatus()
-    const include = cStatus.includes(status)
-    if (!include) {
-        Quotes.update({status: status}, {where: {id: id}})
+    if (status === 'QUOTE_ADMIN_REJECT') {
+        Quotes.update({status: "QUOTE_PO_SUBMIT"}, {where: {id: id}})
         .then((result) => {
+            QuoteAdminRejected.create({reason: reason, QuoteId: id})
             const obj = {};
-            obj.message = "Update Successfully";
+            obj.message = "Quote Rejected";
             obj.updatedRecord = result.length;
             res.status(200).send(obj);
         }).catch((err) => {
             next(err)
         })
-} else {
-    res.status(400).json({ message: 'ALREADY IN CUSTOMER QUEUE'});
-}
+    } else {
+        const cStatus = QuoteStatus.customerStatus()
+        const include = cStatus.includes(status)
+        if (!include) {
+            Quotes.update({status: status}, {where: {id: id}})
+            .then((result) => {
+                const obj = {};
+                obj.message = "Update Successfully";
+                obj.updatedRecord = result.length;
+                res.status(200).send(obj);
+            }).catch((err) => {
+                next(err)
+            })
+        } else {
+            res.status(400).json({ message: 'ALREADY IN CUSTOMER QUEUE'});
+        } 
+    }
     logger.info(`Quotes : Exit changeStatus of Quote`);
 };
 

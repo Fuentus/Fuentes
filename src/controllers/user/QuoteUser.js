@@ -109,6 +109,32 @@ exports.findQuoteById = async (req, res, next) => {
     };
 
     const quote = await fetchQuoteByClauseUser(whereClause);
+    const isOpr = quote.QuoteOperation
+    if (isOpr) {
+        let opCost = quote.dataValues.QuoteOperation.map((dv) => dv.dataValues.operation_cost);
+        opCost = opCost.map(i=>Number(i))
+        let inspId = quote.dataValues.QuoteOperation.map((dv) => dv.dataValues.inspection_id);
+    
+        let inspCost = []
+        for (let i = 0; i< inspId.length; i++) {
+            let insCost = await Inspections.findOne({where: {id: inspId[i]}})
+            insCost = insCost.dataValues.cost
+            inspCost.push(insCost)
+        }
+        
+        let operationCostTotal = opCost.reduce((a, b) => a + b, 0);
+        let inspectionTotal = inspCost.reduce((a, b) => a + b, 0);
+    
+        quote.dataValues.operationCostTotal = operationCostTotal
+        quote.dataValues.inspectionTotal = inspectionTotal
+        let totalAmount = quote.total + operationCostTotal + inspectionTotal;
+        if (quote.tax !== null) {
+            let tax = totalAmount * (quote.tax/ 100)
+            quote.total = totalAmount + tax;
+        } else {
+            quote.total = totalAmount;
+        }
+    }
     res.status(200).send(quote);
     logger.debug(`Quotes : Exit findQuoteById`);
 };
