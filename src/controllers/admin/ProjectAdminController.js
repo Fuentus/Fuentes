@@ -11,7 +11,7 @@ const { project_workers: ProjectWorkers, Quotes, project_closed_logs: ProjectClo
 exports.getProject = (req, res, next) => {
     logger.debug(`Projects : Inside getProjectOperation`);
     const getPagination = (page, size) => {
-        const limit = size ? +size : 3;
+        const limit = size ? +size : 10;
         const offset = page ? page * limit : 0;
         return { limit, offset };
       };
