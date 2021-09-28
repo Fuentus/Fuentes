@@ -118,8 +118,10 @@ exports.findQuoteById = async (req, res, next) => {
         let inspCost = []
         for (let i = 0; i< inspId.length; i++) {
             let insCost = await Inspections.findOne({where: {id: inspId[i]}})
-            insCost = insCost.dataValues.cost
-            inspCost.push(insCost)
+            if (inspId[i] !==  null) {
+                insCost = insCost.dataValues.cost
+                inspCost.push(insCost)
+            }
         }
         
         let operationCostTotal = opCost.reduce((a, b) => a + b, 0);
