@@ -1,173 +1,161 @@
 const assert = require("assert");
-const quoteController = require("../../src/controllers/user/QuoteUser");
 const auth = require('../api_test/user.test.js')
-const { adminEmail, adminPassword,
-    userEmail, userPassword,memberName,
-    incorrectEmail, incorrectPassword
-} = require('../api_test/creds')
+const { adminEmail, adminPassword, userEmail, userPassword,memberName, incorrectEmail, incorrectPassword, workerEmail, workerPassword } = require('../api_test/creds')
 
 //Require the dev-dependencies
 let chai = require("chai");
 let chaiHttp = require("chai-http");
 let server = require("../../src/app");
+const { response } = require("express");
 const should = chai.should();
 const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-/*
- * Test the /SIGNUP USER
- */
-describe("/SIGNUP USER", () => {
-    it("it should SIGNUP USER", (done) => {
-        setTimeout(done, 300);
-        chai
-            .request(server)
-            .put("/auth/signup")
-            .send({"email": userEmail, "password": userPassword, "name": memberName})
-            .end((err, res) => {
-                const data = res.body;
-                res.should.have.status(201);
-                res.body.should.be.a("object");
-                expect(res.status).to.equal(201);
-                done();
-            })
-    })
-    it("it should return VALIDATION error for duplicate USER", (done) => {
-        setTimeout(done, 300);
-        chai
-            .request(server)
-            .put("/auth/signup")
-            .send({"email": userEmail, "password": userPassword, "name": memberName})
-            .end((err, res) => {
-                const data = res.body;
-                res.should.have.status(422);
-                res.body.should.be.a("object");
-                expect(res.status).to.equal(422);
-                done();
-            });
-    })
-});
+
+
+describe('AUTH ROUTES', () => {
+
     
+    /*
+    * Test the /SIGNUP USER
+    */
+    describe('PUT /auth/signup', () => {
+        it('It Should Create a User', done => {
+            chai.request(server)
+                .put('/auth/signup')
+                .send({"email": "teesttt@gmail.com", "password": "userPassword", "name": "memberName"})
+                .end((err, response) => {
+                    response.should.have.status(201);
+                    response.body.should.have.property("message").eq("User created!")
+                done();
+                })
 
-/*
- * Test the /LOGIN USER
- */
-describe("/LOGIN USER", () => {
-  it("it should LOGIN USER", (done) => {
-    setTimeout(done, 300);
-    chai
-      .request(server)
-      .post("/auth/login")
-      .send({"email" : userEmail, "password" : userPassword})
-      .end((err,res) => {
-        const {token} = res.body;
-        chai
-        .request(server)
-        .set('Authorization','Bearer '+token)
-        .post({
-            "email":"ravi_user@r.com",
-            "password":"12345"
         })
-        .end((err, res) => {
-          const data = res.body;
-          res.should.have.status(200);
-          res.body.should.be.a("object");
-          expect(res.status).to.equal(200);
-          done();
-        });
-    })
-    });
-    it("it should not LOGIN USER with incorrect email", (done) => {
-        setTimeout(done, 300);
-        chai
-        .request(server)
-        .post("/auth/login")
-        .send({"email" : incorrectEmail, "password" : userPassword})
-        .end((err,res) => {
-            chai
-            .request(server)
-            .send({
-                "message": "A user with this email could not be found."
-            })
-            .end((err, res) => {
-            const data = res.body;
-            res.should.have.status(401);
-            res.body.should.be.a("object");
-            expect(res.status).to.equal(401);
-            done();
-            });
-        })
-    });
-});
+        it('It Should Validate a Duplicate User', done => {
+            chai.request(server)
+                .put('/auth/signup')
+                .send({"email": "user1q@r.com", "password": "userPassword", "name": "memberName"})
+                .end((err, response) => {
+                    response.should.have.status(422);
+                    response.body.should.have.property("message").eq("Validation failed.")
+                done();
+                })
 
-/*
- * Test the /SIGNUP ADMIN
- */
-describe("/SIGNUP ADMIN", () => {
-  it("it should SIGNUP ADMIN", (done) => {
-    setTimeout(done, 300);
-    chai
-      .request(server)
-      .post("/auth/createAdmin")
-      .send({"email" : adminEmail, "password" : adminPassword})
-      .end((err,res) => {
-        const data = res.body;
-          res.should.have.status(201);
-          res.body.should.be.a("object");
-          expect(res.status).to.equal(201);
-          done();
         })
     })
-});
+    
+    /*
+    * Test the /LOGIN USER
+    */
+    describe('PUT /auth/login', () => {
+        it('It Should Login a User', done => {
+            chai.request(server)
+                .post('/auth/login')
+                .send({"email": userEmail, "password": userPassword})
+                .end((err, response) => {
+                    response.should.have.status(200);
+                    response.body.should.be.a("object")
+                done();
+                })
+        })
 
-/*
- * Test the /LOGIN ADMIN
- */
-describe("/LOGIN ADMIN", () => {
-  it("it should LOGIN ADMIN", (done) => {
-    setTimeout(done, 300);
-    chai
-      .request(server)
-      .post("/auth/login")
-      .send({"email" : adminEmail, "password" : adminPassword})
-      .end((err,res) => {
-        const {token} = res.body;
-        chai
-        .request(server)
-        .set('Authorization','Bearer '+token)
-        .post({
-            "email":"ravi_admin@r.com",
-            "password":"12345"
+        it('it should not LOGIN USER with incorrect email', done => {
+            chai.request(server)
+                .post('/auth/login')
+                .send({"email": incorrectEmail, "password": userPassword})
+                .end((err, response) => {
+                    response.should.have.status(401);
+                    response.body.should.have.property("message").eq("A user with this email could not be found.")
+                done();
+                })
         })
-        .end((err, res) => {
-          const data = res.body;
-          res.should.have.status(200);
-          res.body.should.be.a("object");
-          expect(res.status).to.equal(200);
-          done();
-        });
+
+        it('it should not LOGIN USER with incorrect password', done => {
+            chai.request(server)
+                .post('/auth/login')
+                .send({"email": userEmail, "password": incorrectPassword})
+                .end((err, response) => {
+                    response.should.have.status(401);
+                    response.body.should.have.property("message").eq("Password is Incorrect.")
+                done();
+                })
+        })
     })
-    });
-    it("it should not LOGIN ADMIN with incorrect email", (done) => {
-        setTimeout(done, 300);
-        chai
-        .request(server)
-        .post("/auth/login")
-        .send({"email" : incorrectEmail, "password" : adminPassword})
-        .end((err,res) => {
-            chai
-            .request(server)
-            .send({
-                "message": "A user with this email could not be found."
-            })
-            .end((err, res) => {
-            const data = res.body;
-            res.should.have.status(401);
-            res.body.should.be.a("object");
-            expect(res.status).to.equal(401);
-            done();
-            });
+
+    /*
+    * Test the /LOGIN ADMIN
+    */
+    describe('PUT /auth/login', () => {
+        it('It Should Login Admin', done => {
+            chai.request(server)
+                .post('/auth/login')
+                .send({"email": adminEmail, "password": adminPassword})
+                .end((err, response) => {
+                    response.should.have.status(200);
+                    response.body.should.be.an("Object")
+                done();
+                })
         })
-    });
-});
+
+        it('it should not LOGIN ADMIN with incorrect email', done => {
+            chai.request(server)
+                .post('/auth/login')
+                .send({"email": incorrectEmail, "password": adminPassword})
+                .end((err, response) => {
+                    response.should.have.status(401);
+                    response.body.should.have.property("message").eq("A user with this email could not be found.")
+                done();
+                })
+        })
+
+        it('it should not LOGIN ADMIN with incorrect password', done => {
+            chai.request(server)
+                .post('/auth/login')
+                .send({"email": adminEmail, "password": incorrectPassword})
+                .end((err, response) => {
+                    response.should.have.status(401);
+                    response.body.should.have.property("message").eq("Password is Incorrect.")
+                done();
+                })
+        })
+    })
+
+     /*
+    * Test the /WORKER ADMIN
+    */
+     describe('PUT /auth/login', () => {
+        it('It Should Login Worker', done => {
+            chai.request(server)
+                .post('/auth/workerLogin')
+                .send({"email": workerEmail, "password": workerPassword})
+                .end((err, response) => {
+                    response.should.have.status(200);
+                    response.body.should.be.an("Object")
+                done();
+                })
+        })
+
+        it('it should not LOGIN Worker with incorrect email', done => {
+            chai.request(server)
+                .post('/auth/workerLogin')
+                .send({"email": incorrectEmail, "password": workerPassword})
+                .end((err, response) => {
+                    response.should.have.status(401);
+                    response.body.should.have.property("message").eq("Worker with this email could not be found")
+                done();
+                })
+        })
+
+        it('it should not LOGIN Worker with incorrect password', done => {
+            chai.request(server)
+                .post('/auth/workerLogin')
+                .send({"email": workerEmail, "password": incorrectPassword})
+                .end((err, response) => {
+                    response.should.have.status(401);
+                    response.body.should.have.property("message").eq("Password is Incorrect.")
+                done();
+                })
+        }) 
+     })
+})

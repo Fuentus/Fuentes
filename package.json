@@ -7,7 +7,7 @@
     "node": "14.14.0"
   },
   "scripts": {
-    "test": "mocha test/api_test",
+    "test": "mocha test/api_test/worker.test.js",
     "start": "NODE_ENV=prod node src/app.js",
     "start-server": "node src/app.js",
     "start:dev": "nodemon --inspect src/app.js"
@@ -40,7 +40,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^4.3.0",
-    "mocha": "^9.0.2",
+    "mocha": "^9.1.1",
     "nodemon": "^2.0.7"
   }
 }
