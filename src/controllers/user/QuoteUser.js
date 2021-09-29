@@ -41,8 +41,8 @@ exports.createQuote = async (req, res, next) => {
             .json({message: "Validation failed", data: errors.array()});
     }
     const {title, desc, startDate, endDate, TaxId} = req.body;
-    const measures = req.body.measures;
-    const uploads = req.body.uploads;
+    const measures = req.body.Measures;
+    const uploads = req.body.Uploads;
     const result = await db.sequelize
         .transaction(async (t) => {
             let quote = await req.user.createQuote(

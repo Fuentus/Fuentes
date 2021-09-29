@@ -14,7 +14,7 @@ const quoteCreateValidator = [
         .isLength({min: 3})
         .withMessage("Please enter a Description."),
 
-    body("measures").isArray({min: 1}).withMessage("Please add measures"),
+    body("Measures").isArray({min: 1}).withMessage("Please add measures"),
 
     body('startDate').isISO8601()
         .toDate()
