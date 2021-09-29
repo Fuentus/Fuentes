@@ -170,7 +170,8 @@ exports.editQuoteById = async (req, res, next) => {
     logger.debug(`Quotes : Inside editQuoteById`);
     const {id} = req.params;
     const {title, desc} = req.body;
-    const measures = req.body.measures;
+    const measures = req.body.Measures;
+    const uploads = req.body.Uploads;
     const result = await db.sequelize.transaction(async (t) => {
         let res = await Quotes.update(
             {title: title, desc: desc},
@@ -193,6 +194,27 @@ exports.editQuoteById = async (req, res, next) => {
                         name: measures[i].name,
                         qty: measures[i].qty,
                         unit: measures[i].unit,
+                        QuoteId: id,
+                    },
+                    {transaction: t}
+                );
+            }
+        }
+        if (uploads) {
+            await Uploads.destroy(
+                {
+                    where: {
+                        QuoteId: id,
+                    },
+                    force: true,
+                },
+                {transaction: t}
+            );
+            for (let i = 0; i < uploads.length; i++) {
+                await Uploads.create(
+                    {
+                        fileName: uploads[i].fileName,
+                        filePath: uploads[i].filePath,
                         QuoteId: id,
                     },
                     {transaction: t}
