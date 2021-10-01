@@ -46,16 +46,7 @@ exports.getOneProject = (req, res, next) => {
     const { id } = req.params
     const whereClause = {id: id};
     fetchProjectByClause(whereClause).then((project) => {
-      // let Prr = []
-      // const Pro = project.dataValues
-      // Prr.push(Pro)
-      
-      // const Workers = project.ProjectWorkers.map((pjtworker) => {
-      //   return pjtworker.dataValues.Workers
-      // })
-      // Prr.push(Workers)
-
-      // const i = Prr.flat()
+      project.dataValues.workers = project.dataValues.ProjectWorkers.map((w) => w.Workers);
       res.status(200).send(project)
 
       
@@ -98,7 +89,6 @@ exports.updateProjectById = async (req, res, next) => {
             start_date: startDate,
             end_date: endDate
           }, {where: {id : id }}, {transaction: t});
-          _self.message = 'Project Updated!'
           if(workers) {
             const allWorkers = await ProjectWorkers.findAndCountAll({where: {project_id : id}})
             const workerDbId = allWorkers.rows.map((w) => {
@@ -118,7 +108,7 @@ exports.updateProjectById = async (req, res, next) => {
               if (workerDbId.includes(worker.id)) {
                 workerArray.push(worker.id)
                 await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id, worker_id: worker.id}}, {transaction: t});
-                _self.message = 'Project Updated!'
+                _self.message = 'Project Updated : Existing Worker Updated';
               } else {
                   let workerInProject = await ProjectWorkers.findAndCountAll({where: {worker_id: worker.id}}, {transaction: t})
                   workerInProject = workerInProject.rows.map((pjtWkr) => pjtWkr.dataValues.project_id)
