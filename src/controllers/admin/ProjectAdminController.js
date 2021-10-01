@@ -98,7 +98,7 @@ exports.updateProjectById = async (req, res, next) => {
             start_date: startDate,
             end_date: endDate
           }, {where: {id : id }}, {transaction: t});
-
+          _self.message = 'Project Updated!'
           if(workers) {
             const allWorkers = await ProjectWorkers.findAndCountAll({where: {project_id : id}})
             const workerDbId = allWorkers.rows.map((w) => {
@@ -118,6 +118,7 @@ exports.updateProjectById = async (req, res, next) => {
               if (workerDbId.includes(worker.id)) {
                 workerArray.push(worker.id)
                 await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id, worker_id: worker.id}}, {transaction: t});
+                _self.message = 'Project Updated!'
               } else {
                   let workerInProject = await ProjectWorkers.findAndCountAll({where: {worker_id: worker.id}}, {transaction: t})
                   workerInProject = workerInProject.rows.map((pjtWkr) => pjtWkr.dataValues.project_id)
