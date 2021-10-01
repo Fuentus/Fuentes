@@ -134,12 +134,12 @@ exports.updateProjectById = async (req, res, next) => {
                         break;
                       } else {
                         await ProjectWorkers.create({total_hrs: worker.required_hrs, project_id : id, operation_id: worker.operation_id, worker_id: worker.id});
-                        _self.message = 'Worker added to Project'
+                        _self.message = 'Project Updated!'
                       }
                     }
                   } else {
                     await ProjectWorkers.create({total_hrs: worker.required_hrs, project_id : id, operation_id: worker.operation_id, worker_id: worker.id});
-                    _self.message = 'Worker added to Project'
+                    _self.message = 'Project Updated!'
                   }
               }
             }
