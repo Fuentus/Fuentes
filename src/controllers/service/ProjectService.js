@@ -10,7 +10,7 @@ const fetchProjectByClause = async (whereClause) => {
                 {
                     model: ProjectWorkers,
                     as: "ProjectWorkers",
-                    attributes: ["tag_workers_project_id"],
+                    attributes: ["tag_workers_project_id", "total_hrs", "worker_id"],
                     include: [
                         {
                             model: Workers,

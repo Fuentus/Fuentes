@@ -4,7 +4,7 @@ const logger = require('../../util/log_utils');
 const { fetchProjectByClause } = require('../service/ProjectService');
 const {ProjectStatus} = require('../service/ProjectStatus');
 const Projects = db.Projects;
-const { project_workers: ProjectWorkers, Quotes, project_closed_logs: ProjectClosedLogs, project_workers_log: ProjectWorkersDate } = db;
+const { project_workers: ProjectWorkers, Quotes, project_closed_logs: ProjectClosedLogs, project_workers_log: ProjectWorkersDate, Professions } = db;
 
 
 
@@ -45,11 +45,145 @@ exports.getOneProject = (req, res, next) => {
     }
     const { id } = req.params
     const whereClause = {id: id};
-    fetchProjectByClause(whereClause).then((project) => {
-      project.dataValues.workers = project.dataValues.ProjectWorkers.map((w) => w.Workers);
-      res.status(200).send(project)
+    fetchProjectByClause(whereClause).then(async (project) => {
+
+      project.dataValues.ProjectWorkers.map((w) => w.Workers.dataValues.required_hrs = w.total_hrs)
+
+      let worker = project.dataValues.ProjectWorkers.map((w) => w.Workers);
+      project.dataValues.workers = worker
+
+      // for (let i = 0; i < worker.length; i++) {
+      //   const pId = worker[i].ProfessionId
+      //   const p = await Professions.findOne({where: {id: pId}})
+      //   worker[i].ProfessionId = p.name
+      // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       
+      // let workers = project.dataValues.ProjectWorkers.map((w) => w.Workers);
+      // project.dataValues.workers = workers
+
+      // let req_hrs = project.dataValues.ProjectWorkers.map((w) => w.total_hrs );
+
+
+      // const len = workers.length === req_hrs.length
+
+      // if (len) {
+      //   console.log('true')
+      // }
+      // for (let i = 0; i < req_hrs.length; i++) {
+            
+      //       project.dataValues.workers.map((wkr) => wkr.dataValues.required_hrs = req_hrs[i])
+      // }
+
+      // req_hrs.forEach((hrs) => {
+      //   console.log(hrs)
+      //   project.dataValues.workers.map((wkr) => wkr.dataValues.required_hrs = hrs)
+      // })
+
+      // for (let i = 0; i < project.dataValues.workers.length; i++) {
+      //   const pId = project.dataValues.workers[i].ProfessionId
+      //   const p = await Professions.findOne({where: {id: pId}})
+      //   project.dataValues.workers[i].ProfessionId = p.name
+      // }
+
+
+      // for (let i = 0; i < project.dataValues.ProjectWorkers.length; i++) {
+      //   for (let j = 0; j < project.dataValues.workers.length; j++) {
+      //     project.dataValues.workers[j].name = project.dataValues.ProjectWorkers[i].total_hrs
+      //   }
+        
+      // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      // let Arr = []
+      // for (let i = 0; i <= project.dataValues.ProjectWorkers.length; i++) {
+      //   Arr.push(project.dataValues.ProjectWorkers[i].Workers.dataValues)
+      //   console.log(typeof project.dataValues.ProjectWorkers[i].Workers.dataValues);
+      // }
+
+      // console.log(Arr)
+
+      
+
+
+      // let req_hrs = project.dataValues.ProjectWorkers.map((w) => w.total_hrs );
+      
+     // console.log(req_hrs)
+
+
+      
+      //project.dataValues.workers.map((wkr) => wkr.dataValues.required_hrs = req_hrs)
+      
+      
+      // for (let i = 0; i < req_hrs.length; i++) {
+      //   project.dataValues.workers.map((wkr) => wkr.dataValues.required_hrs = req_hrs[i])
+      // }
+
+
+      // for(let i = 0; i < workersArr.length; i++) {
+      //   for(let j = 0; j < req_hrs.length; j++) {
+      //     workersArr[i].required_hrs = req_hrs[j]
+      //   }
+      // }
+
+      // let newData = []
+      // required_hrs.forEach(item => {
+      //   project.dataValues.workers.push({["required_hrs"]: item})
+      // })
+
+      // console.log(newData)
+
+
+
+
+
+
+
+      // for (let i = 0; i < project.dataValues.workers.length; i++) {
+      //   console.log(project.dataValues.workers[i].dataValues);
+      //   project.dataValues.workers[i].push(3)
+      // }
+     
+      
+      
+     
+      // project.dataValues.required_hrs = project.dataValues.ProjectWorkers.map((w) => w.total_hrs);
+      
+      // let pId = project.dataValues.workers.map((worker) => worker.ProfessionId)
+      // let Proff = [];
+      // for (let i =0; i< pId.length; i++) {
+      //   const prof = await Professions.findOne({where: {id: pId[i]}})
+      //   Proff.push(prof.dataValues.name)
+      // }
+      // console.log(Proff)
+      res.status(200).send(project)
     }).catch((err) => {
         logger.error(err);
         next(err);
@@ -78,8 +212,8 @@ exports.updateProjectById = async (req, res, next) => {
   logger.debug(`Projects : Inside updateProjectById`);
   const {id} = req.params;
   let {name, desc, startDate, endDate, workers} = req.body;
-  let message = 'Updated';
   let _self = this;
+  _self.message = 'Project Updated!';
   const project = await Projects.findOne({where: {id : id }})
     if(project) {
           const result = await db.sequelize.transaction(async (t) => {
@@ -108,7 +242,7 @@ exports.updateProjectById = async (req, res, next) => {
               if (workerDbId.includes(worker.id)) {
                 workerArray.push(worker.id)
                 await ProjectWorkers.update({total_hrs: worker.required_hrs}, {where: {project_id :id, worker_id: worker.id}}, {transaction: t});
-                _self.message = 'Project Updated : Existing Worker Updated';
+                _self.message = 'Project Updated!';
               } else {
                   let workerInProject = await ProjectWorkers.findAndCountAll({where: {worker_id: worker.id}}, {transaction: t})
                   workerInProject = workerInProject.rows.map((pjtWkr) => pjtWkr.dataValues.project_id)
