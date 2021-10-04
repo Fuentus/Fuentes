@@ -22,10 +22,10 @@ const signUpValidator = [
       });
     })
     .normalizeEmail(),
-  body("password")
-    .trim()
-    .isLength({ min: 5 })
-    .withMessage("Password min of 5 Characters."),
+  // body("password")
+  //   .trim()
+  //   .isLength({ min: 5 })
+  //   .withMessage("Password min of 5 Characters."),
   body("name").trim().not().isEmpty().withMessage("Name Shouldn't be Empty"),
 ];
 
