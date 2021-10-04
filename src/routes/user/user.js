@@ -10,4 +10,6 @@ const router = express.Router();
 
 router.put('/', [isAuth, loadUser], userController.updateUser)
 
+router.get('/', [isAuth, loadUser], userController.updateUser)
+
 module.exports = router

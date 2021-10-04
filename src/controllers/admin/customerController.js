@@ -91,12 +91,12 @@ exports.deleteCustomersById = async (req, res) => {
 exports.updateCustomerById = async (req, res) => {
     logger.debug(`Customers : Inside updateCustomerById`);
     const {id} = req.params;
-    const {name, email, phone, address} = req.body;
+    const {name, phone, address} = req.body;
     const customer = await Users.findOne({where: {id : id }})
     if(customer) {
         try {
             Users.update( 
-                {name: name, email: email, phone: phone, address: address},
+                {name: name, phone: phone, address: address},
                 {where: {id : id }}
            )
            res.status(200).json({message: 'Updated Customer', data: req.body})

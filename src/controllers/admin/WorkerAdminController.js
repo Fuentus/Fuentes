@@ -136,11 +136,11 @@ exports.updateWorkersbyId = async (req, res) => {
                             name: name,
                             phone: phone,
                             address: address,
-                            email: email,
+                            //email: email,
                             avail_per_day: avail_per_day,
                             cost_per_hr: cost_per_hr,
                             total_avail_per_week: total_avail_per_week,
-                            password: pas
+                            //password: pas
                         },
                             {where: {id : id }})
                         res.status(200).json({message: 'Updated Worker', data: req.body})

@@ -61,7 +61,7 @@ exports.logDailyWork = async (req, res, next) => {
 exports.updateWorkerbyId = async (req, res) => {
     logger.debug(`Workers : Inside updateWorkersbyId`);
     const id = req.workerId;
-    const {name, phone, address, email, avail_per_day, cost_per_hr, total_avail_per_week, professionId} = req.body
+    const {name, phone, address, avail_per_day, cost_per_hr, total_avail_per_week, professionId} = req.body
     // const profession = await Professions.findByPk(professionId)
     // const password = "FUENTUS@123";
     // const pas = await bcrypt.hash(password, 12);
@@ -71,7 +71,6 @@ exports.updateWorkerbyId = async (req, res) => {
             name: name,
             phone: phone,
             address: address,
-            email: email,
             avail_per_day: avail_per_day,
             cost_per_hr: cost_per_hr,
             total_avail_per_week: total_avail_per_week,

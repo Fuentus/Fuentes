@@ -28,6 +28,7 @@
     "emailjs-com": "^3.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.10.0",
+    "generate-password": "^1.6.1",
     "helmet": "^4.4.1",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
