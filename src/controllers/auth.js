@@ -5,7 +5,7 @@ const {JWT_SECRET, JWT_SECRET_WORKER} = require("../util/config");
 var generator = require('generate-password');
 
 const {Users, Workers, password_change: PasswordChange, password_change_worker: PasswordChangeWorker } = require("../models");
-const { SendGridMail } = require("../util/mail");
+const sgMail = require("../util/mail");
 const { fetchCustomersByClause } = require("./service/CustomerService");
 const logger = require("../util/log_utils");
 
@@ -42,21 +42,21 @@ exports.signup = (req, res, next) => {
         })
         .then((result) => {
             res.status(201).json({message: "User created!", userId: result.id});
-            // const msg = {
-            //     to: req.body.email,
-            //     from : 'subinthreestops@gmail.com',
-            //     subject: 'Fuentus - Welcome',
-                // text: "Kindly use the below creds to login. \r\n \r\n "+ req.body.email + password,
-                // html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-            // }
-            // SendGridMail
-            //     .send(msg)
-            //     .then(() => {
-            //         console.log('User Creds sent to Registered Mail id')
-            //     })
-            //     .catch((error) => {
-            //         console.log(error)
-            //     })
+            const msg = {
+                to: email,
+                from : 'subinthreestops@gmail.com',
+                subject: 'Fuentus - Welcome',
+                text: "Kindly use the below creds to login. \r\n \r\n Email: "+ email + " \r\n \r\n Password :" + password,
+                //html: '<strong>"Kindly use the below creds to login. \r\n \r\n " {req.body.email} {password}</strong>',
+            }
+            sgMail
+                .send(msg)
+                .then(() => {
+                    console.log('User Creds sent to Registered Mail id')
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
         });
 };
 
@@ -129,23 +129,23 @@ exports.forgotPassword = async(req, res, next) => {
     if (user) {
         const passChange = await PasswordChange.create({ UserId: user.id,  code: Math.floor(100000 + Math.random() * 900000) })
         
-        console.log(passChange.code)
+        //console.log(passChange.code)
 
-        // const msg = {
-        //     to: email,
-        //     from: 'subinthreestops@gmail.com',
-        //     subject: 'fuentus - Password Reset',
-        //     text: "Kindly use the below code change your password. \r\n \r\n " + passChange.code,
-        // }
-        // SendGridMail
-        //     .send(msg)
-        //     .then(() => {
-        //         console.log('Email sent')
-        //     })
-        //     .catch((error) => {
-        //         console.error(error)
-        //     })
-
+        const msg = {
+            to: email,
+            from: 'subinthreestops@gmail.com',
+            subject: 'Fuentus - Password Reset',
+            text: "Kindly use the below code to change your password. \r\n \r\n " + passChange.code,
+        }
+        sgMail
+            .send(msg)
+            .then(() => {
+                console.log('Email sent')
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+       
         
         res.send({message : "Password Reset Code has been successfully sent to Registered Mail Id"}).status(200)
     } else {
