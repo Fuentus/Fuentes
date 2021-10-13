@@ -68,7 +68,7 @@ exports.deleteInspection = async (req, res, next) => {
     const {id} = req.params;
     const inQuotes = await QuoteOperations.findOne({where: {inspection_id : id }})
     if (inQuotes) {
-        res.status(400).send("Inspection Can't Be deleted as it is assigned to Quote Operations")
+        res.status(400).send({ message: "Inspection Can't Be deleted as it is assigned to Quote Operations"})
     } else {
         const result = await db.sequelize.transaction(async (t) => {
             return await Inspections.destroy(

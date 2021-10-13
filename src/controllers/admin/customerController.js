@@ -73,7 +73,7 @@ exports.deleteCustomersById = async (req, res) => {
     const {id} = req.params;
     const quote = await Quotes.findOne({where: {UserId : id }});
     if(quote) {
-        res.status(400).send(`Customer cannot be deleted as Some Quote belongs to customer`)
+        res.status(400).send({ message: `Customer cannot be deleted as Some Quote belongs to customer`})
     } else {
         const result = await db.sequelize.transaction(async (t) => {
             return await Users.destroy({

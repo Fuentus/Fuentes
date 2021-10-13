@@ -201,13 +201,13 @@ exports.removeTagQuoteAndOperations = async (req, res, next) => {
         const qId = quoteOpr.dataValues.quote_id
         const inProject = await Projects.findOne({where: {QuoteId : qId}})
         if (inProject) {
-            res.status(400).send("Cant be deleted because operation is already tagged to quote") 
+            res.status(400).send({ message: "Cant be deleted because quoteOperation is already in Project" }) 
         } else {
             await QuoteOperations.destroy({where: {quote_id : id}})
-            res.status(200).send("successfully deleted")
+            res.status(200).send({ message: "successfully deleted" })
         }
     } else {
-        res.status(400).send("No quote")
+        res.status(400).send({ message: "No quote" })
     }
     logger.info(`Quotes : Exit removeTagQuoteAndOperations of Quote`);
 }
@@ -293,11 +293,11 @@ exports.assignQuoteInspection = async (req, res, next) => {
             res.status(200).send(obj);
         })
         .catch((err) => {
-            res.status(400).send("Please Input Valid Inspection")
+            res.status(400).send({ message: "Please Input Valid Inspection" })
             next(err)
         });
     } else {
-        res.status(200).send("Please Input Valid Quote Id");
+        res.status(200).send({ message: "Please Input Valid Quote Id" });
     }
 
     // const result = await db.sequelize.transaction(async (t) => {
@@ -333,7 +333,7 @@ exports.addTaxValue = async (req, res, next) => {
             res.status(200).send(obj);
         })
         .catch((err) => {
-            res.status(400).send("Please Input Valid Tax Id")
+            res.status(400).send({ message:"Please Input Valid Tax Id"})
             next(err)
         });
     logger.info(`Quotes : Exit addTaxValue`);

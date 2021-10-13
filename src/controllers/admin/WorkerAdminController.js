@@ -104,9 +104,9 @@ exports.deleteWorkersById = async (req, res) => {
     let includedInQuote = await QuoteOperationWorkers.findOne({where: {worker_id: id}})
     let includedInProject = await ProjectWorkers.findOne({where: {worker_id: id}})
     if (includedInQuote) {
-        res.status(400).send(`Worker cannot be deleted as worker is assigned in Quote ${includedInQuote.dataValues.quote_operation_id}`)
+        res.status(400).send({ message: `Worker cannot be deleted as worker is assigned in Quote` })
     } else if (includedInProject) {
-        res.status(400).send(`Worker cannot be deleted as worker is assigned in Project ${includedInProject.dataValues.project_id}`)
+        res.status(400).send({ message: `Worker cannot be deleted as worker is assigned in Project` })
     } else {
             const result = await db.sequelize.transaction(async (t) => {
                 return await Workers.destroy(
