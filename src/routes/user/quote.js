@@ -33,6 +33,12 @@ router.post(
 //   quoteController.changeStatus
 // );
 
+router.post(
+  "/:id/changeStatus",
+  [isAuth, loadUser, validateReq],
+  quoteController.changeStatusForUser
+);
+
 //get single quote
 router.get(
   "/:id",
@@ -60,5 +66,11 @@ router.post(
   [isAuth, loadUser],
   quoteController.searchResultsForUser
 );
+
+router.post(
+  "/submitPOUrl/:id",
+  [isAuth, loadUser],
+  quoteController.submitPOUrl);
+
 
 module.exports = router;

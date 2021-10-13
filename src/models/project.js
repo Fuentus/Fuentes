@@ -1,5 +1,7 @@
+const {ProjectStatus} = require("../controllers/service/ProjectStatus");
+
 module.exports = function (sequelize, DataTypes) {
-    const {INTEGER, TEXT, STRING, DATE} = DataTypes;
+    const {INTEGER, TEXT, STRING, DATE, ENUM} = DataTypes;
     const Projects = sequelize.define(
         "Projects",
         {
@@ -17,6 +19,12 @@ module.exports = function (sequelize, DataTypes) {
             desc: {
                 type: TEXT,
             },
+            status: {
+                type: ENUM,
+                values: ProjectStatus.getAllProjectStatus(),
+                defaultValue: ProjectStatus.defaultValue(),
+                notNull: true,
+            },
             start_date: {
                 type: DATE,
                 notNull: true
@@ -33,8 +41,12 @@ module.exports = function (sequelize, DataTypes) {
         }
     );
     Projects.associate = function (models) {
-        const {Quotes} = models;
+        const {Quotes, project_workers: ProjectWorkers} = models;
         Projects.belongsTo(Quotes);
+        Projects.hasMany(ProjectWorkers, {
+            foreignKey: "project_id",
+            as: "ProjectWorkers",
+        });
     };
     return Projects;
 };

@@ -1,5 +1,8 @@
 const db = require('../../models');
-const {Workers, Professions, ProjectWorkers} = db;
+const {Workers, Professions, 
+       project_workers: ProjectWorkers, 
+       worker_operations: WorkerOperations,
+       quote_operation_workers:QuoteOperationWorkers} = db;
 
 const logger = require("../../util/log_utils");
 const {validationResult} = require("express-validator");
@@ -7,6 +10,7 @@ const bcrypt = require("bcryptjs");
 const {Op, where} = require("sequelize");
 const {getPagination, getPagingData} = require("../service/PaginationService");
 const {getAllWorkers} = require("../service/WorkerService");
+const worker_operations = require('../../models/worker_operations');
 
 const findAllWorkers = (req, res, whereClause) => {
     const {page, size} = req.query;
@@ -96,21 +100,25 @@ exports.deleteWorkersById = async (req, res) => {
     //TODO dont delete any workers who are associated to any projects
     logger.debug(`Workers : Inside deleteWorkersById`);
     const {id} = req.params;
-    const workerInProject = ProjectWorkers.findOne({where : {worker_id : id}})
-    // if (workerInProject) {
-    //     res.status(200).send('Worker Cant Be Deleted Because Worker is assosiated with some Projects')
-    // }
-    const result = await db.sequelize.transaction(async (t) => {
-        return await Workers.destroy(
-            {where: {id: id}, force: true},
-            {transaction: t}
-        );
-    });
-
-    const obj = {};
-    obj.message = "Worker Deleted Successfully";
-    obj.updatedRecord = result;
-    res.status(200).send(obj);
+    // let includedInOpr = await WorkerOperations.findOne({where: {worker_id: id}})
+    let includedInQuote = await QuoteOperationWorkers.findOne({where: {worker_id: id}})
+    let includedInProject = await ProjectWorkers.findOne({where: {worker_id: id}})
+    if (includedInQuote) {
+        res.status(400).send({ message: `Worker cannot be deleted as worker is assigned in Quote` })
+    } else if (includedInProject) {
+        res.status(400).send({ message: `Worker cannot be deleted as worker is assigned in Project` })
+    } else {
+            const result = await db.sequelize.transaction(async (t) => {
+                return await Workers.destroy(
+                    {where: {id: id}, force: true},
+                    {transaction: t}
+                );
+            });
+            const obj = {};
+            obj.message = "Worker Deleted Successfully";
+            obj.updatedRecord = result;
+            res.status(200).send(obj);
+    }
     logger.debug(`Workers : Exit deleteWorkersById`);
 }
 
@@ -128,11 +136,11 @@ exports.updateWorkersbyId = async (req, res) => {
                             name: name,
                             phone: phone,
                             address: address,
-                            email: email,
+                            //email: email,
                             avail_per_day: avail_per_day,
                             cost_per_hr: cost_per_hr,
                             total_avail_per_week: total_avail_per_week,
-                            password: pas
+                            //password: pas
                         },
                             {where: {id : id }})
                         res.status(200).json({message: 'Updated Worker', data: req.body})

@@ -5,25 +5,19 @@ const fetchOperationsByClause = async (whereClause) => {
     return (
         (await Operations.findOne({
             where: whereClause,
-            attributes: ["id", "name", "desc","createdAt","updatedAt"],
+            attributes: ["id", "name", "desc"],
             include: [
                 {
                     model: InvOperations,
                     as: "OperationInventories",
-                    attributes: ["tag_inv_operations_id"],
+                    attributes: ["tag_inv_operations_id", "req_avail"],
                     include: [
                         {
                             model: Inventory,
                             as: "Inventories",
-                            attributes: ["id","itemName"]
-                        },
-                        {
-                            model: WorkerOperations,
-                            as: "OperationWorkers",
-                            attributes: ['tag_workers_operations_id']
-                        }
-                    ],
-                }
+                            attributes: ["id","itemName", "availability"]
+                        }],
+                    }
             ],
         })) || {}
     );
@@ -33,7 +27,9 @@ const getAllOperations = (obj, whereClause, success, failure) => {
     const {limit, offset} = obj;
     Operations.findAndCountAll({
         where: whereClause,
-        attributes: ["id", "name", "desc", "updatedAt"],
+        attributes: { 
+                include: ["id", "name", "desc", "createdAt", "updatedAt"]
+                    },
         include: [
             {
                 model: InvOperations,
@@ -42,14 +38,9 @@ const getAllOperations = (obj, whereClause, success, failure) => {
                 include: [{
                     model: Inventory,
                     as: "Inventories",
-                    attributes: ["id","itemName"]
+                    attributes: ["itemName"]
                 }],
             },
-            {
-                model: WorkerOperations,
-                as: "OperationWorkers",
-                attributes: ['tag_workers_operations_id']
-            }
         ],
         order: [["updatedAt", "DESC"]],
         limit,

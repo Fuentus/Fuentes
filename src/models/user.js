@@ -1,5 +1,5 @@
 module.exports = function (sequelize, Sequelize) {
-    const {INTEGER, STRING, ENUM} = Sequelize;
+    const {INTEGER, STRING, ENUM, TEXT} = Sequelize;
     const Users = sequelize.define(
         "Users",
         {
@@ -34,6 +34,14 @@ module.exports = function (sequelize, Sequelize) {
             role: {
                 type: ENUM("ADMIN", "USER"),
                 defaultValue: "USER",
+            },
+            phone: {
+                type: STRING,
+                allowNull: true,
+            },
+            address: {
+                type: TEXT,
+                allowNull: true,
             }
         },
         {

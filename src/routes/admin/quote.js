@@ -27,7 +27,22 @@ router.post(
 router.put("/tagQuotes",
     quoteController.tagQuoteAndOperations);
 
+router.put("/tagQuotes/:id",
+    quoteController.editTagQuoteAndOperations);
+
+router.delete("/tagQuotes/:id",
+    quoteController.removeTagQuoteAndOperations);
+
 router.put("/convertToProject/:quoteId",
     quoteController.convertToProject);
+
+router.post("/assignQuoteInspection/:id",
+    quoteController.assignQuoteInspection);
+
+router.post("/addTaxValue/:id",
+    quoteController.addTaxValue);
+
+router.post("/addTotalValue/:id",
+    quoteController.addTotalValue);
 
 module.exports = router;

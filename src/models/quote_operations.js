@@ -30,10 +30,10 @@ module.exports = function (sequelize, DataTypes) {
             onUpdate: 'cascade',
             unique: 'quote-per-operations'
         },
-        inspection: {
-            type: STRING,
-            notNull: true,
-        },
+        // inspection: {
+        //     type: STRING,
+        //     notNull: true,
+        // },
         operation_total_hrs: {
             type: FLOAT,
             notNull: true,
@@ -55,12 +55,13 @@ module.exports = function (sequelize, DataTypes) {
         const {
             Quotes,
             Operations,
+            Inspections,
             quote_operation_inv: QuoteOperationInv,
             quote_operation_workers: QuoteOperationWorkers
         } = models;
         QuoteOperation.belongsTo(Quotes, {foreignKey: 'quote_id', targetKey: 'id', as: 'Quotes'});
         QuoteOperation.belongsTo(Operations, {foreignKey: 'operation_id', targetKey: 'id', as: 'Operations'});
-
+        QuoteOperation.belongsTo(Inspections, { foreignKey: 'inspection_id', targetKey: 'id', as: 'Inspections' });
         QuoteOperation.hasMany(QuoteOperationInv, {
             foreignKey: "quote_operation_id",
             as: "QuoteOperationInv",

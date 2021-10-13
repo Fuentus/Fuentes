@@ -15,7 +15,7 @@ const operationCreateValidator = [
 
     body("items").isArray({min: 1}).withMessage("Please add items"),
 
-    body("workers").isArray({min: 1}).withMessage("Please add workers"),
+    //body("workers").isArray({min: 1}).withMessage("Please add workers"),
 ]
 
 const validateReq = [

@@ -7,7 +7,7 @@ const authController = require("../controllers/auth");
 const isAuth = require("../middleware/is-auth");
 const loadUser = require("../middleware/load-user");
 const { adminRoutes } = require("../validators/user-validator");
-
+const check = require('express-validator/check')
 const router = express.Router();
 
 const signUpValidator = [
@@ -22,13 +22,14 @@ const signUpValidator = [
       });
     })
     .normalizeEmail(),
-  body("password")
-    .trim()
-    .isLength({ min: 5 })
-    .withMessage("Password min of 5 Characters."),
+  //body("password")
+    //.trim(),
+    // .isLength({ min: 5 })
+    // .withMessage("Password min of 5 Characters."),
   body("name").trim().not().isEmpty().withMessage("Name Shouldn't be Empty"),
 ];
 
+ 
 router.put("/signup", signUpValidator, authController.signup);
 
 router.put(
@@ -39,5 +40,11 @@ router.put(
 
 router.post("/login", authController.login);
 router.post("/workerLogin", authController.workerLogin);
+
+router.post("/forgotPassword", authController.forgotPassword);
+router.post("/verifyReset", authController.verifyReset);
+
+router.post("/forgotPasswordWorker", authController.forgotPasswordWorker);
+router.post("/verifyResetWorker", authController.verifyResetWorker);
 
 module.exports = router;

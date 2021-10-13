@@ -1,9 +1,11 @@
 const db = require('../../models');
-const {project_workers_log: ProjectWorkerLog} = db;
+const {project_workers_log: ProjectWorkerLog, Professions, Workers} = db;
 const logger = require("../../util/log_utils");
 const {Op} = require("sequelize");
 const {getPagination, getPagingData} = require("../service/PaginationService");
-const {getAllProjects} = require("../service/WorkerService");
+const {getAllProjects, fetchWorkersByClause} = require("../service/WorkerService");
+const bcrypt = require("bcryptjs");
+
 
 
 exports.findAllProjects = (req, res, next) => {
@@ -54,4 +56,44 @@ exports.logDailyWork = async (req, res, next) => {
         next(err);
     }
     logger.debug(`Workers : Exit Log Daily Works`);
+}
+
+exports.updateWorkerbyId = async (req, res) => {
+    logger.debug(`Workers : Inside updateWorkersbyId`);
+    const id = req.workerId;
+    const {name, phone, address, avail_per_day, cost_per_hr, total_avail_per_week, professionId} = req.body
+    // const profession = await Professions.findByPk(professionId)
+    // const password = "FUENTUS@123";
+    // const pas = await bcrypt.hash(password, 12);
+    await Workers.findOne({where: {id : id }})
+    .then(() => {
+        Workers.update({
+            name: name,
+            phone: phone,
+            address: address,
+            avail_per_day: avail_per_day,
+            cost_per_hr: cost_per_hr,
+            total_avail_per_week: total_avail_per_week,
+            // password: pas
+        },
+            {where: {id : id }})
+        res.status(200).json({message: 'Updated Worker', data: req.body})
+    }).catch((err) => {
+        logger.error(err);
+        next(err);
+    })
+    logger.debug(`Workers : Exit updateWorkersbyId`);
+}
+
+exports.getWorkersById = (req, res) => {
+    logger.debug(`Workers : Inside getWorkersById`);
+    const id = req.workerId;
+    const whereClause = {id: id};
+    fetchWorkersByClause(whereClause).then((workers) => {
+        res.status(200).send(workers)
+    }).catch((err) => {
+        logger.error(err);
+        next(err);
+    });
+    logger.debug(`Workers : Exit getWorkersById`);
 }

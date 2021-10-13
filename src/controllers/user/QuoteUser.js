@@ -1,18 +1,19 @@
 const db = require("../../models");
-const {Op} = require("sequelize");
+const {Op, where} = require("sequelize");
 const {validationResult} = require("express-validator");
 
 const logger = require("../../util/log_utils");
-const {fetchQuoteByClause, getAllQuotes} = require("../service/QuoteService")
-const {getPagination, getPagingData} = require("../service/PaginationService")
+const {getAllQuotesUser, fetchQuoteByClauseUser, fetchQuoteByClause} = require("../service/QuoteService")
+const {getPagination, getPagingData} = require("../service/PaginationService");
+const {QuoteStatus} = require("../service/QuoteStatus");
 
-const {Quotes, Measures, Uploads} = db;
+const {Quotes, Measures, Uploads, Inspections, quote_rejected_logs: QuoteRejected} = db;
 
 exports.findAllQuotesForUser = (req, res) => {
     logger.debug(`Quotes : Inside findAllQuotes`);
     let {updatedAt} = req.query;
     updatedAt = updatedAt ? updatedAt : 0;
-    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, userId: {[Op.eq]: req.user.id}};
+    const whereClause = {updatedAt: {[Op.gt]: updatedAt}, userId: {[Op.eq]: req.user.id}, status: {[Op.notIn]: ["CLOSED", "PROJECT_IN_PROGRESS"]}};
     const {page, size} = req.query;
     const obj = getPagination(page, size);
     const failure = (err) => {
@@ -22,10 +23,13 @@ exports.findAllQuotesForUser = (req, res) => {
         });
     };
     const success = (data) => {
+        data.rows.map((user) => {
+            user.dataValues.Uploads = user.dataValues.Uploads.length
+        })
         const response = getPagingData(data, page, obj.limit);
         res.send(response);
     };
-    getAllQuotes(obj, whereClause, success, failure);
+    getAllQuotesUser(obj, whereClause, success, failure);
     logger.debug(`Quotes : Exit findAllQuotes`);
 };
 
@@ -36,9 +40,9 @@ exports.createQuote = async (req, res, next) => {
         return res.status(422)
             .json({message: "Validation failed", data: errors.array()});
     }
-    const {title, desc, startDate, endDate} = req.body;
-    const measures = req.body.measures;
-    const uploads = req.body.uploads;
+    const {title, desc, startDate, endDate, TaxId} = req.body;
+    const measures = req.body.Measures;
+    const uploads = req.body.Uploads;
     const result = await db.sequelize
         .transaction(async (t) => {
             let quote = await req.user.createQuote(
@@ -46,7 +50,8 @@ exports.createQuote = async (req, res, next) => {
                     title: title,
                     desc: desc,
                     startDate: startDate,
-                    endDate: endDate
+                    endDate: endDate,
+                    TaxId: TaxId
                 },
                 {transaction: t}
             );
@@ -64,13 +69,15 @@ exports.createQuote = async (req, res, next) => {
                 }
             }
             if (uploads) {
-                await quote.createUpload(
-                    {
-                        fileName: uploads.fileName,
-                        filePath: uploads.filePath,
-                    },
-                    {transaction: t}
-                );
+                for (let i = 0; i < uploads.length; i++) {
+                    await quote.createUpload(
+                        {
+                            fileName: uploads[i].fileName,
+                            filePath: uploads[i].filePath,
+                        },
+                        {transaction: t}
+                    );
+                }
             }
             return quote;
         })
@@ -100,7 +107,36 @@ exports.findQuoteById = async (req, res, next) => {
         id: id,
         userId: {[Op.eq]: req.user.id}
     };
-    const quote = await fetchQuoteByClause(whereClause);
+
+    const quote = await fetchQuoteByClauseUser(whereClause);
+    const isOpr = quote.QuoteOperation
+    if (isOpr) {
+        let opCost = quote.dataValues.QuoteOperation.map((dv) => dv.dataValues.operation_cost);
+        opCost = opCost.map(i=>Number(i))
+        let inspId = quote.dataValues.QuoteOperation.map((dv) => dv.dataValues.inspection_id);
+    
+        let inspCost = []
+        for (let i = 0; i< inspId.length; i++) {
+            let insCost = await Inspections.findOne({where: {id: inspId[i]}})
+            if (inspId[i] !==  null) {
+                insCost = insCost.dataValues.cost
+                inspCost.push(insCost)
+            }
+        }
+        
+        let operationCostTotal = opCost.reduce((a, b) => a + b, 0);
+        let inspectionTotal = inspCost.reduce((a, b) => a + b, 0);
+    
+        quote.dataValues.operationCostTotal = operationCostTotal
+        quote.dataValues.inspectionTotal = inspectionTotal
+        let totalAmount = quote.total + operationCostTotal + inspectionTotal;
+        if (quote.tax !== null) {
+            let tax = totalAmount * (quote.tax/ 100)
+            quote.total = totalAmount + tax;
+        } else {
+            quote.total = totalAmount;
+        }
+    }
     res.status(200).send(quote);
     logger.debug(`Quotes : Exit findQuoteById`);
 };
@@ -134,7 +170,8 @@ exports.editQuoteById = async (req, res, next) => {
     logger.debug(`Quotes : Inside editQuoteById`);
     const {id} = req.params;
     const {title, desc} = req.body;
-    const measures = req.body.measures;
+    const measures = req.body.Measures;
+    const uploads = req.body.Uploads;
     const result = await db.sequelize.transaction(async (t) => {
         let res = await Quotes.update(
             {title: title, desc: desc},
@@ -163,6 +200,27 @@ exports.editQuoteById = async (req, res, next) => {
                 );
             }
         }
+        if (uploads) {
+            await Uploads.destroy(
+                {
+                    where: {
+                        QuoteId: id,
+                    },
+                    force: true,
+                },
+                {transaction: t}
+            );
+            for (let i = 0; i < uploads.length; i++) {
+                await Uploads.create(
+                    {
+                        fileName: uploads[i].fileName,
+                        filePath: uploads[i].filePath,
+                        QuoteId: id,
+                    },
+                    {transaction: t}
+                );
+            }
+        }
         return res;
     });
     if (result) {
@@ -170,7 +228,7 @@ exports.editQuoteById = async (req, res, next) => {
         if (!req.admin) {
             whereClause["userId"] = {[Op.eq]: req.user.id};
         }
-        const q = await fetchQuoteByClause(whereClause);
+        const q = await fetchQuoteByClauseUser(whereClause);
         res.status(201).send(q);
     }
     logger.debug(`Quotes : Exit editQuoteById`);
@@ -199,10 +257,83 @@ exports.searchResultsForUser = async (req, res, next) => {
             res.send(response);
         };
 
-        getAllQuotes(obj, whereClause, success, failure);
+        getAllQuotesUser(obj, whereClause, success, failure);
     } catch (err) {
         console.log(err);
         next(err);
     }
     logger.debug(`Quotes : Exit searchResults`);
+};
+
+
+exports.submitPOUrl = async (req, res, next) => {
+    logger.info(`Quotes : Inside submitPOUrl`);
+    const {id} = req.params;
+    const {submit_PO} = req.body;
+    const status = "QUOTE_PO_SUBMIT";
+    const quote = await fetchQuoteByClauseUser({id: id, userId: req.user.id})
+    try {
+        const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
+        if (!boolean) {
+            return res.status(422).send({msg: `Please Choose Correct Status`});
+        }
+        Quotes.update({submittedPO: submit_PO, status: status}, {where: {id: id, userId: req.user.id}})
+            .then((result) => {
+                const obj = {};
+                obj.message = "PO Link & Status Updated Successfully";
+                obj.updatedRecord = result.length;
+                res.status(200).send(obj);
+            })
+            .catch((err) => {
+                next(err)
+            }); 
+    } catch (err) {
+        next(err);
+        return res.status(422).send({msg: `Invalid Quote`});
+    }
+    
+    logger.info(`Quotes : Exit submitPOUrl`);
+}
+
+exports.changeStatusForUser = async (req, res, next) => {
+    logger.info(`Quotes : Inside changeStatus of Quote`);
+    let {status, reason} = req.body;
+    const {id} = req.params;
+    const userId = req.user.id;
+    const quote = await fetchQuoteByClause({id: id, UserId: userId})
+    const boolean = QuoteStatus.checkQuotesStatusCanBeUpdated(quote.status, status);
+    if (!boolean) {
+        return res.status(422).send({msg: `Please Choose Correct Status`});
+    }
+    if (status === 'QUOTE_REJECTED') {
+        Quotes.update({status: "WIP"}, {where: {id: id}})
+            .then((result) => {
+                QuoteRejected.create({reason: reason, QuoteId: id})
+                const obj = {};
+                obj.message = "Quote Rejected";
+                obj.updatedRecord = result.length;
+                res.status(200).send(obj);
+            }).catch((err) => {
+                next(err)
+            })
+    } else {
+        const cStatus = QuoteStatus.customerStatus()
+        const include = cStatus.includes(status)
+        if (include) {
+                Quotes.update({status: status}, {where: {id: id}})
+                .then((result) => {
+                    const obj = {};
+                    obj.message = "Update Successfully";
+                    obj.updatedRecord = result.length;
+                    res.status(200).send(obj);
+                }).catch((err) => {
+                    next(err)
+                })
+        } else {
+            res.status(400).json({ message: 'NO PRIVILAGE'});
+        }
+    }
+    
+    
+    logger.info(`Quotes : Exit changeStatus of Quote`);
 };
