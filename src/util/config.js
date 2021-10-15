@@ -1,10 +1,13 @@
-const dotEnv=require('dotenv').config({ path: `./envs/${process.env.NODE_ENV || ''}.env`});
+const dotEnv = require("dotenv").config({
+  path: `./envs/${process.env.NODE_ENV || ""}.env`,
+});
 module.exports = {
-  "NODE_ENV":`${process.env.NODE_ENV}||development`,
-  "JWT_SECRET":`${process.env['JWT_SECRET']}`,
-  "MYSQL_USER":`${process.env['MYSQL_USER']}`,
-  "MYSQL_PASS":`${process.env['MYSQL_PASS']}`,
-  "MYSQL_HOST":`${process.env['MYSQL_HOST']}`,
-  "MYSQL_DATABASE": `${process.env['MYSQL_DATABASE']}`,
-  "JWT_SECRET_WORKER":`${process.env['JWT_SECRET_WORKER']}`
-}
+  NODE_ENV: `${process.env.NODE_ENV}||development`,
+  JWT_SECRET: `${process.env["JWT_SECRET"]}`,
+  MYSQL_USER: `${process.env["MYSQL_USER"]}`,
+  MYSQL_PASS: `${process.env["MYSQL_PASS"]}`,
+  MYSQL_HOST: `${process.env["MYSQL_HOST"]}`,
+  MYSQL_DATABASE: `${process.env["MYSQL_DATABASE"]}`,
+  JWT_SECRET_WORKER: `${process.env["JWT_SECRET_WORKER"]}`,
+  SENDGRID_API_KEY: `${process.env["SENDGRID_API_KEY"]}`,
+};
