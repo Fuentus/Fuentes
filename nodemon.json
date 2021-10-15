@@ -4,7 +4,6 @@
     "MYSQL_USER": "root",
     "MYSQL_PASS": "root",
     "MYSQL_HOST": "127.0.0.1",
-    "MYSQL_DATABASE": "fuentus_db",
-    "SENDGRID_API_KEY": "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"
+    "MYSQL_DATABASE": "fuentus_db"
   }
 }
