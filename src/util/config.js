@@ -10,5 +10,4 @@ module.exports = {
   MYSQL_HOST: `${process.env["MYSQL_HOST"]}`,
   MYSQL_DATABASE: `${process.env["MYSQL_DATABASE"]}`,
   JWT_SECRET_WORKER: `${process.env["JWT_SECRET_WORKER"]}`,
-  SENDGRID_API_KEY: `${process.env["SENDGRID_API_KEY"]}`,
 };
